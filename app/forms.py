@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from bootstrap_datepicker_plus import DateTimePickerInput
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Submit
-from .models import Task, Submission, Course
+from .models import Invitation, Task, Submission, Course
 import io
 
 class HideableForm(forms.ModelForm):
@@ -36,20 +36,20 @@ class TaskForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            'name', 
-            'description', 
-            'file', 
+            'name',
+            'description',
+            'file',
             Row(
-                Column('daily_submission_limit', css_class='col-3'), 
+                Column('daily_submission_limit', css_class='col-3'),
                 Column('max_upload_size', css_class='col-3'),
-                Column('run_time_limit', css_class='col-3'), 
+                Column('run_time_limit', css_class='col-3'),
                 Column('max_image_size', css_class='col-3'), css_class="row"),
             Row(
-                Column('opened_at', css_class='col-4'), 
-                Column('deadline_at', css_class='col-4'), 
+                Column('opened_at', css_class='col-4'),
+                Column('deadline_at', css_class='col-4'),
                 Column('closed_at', css_class='col-4'), css_class="row"),
             Row(
-                Column('template', css_class='col-6'), 
+                Column('template', css_class='col-6'),
                 Column('template_file', css_class='col-6'), css_class="row"),
             'leaderboard',
             Submit('submit', 'Submit', css_class="btn btn-success")
@@ -105,7 +105,7 @@ class SubmissionForm(forms.ModelForm):
     def clean_file(self):
         SUPPORTED_FILETYPES = ['application/zip', 'application/zip-compressed', 'application/x-zip-compressed', 'multipart/x-zip']
         file = self.cleaned_data.get('file', False)
-        if file: 
+        if file:
             message = None
             if file.size > self.instance.task.max_upload_size * 1024:
                 message = "File size is too large ({}KB > {}KB).".format(round(file.size/1024), self.instance.task.max_upload_size)
@@ -134,3 +134,13 @@ class RegisterForm(UserCreationForm):
             "username": "Student ID (AXXXXXXXX)",
         }
         fields = ("username", "email", "first_name", "last_name")
+
+
+class InvitationForm(HideableForm):
+    class Meta:
+        model = Invitation
+        fields = ('key',)
+
+
+class CourseJoinForm(forms.Form):
+    invitation_key = forms.CharField(max_length=255, label="Invitation Key")

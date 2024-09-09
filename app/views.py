@@ -7,8 +7,8 @@ from django.contrib.auth import login, authenticate
 from django.core.paginator import Paginator
 from django.db.models import Count
 
-from .models import Course, Task, Submission, Participation
-from .forms import TaskForm, SubmissionForm, CourseForm, RegisterForm
+from .models import Course, Invitation, Task, Submission, Participation
+from .forms import TaskForm, SubmissionForm, CourseForm, RegisterForm, CourseJoinForm
 from .funcs import can, submission_is_allowed, course_participations, course_participation
 from . import utils
 
@@ -29,20 +29,31 @@ def courses(request):
 @login_required
 def course_join(request, course_pk):
     course = get_object_or_404(Course, pk=course_pk)
-    redirect_url = reverse('courses')
-    cp = course_participation(request.user, course)
+    form = CourseJoinForm(request.POST or None)
 
-    if cp.joined:
-        messages.error(request, 'You already joined the course.')
+    if request.POST and form.is_valid():
+        try:
+            invitation = Invitation.objects.get(pk=form.cleaned_data['invitation_key'], course=course, valid=True)
+        except Invitation.DoesNotExist:
+            messages.error(request, 'Invalid invitation key')
+            return redirect(reverse('course_join', args=(course_pk,)))
+
+        redirect_url = reverse('courses')
+        cp = course_participation(request.user, course)
+
+        if cp.joined:
+            messages.error(request, 'You have already joined the course.')
+            return redirect(redirect_url)
+
+        if not can(course, request.user, 'course.join', participation=cp.participation):
+            messages.error(request, 'You can\'t join this course.')
+            return redirect(redirect_url)
+
+        participation = Participation(user=request.user, course=course, role=invitation.role)
+        participation.save()
         return redirect(redirect_url)
 
-    if not can(course, request.user, 'course.join', participation=cp.participation):
-        messages.error(request, 'You can\'t join this course.')
-        return redirect(redirect_url)
-
-    participation = Participation(user=request.user, course=course, role=cp.participation.role)
-    participation.save()
-    return redirect(reverse('courses'))
+    return render(request, 'course_join.html', {'form': form, 'course': course})
 
 @login_required
 def course_add(request):
@@ -181,7 +192,7 @@ def submissions(request, course_pk, task_pk):
     page = request.GET.get('page')
     submissions = paginator.get_page(page)
 
-    return render(request, 'submissions.html', {'task': task, 'submissions': submissions, 'view_all': view_all, 
+    return render(request, 'submissions.html', {'task': task, 'submissions': submissions, 'view_all': view_all,
                                                 'per_page_options': per_page_options})
 
 @login_required
@@ -213,7 +224,7 @@ def leaderboard(request, course_pk, task_pk):
         if s.user.id not in users:
             users[s.user.id] = True
             leaderboard_list.append(s)
-    
+
     if len(leaderboard_list) == 0:
         return render(request, 'leaderboard.html', {'task': task, 'submissions': leaderboard_list, 'stats': {} })
 
@@ -230,7 +241,7 @@ def leaderboard(request, course_pk, task_pk):
 
     distribution = [round(x_i / len(leaderboard_list) * 100, 2) for x_i in distribution]
 
-    stats = {'labels': labels, 'distribution': distribution, 
+    stats = {'labels': labels, 'distribution': distribution,
              'mean': round(statistics.mean(points) ,2), 'median': round(statistics.median(points), 2),
              'quantiles': [round(x, 2) for x in utils.quantiles(points, percents=[0.25, 0.75])] }
 
@@ -250,7 +261,7 @@ def leaderboard(request, course_pk, task_pk):
         font_style.font.bold = True
         for i, h in enumerate(['STUDENT_NUMBER', 'MARKS', 'MODERATION', 'REMARKS']):
             sheet.write(0, i, h, font_style)
-        for i, s in enumerate(leaderboard_list):   
+        for i, s in enumerate(leaderboard_list):
             sheet.write(i+1, 0, s.user.username)
             sheet.write(i+1, 1, s.point)
             sheet.write(i+1, 2, '')
@@ -301,7 +312,8 @@ def stats(request, course_pk, task_pk):
     failures = base.filter(status=Submission.STATUS_ERROR).annotate(count=Count('id')).all()
 
     points = []
-    max_point = int(base.aggregate(Max('point'))['point__max']) + 1
+    max_point = base.aggregate(Max('point'))['point__max'] or 0
+    max_point = int(max_point) + 1
     partition = max_point # 4
     step_size = int(max_point/partition)
     for p in range(0, max_point, step_size):
@@ -309,6 +321,10 @@ def stats(request, course_pk, task_pk):
         points.append(point)
 
     labels = [d['created_at'] for d in submissions]
+
+    if task.opened_at is None or task.closed_at is None:
+        messages.error(request, "Task doesn't have opening or closing date.")
+        return redirect(redirect_url)
 
     sdate = task.opened_at.date() #date(*[int(i) for i in labels[0].split('-')])
     edate = task.closed_at.date() # date(*[int(i) for i in labels[-1].split('-')])
@@ -427,12 +443,12 @@ def signup(request):
         if form.is_valid():
             form.cleaned_data['is_active'] = False
             user = form.save(commit=False)
-            user.is_active = False
+            user.is_active = True
             user.save()
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')
             login(request, user)
-            messages.info(request, 'Registration successful. Your account is currently pending approval.')
+            messages.info(request, 'Registration successful.')
             return redirect('home')
     else:
         form = RegisterForm()

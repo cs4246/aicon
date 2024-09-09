@@ -7,12 +7,12 @@
 {% endblock %}
 
 {% block title %}
-  New Submission - {{ form.instance.task.name }} - {{ form.instance.task.course.code }} - {{ block.super }}
+  New Submission - {{ form.instance.task.name }} - {{ form.instance.task.course }} - {{ block.super }}
 {% endblock %}
 
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a href="{% url 'courses' %}">Courses</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'course' form.instance.task.course.pk %}">{{ form.instance.task.course.code }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'course' form.instance.task.course.pk %}">{{ form.instance.task.course }}</a></li>
   <li class="breadcrumb-item"><a href="{% url 'submissions' form.instance.task.course.pk form.instance.task.pk %}">{{ form.instance.task.name }}</a></li>
   <li class="breadcrumb-item active">New Submission</li>
 {% endblock %}

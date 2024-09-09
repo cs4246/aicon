@@ -27,7 +27,9 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['cs4246.comp.nus.edu.sg', 'cs4246-i.comp.nus.edu.sg', '127.0.0.1']
+ALLOWED_HOSTS = ['cs4246.comp.nus.edu.sg', 'cs4246-i.comp.nus.edu.sg', 'cs5446.comp.nus.edu.sg', 'cs5446-i.comp.nus.edu.sg', '127.0.0.1']
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 
 # Application definition

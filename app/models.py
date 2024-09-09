@@ -8,6 +8,7 @@ import os
 import hashlib
 import json
 import re
+import secrets
 
 class ExtraFileField(models.FileField):
     def __init__(self, verbose_name=None, name=None, upload_to='', after_file_save=None, storage=None, **kwargs):
@@ -58,6 +59,7 @@ class Course(models.Model):
     code = models.CharField(max_length=6)
     academic_year = models.CharField(max_length=30)
     semester = models.PositiveSmallIntegerField()
+    visible = models.BooleanField(default=True)
     participants = models.ManyToManyField(
         User,
         through='Participation',
@@ -100,6 +102,24 @@ class Participation(models.Model):
 
     def __str__(self):
         return "{} ({}) - {} AY{} Sem{}".format(self.user.username, self.role, self.course.code, self.course.academic_year, self.course.semester)
+
+
+class Invitation(models.Model):
+    key = models.CharField(primary_key=True, max_length=255, default=secrets.token_urlsafe)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    role = models.CharField(
+        max_length=3,
+        choices=Participation.ROLES,
+        default=Participation.ROLE_STUDENT,
+    )
+    valid = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.course.code} AY{self.course.academic_year} Sem{self.course.semester} ({self.role}): {self.key}"
+
 
 
 class Task(models.Model):
@@ -172,7 +192,7 @@ class Task(models.Model):
 
     def __str__(self):
         return "{} - {} AY{} Sem{}".format(self.name, self.course.code, self.course.academic_year, self.course.semester)
-    
+
 
 class Submission(models.Model):
     STATUS_QUEUED = 'Q'
@@ -225,7 +245,7 @@ class Submission(models.Model):
     @property
     def file_url(self):
         return reverse('submission_download', args=(self.task.course.pk,self.task.pk, self.pk))
-    
+
     @property
     def file_size(self):
         try:
@@ -256,7 +276,7 @@ class Submission(models.Model):
         return False
 
     def __str__(self):
-        return "{}:{} - {} - {} AY{} Sem{}".format(self.user, self.pk, self.task.name, 
+        return "{}:{} - {} - {} AY{} Sem{}".format(self.user, self.pk, self.task.name,
             self.task.course.code, self.task.course.academic_year, self.task.course.semester)
 
 

@@ -4,12 +4,12 @@
 {% load can %}
 
 {% block title %}
-  {{ course.code }} - {{ block.super }}
+  {{ course }} - {{ block.super }}
 {% endblock %}
 
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a href="{% url 'courses' %}">Courses</a></li>
-  <li class="breadcrumb-item active">{{ course.code }}</li>
+  <li class="breadcrumb-item active">{{ course }}</li>
 {% endblock %}
 
 {% block content %}

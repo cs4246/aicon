@@ -60,12 +60,12 @@
 {% endblock %}
 
 {% block title %}
-  Similarities - {{ task.name }} - {{ task.course.code }} - {{ block.super }}
+  Similarities - {{ task.name }} - {{ task.course }} - {{ block.super }}
 {% endblock %}
 
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a href="{% url 'courses' %}">Courses</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'course' task.course.pk %}">{{ task.course.code }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'course' task.course.pk %}">{{ task.course }}</a></li>
   <li class="breadcrumb-item"><a href="{% url 'submissions' task.course.pk task.pk %}">{{ task.name }}</a></li>
   <li class="breadcrumb-item active">Similarities</li>
 {% endblock %}
@@ -97,14 +97,14 @@
             </div>
           </li>
         </ul>
-        
+
       </div>
     </div>
-    
+
     <div id="collapse-visualization" class="collapse">
         <div id="similarities-network"></div>
     </div>
-   
+
     <div class="table-responsive">
       <table class="table">
         <thead class="thead-inverse">
@@ -133,7 +133,7 @@
               <td class="align-middle">
                 <div class="row">
                   <div class="col-12">
-                    {{forloop.counter0|add:similarities.start_index }} 
+                    {{forloop.counter0|add:similarities.start_index }}
                   </div>
                 </div>
               </td>
@@ -216,8 +216,8 @@
                       </div>
                       <div class="col-md-6">
                         <small>{{ similarity.related.notes }}</small>
-                      </div>  
-                    </div> 
+                      </div>
+                    </div>
                   </div>
                 </div>
               </td>
@@ -319,8 +319,8 @@
         {% else %}
           {% define "green" as edge_color %}
         {% endif %}
-        {from: {{similarity.submission.pk}}, to: {{similarity.related.pk}}, label:"{{similarity.score}}", 
-          width: Math.max((({{similarity.score}} - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min, 1), 
+        {from: {{similarity.submission.pk}}, to: {{similarity.related.pk}}, label:"{{similarity.score}}",
+          width: Math.max((({{similarity.score}} - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min, 1),
           color: "{{edge_color}}" },
         {% endfor %}
       ]);

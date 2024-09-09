@@ -12,7 +12,7 @@
 
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a href="{% url 'courses' %}">Courses</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'course' form.instance.course.pk %}">{{ form.instance.course.code }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'course' form.instance.course.pk %}">{{ form.instance.course }}</a></li>
   <li class="breadcrumb-item active">{{ form.instance.name | default:"New Task" }}</li>
 {% endblock %}
 

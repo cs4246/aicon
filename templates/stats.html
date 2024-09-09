@@ -3,12 +3,12 @@
 {% load fontawesome_5 %}
 
 {% block title %}
-  Stats - {{ task.name }} - {{ task.course.code }} - {{ block.super }}
+  Stats - {{ task.name }} - {{ task.course }} - {{ block.super }}
 {% endblock %}
 
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a href="{% url 'courses' %}">Courses</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'course' task.course.pk %}">{{ task.course.code }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'course' task.course.pk %}">{{ task.course }}</a></li>
   <li class="breadcrumb-item"><a href="{% url 'submissions' task.course.pk task.pk %}">{{ task.name }}</a></li>
   <li class="breadcrumb-item active">Stats</li>
 {% endblock %}
@@ -29,13 +29,13 @@
       data: {
         labels: {{ labels|safe }},
         datasets: [
-          { 
+          {
             data: {{ data.failures }},
             label: 'Failures',
             borderColor: "#c0392b",
             backgroundColor: "#e74c3c"
           },
-          { 
+          {
             data: {{ data.successes }},
             label: 'Successes',
             borderColor: "#27ae60",
@@ -65,13 +65,13 @@
       data: {
         labels: ['Submissions'],
         datasets: [
-          { 
+          {
             data: [{{ data.failures_count }}],
             label: 'Failures',
             borderColor: "#c0392b",
             backgroundColor: "#e74c3c"
           },
-          { 
+          {
             data: [{{ data.successes_count }}],
             label: 'Successes',
             borderColor: "#27ae60",
@@ -110,7 +110,7 @@
         labels: {{ labels|safe }},
         datasets: [
           {% for p in data.points %}
-          { 
+          {
             data: {{ p }},
             label: "{{ forloop.counter0 }} point",
             borderColor: "#fff",

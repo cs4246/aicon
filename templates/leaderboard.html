@@ -4,12 +4,12 @@
 {% load fontawesome_5 %}
 
 {% block title %}
-  Leaderboard - {{ task.name }} - {{ task.course.code }} - {{ block.super }}
+  Leaderboard - {{ task.name }} - {{ task.course }} - {{ block.super }}
 {% endblock %}
 
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a href="{% url 'courses' %}">Courses</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'course' task.course.pk %}">{{ task.course.code }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'course' task.course.pk %}">{{ task.course }}</a></li>
   <li class="breadcrumb-item"><a href="{% url 'submissions' task.course.pk task.pk %}">{{ task.name }}</a></li>
   <li class="breadcrumb-item active">Leaderboard</li>
 {% endblock %}
@@ -31,7 +31,7 @@
   <div id="distribution" class="collapse">
     <div style="height: 300px">
       <canvas id="leaderboard-distribution-chart" style="min-height: 300px; height: 300px" height="300"></canvas>
-    </div> 
+    </div>
     <div class="card">
       <div class="card-body text-center">
         Mean: {{ stats.mean }} &nbsp;|&nbsp; Median: {{ stats.median }} &nbsp;|&nbsp; 25th-75th Percentile: {{ stats.quantiles.0 }}-{{ stats.quantiles.1 }}
@@ -87,7 +87,7 @@
       data: {
         labels: {{ stats.labels|safe }},
         datasets: [
-          { 
+          {
             data: {{ stats.distribution }},
             label: 'Percentage',
             borderColor: "#27ae60",

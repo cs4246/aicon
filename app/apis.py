@@ -117,7 +117,7 @@ class SubmissionViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 router = DefaultRouter()
-router.register(r'jobs', JobViewSet)
+router.register(r'jobs', JobViewSet, basename='jobs')
 router.register(r'tasks', TaskViewSet)
 router.register(r'similarities', SimilarityViewSet)
 router.register(r'submissions', SubmissionViewSet)

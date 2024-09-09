@@ -27,9 +27,9 @@ def submission_is_allowed(task, user):
 
 def serialize_submission(s):
     return {
-        'id': s.id, 
-        'runner': s.runner, 
-        'metadata': s.metadata, 
+        'id': s.id,
+        'runner': s.runner,
+        'metadata': s.metadata,
         'path': s.file.path if s.file else None,
         'status': s.status,
         'verdict': s.verdict,
@@ -39,10 +39,10 @@ def serialize_submission(s):
 
 
 # Cache result for 1 hour
-@cached(cache=TTLCache(maxsize=1024, ttl=60*60))
+# @cached(cache=TTLCache(maxsize=1024, ttl=60*60))
 def get_course_roles_from_luminus(user):
     # DUMMY, replace with API call to luminus
-    courses = [Course.objects.order_by('-id')[0]] # get the latest course
+    courses = Course.objects.filter(visible=True).order_by('-id')
     roles = [Participation.ROLE_STUDENT]
     course_roles = []
     for i, course in enumerate(courses):
