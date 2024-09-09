@@ -1,0 +1,12 @@
+Django==2.2.28
+django-crispy-forms==1.8.1
+django-bootstrap-datepicker-plus==3.0.5
+django-bootstrap4==1.1.1
+django-fontawesome-5==1.0.18
+djangorestframework==3.10.3
+django-prettyjson==0.4.1
+cachetools
+git+https://github.com/rizkiarm/django-updateable.git@devel
+xlwt
+setuptools
+python-dotenv
