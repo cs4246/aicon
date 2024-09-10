@@ -2,7 +2,7 @@ from django import forms
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from bootstrap_datepicker_plus import DateTimePickerInput
+from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Submit
 from .models import Invitation, Task, Submission, Course
@@ -28,9 +28,9 @@ class TaskForm(forms.ModelForm):
             "max_image_size": "Max container image size (KB)",
         }
         widgets = {
-            'opened_at': DateTimePickerInput().start_of('open range'),
-            'deadline_at': DateTimePickerInput().end_of('open range'),
-            'closed_at': DateTimePickerInput().end_of('open range'),
+            'opened_at': DateTimePickerInput(),
+            'deadline_at': DateTimePickerInput(range_from="opened_at"),
+            'closed_at': DateTimePickerInput(range_from="deadline_at"),
         }
 
     def __init__(self, *args, **kwargs):
