@@ -1,4 +1,4 @@
-Django==5.1.1
+Django==3.2.25
 django-crispy-forms==2.3
 crispy-bootstrap4==2024.1
 django-bootstrap-datepicker-plus==5.0.5
