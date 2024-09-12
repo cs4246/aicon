@@ -1,4 +1,6 @@
 import math
+import os
+from django.http import HttpResponse
 
 def percentile(N, percent, key=lambda x:x):
     """
@@ -24,3 +26,9 @@ def percentile(N, percent, key=lambda x:x):
 def quantiles(N, percents):
     N = sorted(N)
     return [percentile(N, p) for p in percents]
+
+def create_download_response(file, content_type):
+    filename = os.path.basename(file.name)
+    response = HttpResponse(file, content_type=content_type)
+    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    return response

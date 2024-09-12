@@ -8,6 +8,7 @@ from rest_framework.routers import DefaultRouter
 from .models import Submission, Task, Similarity, User
 from .serializers import SubmissionSerializer, TaskSerializer, SimilaritySerializer, SimilaritySubmissionSerializer
 from .funcs import can
+from .utils import create_download_response
 
 from itertools import groupby
 import json
@@ -76,6 +77,16 @@ class TaskViewSet(viewsets.ReadOnlyModelViewSet):
                 result[user.pk] = serializer.data
             return Response(result)
 
+    @action(detail=True, methods=['get'])
+    def download(self, request, pk):
+        task = Task.objects.get(pk=pk)
+        return create_download_response(task.file, 'application/zip')
+
+    @action(detail=True, methods=['get'])
+    def template_download(self, request, pk):
+        task = Task.objects.get(pk=pk)
+        return create_download_response(task.template, 'application/zip')
+
 
 class SimilarityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Similarity.objects.all()
@@ -114,6 +125,11 @@ class SubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Submission.objects.all()
     serializer_class = SubmissionSerializer
     permission_classes = (IsAdminUser,)
+
+    @action(detail=True, methods=['get'])
+    def download(self, request, pk):
+        submission = Submission.objects.get(pk=pk)
+        return create_download_response(submission.file, 'application/zip')
 
 
 router = DefaultRouter()

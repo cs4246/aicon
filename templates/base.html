@@ -49,7 +49,10 @@
                 {{ user.username }}
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                <form action="{% url 'logout' %}" method="post">
+                  {% csrf_token %}
+                  <button class="dropdown-item">Logout</button>
+                </form>
               </div>
             </li>
             {% else %}
