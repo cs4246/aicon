@@ -1,9 +1,14 @@
-from .models import Participation, Course, Announcement
+from .models import Participation, Course, Announcement, Task, Submission
 from .forms import CourseForm
+from .serializers import TaskSerializer, SubmissionSerializer
+
 from django.conf import settings
 from django.utils import timezone
+from django.http import HttpRequest
 from collections import namedtuple
 from cachetools import cached, TTLCache
+from aiVLE.celery import app as celery_app
+from rest_framework.request import Request
 
 
 CourseParticipation = namedtuple('CourseParticipation', ['course', 'participation', 'added', 'joined', 'form'], defaults=(None,) * 5)
@@ -91,3 +96,12 @@ def get_announcements():
     for announcement in announcements:
         if not announcement.active: continue
         yield (announcement.text, 'alert-' + announcement.type)
+
+
+def submission_evaluate(request: HttpRequest, task: Task, submission: Submission):
+    serializer_context = {
+        'request': Request(request),
+    }
+    task_data = TaskSerializer(task, context=serializer_context).data
+    submission_data = SubmissionSerializer(submission, context=serializer_context).data
+    celery_app.send_task('aivle_runner.tasks.evaluate', args=[task_data, submission_data])

@@ -9,7 +9,7 @@ from django.db.models import Count
 
 from .models import Course, Invitation, Task, Submission, Participation
 from .forms import TaskForm, SubmissionForm, CourseForm, RegisterForm, CourseJoinForm
-from .funcs import can, submission_is_allowed, course_participations, course_participation
+from .funcs import can, submission_evaluate, submission_is_allowed, course_participations, course_participation
 from . import utils
 
 import os
@@ -392,6 +392,7 @@ def submission_new(request, course_pk, task_pk):
     form = SubmissionForm(request.POST or None, request.FILES or None, instance=submission)
     if request.POST and form.is_valid():
         form.save()
+        submission_evaluate(request, task, submission)
 
         return redirect(redirect_url)
 
@@ -432,6 +433,7 @@ def submissions_rerun(request):
                 messages.error(request, 'You are not allowed to rerun this submission: {}.'.format(submission.pk))
                 return redirect(redirect_url)
 
+            submission_evaluate(request, submission.task, submission)
         submissions_q.update(status=Submission.STATUS_QUEUED)
         messages.info(request, 'Submissions re-queued for run: {}.'.format(pks))
 

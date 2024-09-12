@@ -212,15 +212,9 @@ REST_FRAMEWORK = {
     )
 }
 
-# Luminus OAuth
-
-class LuminusOAuthConfig:
-    client_id         = None
-    client_secret     = None
-    scope             = None
-    class Endpoint:
-        authorization = None
-        access_token  = None
-    class Redirect:
-        authorization = None
-        access_token  = None
+# Celery settings
+CELERY_BROKER_TRANSPORT = os.getenv("CELERY_BROKER_TRANSPORT")
+CELERY_BROKER_USER = os.getenv("CELERY_BROKER_USER")
+CELERY_BROKER_PASSWORD = os.getenv("CELERY_BROKER_PASSWORD")
+CELERY_BROKER_HOST = os.getenv("CELERY_BROKER_HOST")
+CELERY_BROKER_PORT = os.getenv("CELERY_BROKER_PORT")
