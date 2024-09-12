@@ -10,6 +10,7 @@
 {% load autolink %}
 {% load query_transform %}
 {% load suggestion %}
+{% load humanize %}
 
 {% block extrahead %}
   {% prettyjson_setup %}
@@ -139,8 +140,9 @@
   <div class="card" style="margin-top:20px; margin-bottom:20px">
     <div class="card-body">
 	{{ task.daily_submission_limit }} max daily submission(s),
-        {{ task.max_upload_size }} KB max size,
-        {{ task.run_time_limit }} second(s) time limit.
+        {{ task.max_upload_size|intcomma }} KB max size,
+        {{ task.run_time_limit|intcomma }} second(s) time limit.,
+        {{ task.memory_limit|intcomma }} KB memory limit.
     </div>
   </div>
 
