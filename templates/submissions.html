@@ -7,9 +7,7 @@
 {% load prettyjson %}
 {% load static updateable %}
 {% load addstr %}
-{% load autolink %}
 {% load query_transform %}
-{% load suggestion %}
 {% load humanize %}
 
 {% block extrahead %}
@@ -296,7 +294,7 @@
               <td class="align-middle">
                 {% with "submission-"|addstr:submission.pk|addstr:"-point" as updateable_id %}
                   {% updateable updateable_id div %}
-                  {{ submission.info | autolink }}
+                  {{ submission.info }}
                   {% endupdateable %}
                 {% endwith %}
                 {% if submission.is_late %}<span class="badge badge-danger">Late</span>{% endif %}
@@ -308,7 +306,7 @@
                 <div class="collapse" id="collapse-evaluation-{{submission.pk}}">
                   <div class="card card-body">
                     <small style="font-weight: bold;">EVALUATION:</small>
-                    <div id="submission-{{ submission.pk }}-notes-view">
+                    <div id="submission-{{ submission.pk }}-notes-view" class="pt-3">
                       {% with "submission-"|addstr:submission.pk|addstr:"-notes" as updateable_id %}
                         {% updateable updateable_id div-submission %}
                         {{ submission.notes }}
@@ -319,7 +317,13 @@
                     <small style="font-weight: bold;">SUGGESTION:</small>
                     {% with "submission-"|addstr:submission.pk|addstr:"-suggestion" as updateable_id %}
                       {% updateable updateable_id div-submission %}
-                      {{ submission.notes | suggestion }}
+                      <ul class="pt-3 pl-3">
+                      {% for suggestion in submission.suggestions %}
+                        <li>{{ suggestion | safe }}</li>
+                      {% empty %}
+                        <li>None</li>
+                      {% endfor %}
+                      </ul>
                       {% endupdateable %}
                     {% endwith %}
                   </div>

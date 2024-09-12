@@ -277,6 +277,19 @@ class Submission(models.Model):
             return self.created_at > self.task.deadline
         return False
 
+    @property
+    def suggestions(self):
+        if self.notes is None:
+            return None
+        texts = []
+        suggestions = list(Suggestion.objects.filter(course__isnull=True, task__isnull=True).all()) + \
+                      list(self.task.suggestions.all()) + list(self.task.course.suggestions.all())
+        for suggestion in suggestions:
+            matches = re.findall(rf'{suggestion.pattern}', self.notes)
+            if matches:
+                texts.append(suggestion.text)
+        return texts
+
     def __str__(self):
         return "{}:{} - {} - {} AY{} Sem{}".format(self.user, self.pk, self.task.name,
             self.task.course.code, self.task.course.academic_year, self.task.course.semester)
@@ -317,3 +330,14 @@ class Announcement(models.Model):
 
     def __str__(self):
         return "{} - {} [active={}]".format(self.type, self.name, self.active)
+
+
+class Suggestion(models.Model):
+    pattern = models.TextField()
+    text = models.TextField()
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True, related_name="suggestions")
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, null=True, blank=True, related_name="suggestions")
+
+    def __str__(self) -> str:
+        course_task = [str(x) for x in [self.course, self.task] if x is not None]
+        return (f"[{' - '.join(course_task)}]" if len(course_task) > 0 else "[Global]") + " " + f"{self.pattern} -> {self.text}"
