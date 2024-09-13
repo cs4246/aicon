@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.http import HttpRequest
 from collections import namedtuple
 from cachetools import cached, TTLCache
-from aiVLE.celery import app as celery_app
+from aicon.celery import app as celery_app
 from rest_framework.request import Request
 
 
@@ -104,4 +104,4 @@ def submission_evaluate(request: HttpRequest, task: Task, submission: Submission
     }
     task_data = TaskSerializer(task, context=serializer_context).data
     submission_data = SubmissionSerializer(submission, context=serializer_context).data
-    celery_app.send_task('aivle_runner.tasks.evaluate', args=[task_data, submission_data])
+    celery_app.send_task('aicon_runner.tasks.evaluate', args=[task_data, submission_data])

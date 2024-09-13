@@ -1,6 +1,6 @@
-# aiVLE: AI Virtual Learning Environment
+# aicon: AI Contest Platform
 
-A platform for lecturers to provide students with an environment to run and grade their artificial intelligence agents.
+A platform that enables lecturers to create an environment where students can run and evaluate their artificial intelligence agents.
 
 ## Screenshots
 
@@ -22,11 +22,11 @@ This project is still under development, please report any issues if you encount
 
  ## Message Broker
 
- aiVLE relies on Celery, which requires a message broker. We recommend using RabbitMQ for this purpose.
+ aicon relies on Celery, which requires a message broker. We recommend using RabbitMQ for this purpose.
 
  To run RabbitMQ using Docker, you can use the following command:
  ```bash
- docker run -d --hostname aivle-rabbit --name aivle-rabbit \
+ docker run -d --hostname aicon-rabbit --name aicon-rabbit \
    -e RABBITMQ_DEFAULT_USER=<your_username> \
    -e RABBITMQ_DEFAULT_PASS=<your_password> \
    -p 15672:15672 \

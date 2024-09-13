@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{% block title %}AI Virtual Learning Environment{% endblock %}</title>
+    <title>{% block title %}AI Contest Platform{% endblock %}</title>
 
     {% load bootstrap4 %}
     {% bootstrap_css %}
@@ -27,9 +27,9 @@
       <div class="container">
 	{% now "m-d" as cdate %}
         {% if cdate == '02-12' or cdate == '02-13' or cdate == '02-14' %}
-        	<a class="navbar-brand" href="{% url 'home' %}">{% fa5_icon 'robot' 'fas' %} &nbsp;愛VLE</a>
+        	<a class="navbar-brand" href="{% url 'home' %}">{% fa5_icon 'robot' 'fas' %} &nbsp;愛con</a>
         {% else %}
-		<a class="navbar-brand" href="{% url 'home' %}">{% fa5_icon 'robot' 'fas' %} &nbsp;aiVLE</a>
+		<a class="navbar-brand" href="{% url 'home' %}">{% fa5_icon 'robot' 'fas' %} &nbsp;aicon</a>
         {% endif %}
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
