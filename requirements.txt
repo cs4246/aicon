@@ -5,10 +5,9 @@ django-bootstrap-datepicker-plus==5.0.5
 django-bootstrap4==24.3
 django-fontawesome-5==1.0.18
 djangorestframework==3.15.2
-django-prettyjson==0.4.1
 celery==5.4.0
 cachetools
-git+https://github.com/rizkiarm/django-updateable.git@devel
 xlwt
 setuptools
 python-dotenv
+json2html

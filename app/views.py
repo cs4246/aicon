@@ -167,8 +167,7 @@ def template_download(request, pk):
 
     return response
 
-@login_required
-def submissions(request, course_pk, task_pk):
+def _submissions(request, course_pk, task_pk, template='submissions.html', status=None):
     task = get_object_or_404(Task, pk=task_pk)
     redirect_url = reverse('course', args=(task.course.pk,))
 
@@ -192,8 +191,20 @@ def submissions(request, course_pk, task_pk):
     page = request.GET.get('page')
     submissions = paginator.get_page(page)
 
-    return render(request, 'submissions.html', {'task': task, 'submissions': submissions, 'view_all': view_all,
-                                                'per_page_options': per_page_options})
+    return render(request, template, {'task': task, 'submissions': submissions, 'view_all': view_all,
+                                                'per_page_options': per_page_options}, status=status)
+
+@login_required
+def submissions(request, course_pk, task_pk):
+    return _submissions(request, course_pk, task_pk, template='submissions.html')
+
+@login_required
+def partial_submissions(request, course_pk, task_pk):
+    task = get_object_or_404(Task, pk=task_pk)
+    status = None
+    if task.submissions.filter(status__in=[Submission.STATUS_QUEUED, Submission.STATUS_RUNNING]).count() == 0:
+        status = 286
+    return _submissions(request, course_pk, task_pk, template='partials/submissions.html', status=status)
 
 @login_required
 def leaderboard(request, course_pk, task_pk):

@@ -1,0 +1,116 @@
+{% load fontawesome_5 %}
+{% load can %}
+{% load json2html %}
+
+{% can task.course request.user 'task.edit' as can_edit %}
+
+{% for submission in submissions %}
+    {% if submission.status == 'R' %}
+        <tr class="flash-box clickable collapsed" data-toggle="collapse" href="#collapse-evaluation-{{submission.pk}}" role="button" aria-expanded="false" data-tooltip="tooltip" data-placement="bottom" title="Click to expand" hx-get="{% url 'submissions' task.course.pk task.pk %}" hx-swap="outerHTML" hx-trigger="every 2s">
+    {% else %}
+        <tr class="clickable collapsed" data-toggle="collapse" href="#collapse-evaluation-{{submission.pk}}" role="button" aria-expanded="false" data-tooltip="tooltip" data-placement="bottom" title="Click to expand / contract">
+    {% endif %}
+    	{% if can_edit %}
+           	<td class="align-middle">
+          		<div class="row">
+         			<div class="col-12">
+                        <input type="checkbox" name="submissions_selected[]" value="{{ submission.pk }}" />
+         			</div>
+          		</div>
+           	</td>
+    	{% endif %}
+    	<td class="align-middle">
+    		<div class="row">
+    			<div class="col-12">{{ submission.pk }}</div>
+    		</div>
+    	</td>
+    	{% if view_all %}
+           	<td class="align-middle">
+          		<div class="row">
+         			<div class="col-12">{{ submission.user }}</div>
+          		</div>
+           	</td>
+           	<td class="align-middle">
+          		<div class="row">
+         			<div class="col-12">{{ submission.user.first_name }} {{ submission.user.last_name }}</div>
+          		</div>
+           	</td>
+    	{% endif %}
+    	<td class="align-middle">
+    		<div class="row vcenter">
+    			{% if submission.file %}
+         			<div class="col-1">{% fa5_icon 'file' 'fas' %}</div>
+         			<div class="col-8" style="overflow-wrap: break-word">
+        				<a href="{% url 'submission_download' submission.pk %}">{{ submission.filename }}</a>
+        				{% if submission.description %}<br><small>{{ submission.description }}</small>{% endif %}
+         			</div>
+    			{% elif submission.docker %}
+         			<div class="col-1">{% fa5_icon 'stream' 'fas' %}</div>
+         			<div class="col-8">
+        				{{ submission.docker }}<br>
+        				{% if submission.description %}<br><small>{{ submission.description }}</small>{% endif %}
+         			</div>
+    			{% else %}
+    			<div class="col-9">None</div>
+    			{% endif %}
+    			<div class="col-1">
+    				{% if submission.runner == 'PY' %}
+    				    {% fa5_icon 'python' 'fab' %}
+    				{% elif submission.runner == 'DO' %}
+    				    {% fa5_icon 'docker' 'fab' %}
+    				{% else %}
+    				    {{ submission.runner }}
+    				{% endif %}
+    			</div>
+    			<div class="col-1 text-center">
+    				{% if submission.status == 'Q' %}
+    				    {% fa5_icon 'clock' 'fas' color='DodgerBlue' %} {{ submission.queue }}
+    				{% elif submission.status == 'R' %}
+    				    {% fa5_icon 'cog' 'fas' color='Orange' spin=True %}
+    				{% elif submission.status == 'D' %}
+    				    {% fa5_icon 'check-circle' 'fas' color='ForestGreen' %}
+    				{% elif submission.status == 'E' %}
+    				    {% fa5_icon 'times-circle' 'fas' color='red' %}
+    				{% else %}
+    				    {{ submission.status }}
+    				{% endif %}
+    			</div>
+    		</div>
+    	</td>
+    	<td class="align-middle">{{ submission.file_size | filesizeformat }}</td>
+    	<td class="align-middle">
+    		{{ submission.info }}
+    		{% if submission.is_late %}<span class="badge badge-danger">Late</span>{% endif %}
+    	</td>
+    	<td class="align-middle">{{ submission.created_at }}</td>
+    </tr>
+    {% if submission.notes %}
+        <tr class="collapsible">
+           	<td colspan="10">
+          		<div class="collapse" id="collapse-evaluation-{{submission.pk}}">
+         			<div class="card card-body">
+            				<small style="font-weight: bold;">EVALUATION:</small>
+            				<div id="submission-{{ submission.pk }}-notes-view" class="pt-3">
+                                <div class="table-responsive">
+                               	    {{ submission.notes | json2html | safe }}
+                                </div>
+            				</div>
+            				{% if submission.suggestions %}
+                				<hr>
+                				<small style="font-weight: bold;">SUGGESTION:</small>
+                				<ul class="pt-3 pl-3">
+               					{% for suggestion in submission.suggestions %}
+                   					<li>{{ suggestion | safe }}</li>
+                       	        {% empty %}
+                   					<li>None</li>
+               					{% endfor %}
+                				</ul>
+            				{% endif %}
+         			</div>
+          		</div>
+           	</td>
+        </tr>
+    {% endif %}
+{% empty %}
+    No submission.
+{% endfor %}

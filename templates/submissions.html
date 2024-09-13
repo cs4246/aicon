@@ -4,15 +4,12 @@
 {% load submission_is_allowed %}
 {% load can %}
 {% load define %}
-{% load prettyjson %}
-{% load static updateable %}
 {% load addstr %}
 {% load query_transform %}
 {% load humanize %}
+{% load static %}
 
 {% block extrahead %}
-  {% prettyjson_setup %}
-
   <style>
     ul.button-list {
     	padding: 0px;
@@ -70,42 +67,6 @@
       to {background-color: rgba(255, 255, 0, 0.30);}
     }
   </style>
-
-  <script>
-    updateableSettings = {
-      timeout: 5000,
-      callback: function() {
-        pause_on_complete();
-        beautify_json();
-      }
-    };
-
-    function need_update(){
-      var update_classes = ['fa-clock', 'fa-cog'];
-      var total_length = 0;
-      update_classes.forEach(function (item, index) {
-        total_length += document.getElementsByClassName(item).length;
-      });
-      return total_length > 0;
-    }
-
-    function pause_on_complete(){
-      if(!need_update()){
-        updateableSettings.pause();
-      }
-    }
-
-    function beautify_json(){
-      $(document).find('div-submission').each(function(index, item){
-        var name = item.dataset['updateable'];
-        try {
-          var json = JSON.parse(item.innerHTML);
-          $('#'+name+'-view').JSONView(json, { collapsed: false });
-        } catch { }
-      });
-    }
-  </script>
-  <script src='{% static 'updateable.js' %}'></script>
 {% endblock %}
 
 {% block title %}
@@ -194,7 +155,7 @@
     </div>
 
 
-    <div class="table-responsive">
+    <div class="table-responsive" hx-ext="morph">
       <table class="table">
         <thead class="thead-inverse">
           <tr>
@@ -212,125 +173,8 @@
             <th>Created At</th>
           </tr>
         </thead>
-        <tbody>
-          {% for submission in submissions %}
-            {% if submission.status == 'R' %}
-            <tr class="flash-box clickable collapsed" data-toggle="collapse" href="#collapse-evaluation-{{submission.pk}}" role="button" aria-expanded="false" data-tooltip="tooltip" data-placement="bottom" title="Click to expand">
-            {% else %}
-            <tr class="clickable collapsed" data-toggle="collapse" href="#collapse-evaluation-{{submission.pk}}" role="button" aria-expanded="false" data-tooltip="tooltip" data-placement="bottom" title="Click to expand / contract">
-            {% endif %}
-              {% if can_edit %}
-              <td class="align-middle">
-                <div class="row">
-                  <div class="col-12">
-                    <input type="checkbox" name="submissions_selected[]" value="{{ submission.pk }}" />
-                  </div>
-                </div>
-              </td>
-              {% endif %}
-              <td class="align-middle">
-                <div class="row">
-                  <div class="col-12">{{ submission.pk }}</div>
-                </div>
-              </td>
-              {% if view_all %}
-              <td class="align-middle">
-                <div class="row">
-                  <div class="col-12">{{ submission.user }}</div>
-                </div>
-              </td>
-              <td class="align-middle">
-                <div class="row">
-                  <div class="col-12">{{ submission.user.first_name }} {{ submission.user.last_name }}</div>
-                </div>
-              </td>
-              {% endif %}
-              <td class="align-middle">
-                <div class="row vcenter">
-                  {% if submission.file %}
-                  <div class="col-1">{% fa5_icon 'file' 'fas' %}</div>
-                  <div class="col-8" style="overflow-wrap: break-word">
-                    <a href="{% url 'submission_download' submission.pk %}">{{ submission.filename }}</a>
-                    {% if submission.description %}<br><small>{{ submission.description }}</small>{% endif %}
-                  </div>
-                  {% elif submission.docker %}
-                  <div class="col-1">{% fa5_icon 'stream' 'fas' %}</div>
-                  <div class="col-8">
-                    {{ submission.docker }}<br>
-                    {% if submission.description %}<br><small>{{ submission.description }}</small>{% endif %}
-                  </div>
-                  {% else %}
-                  <div class="col-9">None</div>
-                  {% endif %}
-                  <div class="col-1">
-                    {% if submission.runner == 'PY' %}
-                      {% fa5_icon 'python' 'fab' %}
-                    {% elif submission.runner == 'DO' %}
-                      {% fa5_icon 'docker' 'fab' %}
-                    {% else %}
-                      {{ submission.runner }}
-                    {% endif %}
-                  </div>
-                  <div class="col-1 text-center">
-                    {% with "submission-"|addstr:submission.pk|addstr:"-status" as updateable_id %}
-                      {% updateable updateable_id div %}
-                        {% if submission.status == 'Q' %}
-                          {% fa5_icon 'clock' 'fas' color='DodgerBlue' %} {{ submission.queue }}
-                        {% elif submission.status == 'R' %}
-                          {% fa5_icon 'cog' 'fas' color='Orange' spin=True %}
-                        {% elif submission.status == 'D' %}
-                          {% fa5_icon 'check-circle' 'fas' color='ForestGreen' %}
-                        {% elif submission.status == 'E' %}
-                          {% fa5_icon 'times-circle' 'fas' color='red' %}
-                        {% else %}
-                          {{ submission.status }}
-                        {% endif %}
-                      {% endupdateable %}
-                    {% endwith %}
-                  </div>
-                </div>
-              </td>
-	      <td class="align-middle">{{ submission.file_size | filesizeformat }}</td>
-              <td class="align-middle">
-                {% with "submission-"|addstr:submission.pk|addstr:"-point" as updateable_id %}
-                  {% updateable updateable_id div %}
-                  {{ submission.info }}
-                  {% endupdateable %}
-                {% endwith %}
-                {% if submission.is_late %}<span class="badge badge-danger">Late</span>{% endif %}
-              </td>
-              <td class="align-middle">{{ submission.created_at }}</td>
-            </tr>
-            <tr class="collapsible">
-              <td colspan="10">
-                <div class="collapse" id="collapse-evaluation-{{submission.pk}}">
-                  <div class="card card-body">
-                    <small style="font-weight: bold;">EVALUATION:</small>
-                    <div id="submission-{{ submission.pk }}-notes-view" class="pt-3">
-                      {% with "submission-"|addstr:submission.pk|addstr:"-notes" as updateable_id %}
-                        {% updateable updateable_id div-submission %}
-                        {{ submission.notes }}
-                        {% endupdateable %}
-                      {% endwith %}
-                    </div>
-                    <hr>
-                    <small style="font-weight: bold;">SUGGESTION:</small>
-                    {% with "submission-"|addstr:submission.pk|addstr:"-suggestion" as updateable_id %}
-                      {% updateable updateable_id div-submission %}
-                      <ul class="pt-3 pl-3">
-                      {% for suggestion in submission.suggestions %}
-                        <li>{{ suggestion | safe }}</li>
-                      {% empty %}
-                        <li>None</li>
-                      {% endfor %}
-                      </ul>
-                      {% endupdateable %}
-                    {% endwith %}
-                  </div>
-                </div>
-              </td>
-            </tr>
-          {% endfor %}
+        <tbody hx-get="{% url 'partial_submissions' task.course.pk task.pk %}?{% query_transform request %}" hx-swap="morph:{morphStyle:'innerHTML',callbacks:{beforeAttributeUpdated:function(attributeName,node,mutationType){if(node.type=='checkbox'){return!1}if(node.classList.contains('collapse')||node.classList.contains('clickable')){return!1}}}}" hx-trigger="every 2s">
+          {% include 'partials/submissions.html' with submissions=submissions %}
         </tbody>
       </table>
     </div>
@@ -403,4 +247,7 @@
       $('[data-tooltip="tooltip"]').tooltip();
     });
   </script>
+
+  <script src="{% static 'js/htmx.min.js' %}"></script>
+  <script src="{% static 'js/idiomorph-ext.min.js' %}"></script>
 {% endblock %}

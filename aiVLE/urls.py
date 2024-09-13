@@ -37,6 +37,8 @@ urlpatterns = [
     path('courses/<int:course_pk>/tasks/<int:task_pk>/submissions/', views.submissions, name='submissions'),
     path('courses/<int:course_pk>/tasks/<int:task_pk>/submissions/new/', views.submission_new, name='submission_new'),
 
+    path('partial/courses/<int:course_pk>/tasks/<int:task_pk>/submissions/', views.partial_submissions, name='partial_submissions'),
+
     path('tasks/<int:pk>/download/', views.task_download, name='task_download'),
     path('tasks/<int:pk>/template/', views.template_download, name='template_download'),
     path('submissions/<int:pk>/download/', views.submission_download, name='submission_download'),
