@@ -451,8 +451,11 @@ def submissions_rerun(request):
                 messages.error(request, 'You are not allowed to rerun this submission: {}.'.format(submission.pk))
                 return redirect(redirect_url)
 
-            submission_evaluate(request, submission.task, submission)
         submissions_q.update(status=Submission.STATUS_QUEUED)
+
+        for submission in submissions_q.all():
+            submission_evaluate(request, submission.task, submission)
+
         messages.info(request, 'Submissions re-queued for run: {}.'.format(sorted(pks)))
 
     return redirect(request.META.get('HTTP_REFERER'))
