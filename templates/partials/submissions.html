@@ -6,10 +6,9 @@
 
 {% for submission in submissions %}
     {% if submission.status == 'R' %}
-        <tr class="flash-box clickable collapsed" data-toggle="collapse" href="#collapse-evaluation-{{submission.pk}}" role="button" aria-expanded="false" data-tooltip="tooltip" data-placement="bottom" title="Click to expand" hx-get="{% url 'submissions' task.course.pk task.pk %}" hx-swap="outerHTML" hx-trigger="every 2s">
-    {% else %}
-        <tr class="clickable collapsed" data-toggle="collapse" href="#collapse-evaluation-{{submission.pk}}" role="button" aria-expanded="false" data-tooltip="tooltip" data-placement="bottom" title="Click to expand / contract">
+        <tr id="flash-box-{{submission.pk}}" style="display: none;" class="flash-box-next"></tr>
     {% endif %}
+    <tr id="submission-{{submission.pk}}" class="clickable collapsed" data-toggle="collapse" href="#collapse-evaluation-{{submission.pk}}" role="button" aria-expanded="false" data-tooltip="tooltip" data-placement="bottom" title="Click to expand / contract">
     	{% if can_edit %}
            	<td class="align-middle">
           		<div class="row">
@@ -84,7 +83,7 @@
     	</td>
     	<td class="align-middle">{{ submission.created_at }}</td>
     </tr>
-    <tr class="collapsible">
+    <tr id="submission-evaluation-{{submission.pk}}" class="collapsible">
        	<td colspan="10">
       		<div class="collapse" id="collapse-evaluation-{{submission.pk}}">
      			<div class="card card-body">
