@@ -84,33 +84,35 @@
     	</td>
     	<td class="align-middle">{{ submission.created_at }}</td>
     </tr>
-    {% if submission.notes %}
-        <tr class="collapsible">
-           	<td colspan="10">
-          		<div class="collapse" id="collapse-evaluation-{{submission.pk}}">
-         			<div class="card card-body">
-            				<small style="font-weight: bold;">EVALUATION:</small>
-            				<div id="submission-{{ submission.pk }}-notes-view" class="pt-3">
-                                <div class="table-responsive">
-                               	    {{ submission.notes | json2html | safe }}
-                                </div>
-            				</div>
-            				{% if submission.suggestions %}
-                				<hr>
-                				<small style="font-weight: bold;">SUGGESTION:</small>
-                				<ul class="pt-3 pl-3">
-               					{% for suggestion in submission.suggestions %}
-                   					<li>{{ suggestion | safe }}</li>
-                       	        {% empty %}
-                   					<li>None</li>
-               					{% endfor %}
-                				</ul>
-            				{% endif %}
-         			</div>
-          		</div>
-           	</td>
-        </tr>
-    {% endif %}
+    <tr class="collapsible">
+       	<td colspan="10">
+      		<div class="collapse" id="collapse-evaluation-{{submission.pk}}">
+     			<div class="card card-body">
+                    {% if submission.notes %}
+        				<small style="font-weight: bold;">EVALUATION:</small>
+        				<div id="submission-{{ submission.pk }}-notes-view" class="pt-3"></div>
+                            <div class="table-responsive">
+                           	    {{ submission.notes | json2html | safe }}
+                            </div>
+        				</div>
+        				{% if submission.suggestions %}
+            				<hr>
+            				<small style="font-weight: bold;">SUGGESTION:</small>
+            				<ul class="pt-3 pl-3">
+           					{% for suggestion in submission.suggestions %}
+               					<li>{{ suggestion | safe }}</li>
+                   	        {% empty %}
+               					<li>None</li>
+           					{% endfor %}
+            				</ul>
+        				{% endif %}
+                    {% else %}
+                        No evaluation data.
+                    {% endif %}
+     			</div>
+      		</div>
+       	</td>
+    </tr>
 {% empty %}
     No submission.
 {% endfor %}
