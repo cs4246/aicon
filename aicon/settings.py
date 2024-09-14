@@ -91,11 +91,27 @@ WSGI_APPLICATION = 'aicon.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+DATABASE_SQLITE = {
+    "ENGINE": "django.db.backends.sqlite3",
+    "NAME": os.getenv("DATABASE_SQLITE_DB", os.path.join(BASE_DIR, 'db.sqlite3')),
+}
+
+DATABASE_MYSQL = {
+    "ENGINE": "django.db.backends.mysql",
+    "HOST": os.getenv("DATABASE_MYSQL_HOST"),
+    "PORT": int(os.getenv("DATABASE_MYSQL_PORT", 3306)),
+    "NAME": os.getenv("DATABASE_MYSQL_NAME"),
+    "USER": os.getenv("DATABASE_MYSQL_USER"),
+    "PASSWORD": os.getenv("DATABASE_MYSQL_PASSWORD"),
+}
+
+DATABASE_BACKEND = {
+    'mysql': DATABASE_MYSQL,
+    'sqlite': DATABASE_SQLITE,
+}
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'default': DATABASE_BACKEND[os.getenv("DATABASE_BACKEND", 'sqlite')]
 }
 
 

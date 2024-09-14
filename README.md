@@ -20,21 +20,33 @@ This project is still under development, please report any issues if you encount
  * Celery
  * Additional requirements listed in `requirements.txt`
 
- ## Message Broker
+## Database
 
- aicon relies on Celery, which requires a message broker. We recommend using RabbitMQ for this purpose.
+aicon requires a database server. We recommend using MySQL for this purpose. To run MySQL in a Docker container, use the following command:
 
- To run RabbitMQ using Docker, you can use the following command:
- ```bash
- docker run -d --hostname aicon-rabbit --name aicon-rabbit \
-   -e RABBITMQ_DEFAULT_USER=<your_username> \
-   -e RABBITMQ_DEFAULT_PASS=<your_password> \
-   -p 15672:15672 \
-   -p 5672:5672 \
-   rabbitmq:3-management
- ```
+```bash
+docker run --name aicon-mysql -e MYSQL_ROOT_PASSWORD=<your_password> -e MYSQL_DATABASE=aicon -p 3306:3306 -d mysql
+```
 
- Make sure to replace `<your_username>` and `<your_password>` with secure credentials of your choice.
+Be sure to replace `<your_password>` with a strong, secure password of your choice.
+
+If you prefer to use SQLite instead of MySQL, no additional setup is required.
+
+## Message Broker
+
+aicon relies on Celery, which requires a message broker. We recommend using RabbitMQ for this purpose.
+
+To run RabbitMQ using Docker, you can use the following command:
+```bash
+docker run -d --hostname aicon-rabbit --name aicon-rabbit \
+  -e RABBITMQ_DEFAULT_USER=<your_username> \
+  -e RABBITMQ_DEFAULT_PASS=<your_password> \
+  -p 15672:15672 \
+  -p 5672:5672 \
+  rabbitmq:3-management
+```
+
+Make sure to replace `<your_username>` and `<your_password>` with secure credentials of your choice.
 
 ## Setup
 
