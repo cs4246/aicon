@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.contrib.auth import login, authenticate
 from django.core.paginator import Paginator
 from django.db.models import Count
+from django.views.decorators.cache import cache_control
 
 from .models import Course, Invitation, Task, Submission, Participation
 from .forms import TaskForm, SubmissionForm, CourseForm, RegisterForm, CourseJoinForm
@@ -23,6 +24,7 @@ from datetime import date, timedelta
 
 
 @login_required
+@cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)
 def courses(request):
     return render(request, 'courses.html', {'course_participations': course_participations(request.user, with_form=True)})
 
@@ -94,6 +96,7 @@ def course_delete(request, course_pk):
     return redirect(reverse('courses'))
 
 @login_required
+@cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)
 def course(request, course_pk):
     course = get_object_or_404(Course, pk=course_pk)
 
@@ -195,10 +198,12 @@ def _submissions(request, course_pk, task_pk, template='submissions.html', statu
                                                 'per_page_options': per_page_options}, status=status)
 
 @login_required
+@cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)
 def submissions(request, course_pk, task_pk):
     return _submissions(request, course_pk, task_pk, template='submissions.html')
 
 @login_required
+@cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)
 def partial_submissions(request, course_pk, task_pk):
     task = get_object_or_404(Task, pk=task_pk)
     status = None
@@ -207,6 +212,7 @@ def partial_submissions(request, course_pk, task_pk):
     return _submissions(request, course_pk, task_pk, template='partials/submissions.html', status=status)
 
 @login_required
+@cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)
 def leaderboard(request, course_pk, task_pk):
     task = get_object_or_404(Task, pk=task_pk)
     redirect_url = reverse('submissions', args=(course_pk,task_pk))
@@ -309,6 +315,7 @@ def similarities(request, course_pk, task_pk):
                                                 'per_page_options': per_page_options})
 
 @login_required
+@cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)
 def stats(request, course_pk, task_pk):
     task = get_object_or_404(Task, pk=task_pk)
     redirect_url = reverse('submissions', args=(course_pk,task_pk))
@@ -446,7 +453,7 @@ def submissions_rerun(request):
 
             submission_evaluate(request, submission.task, submission)
         submissions_q.update(status=Submission.STATUS_QUEUED)
-        messages.info(request, 'Submissions re-queued for run: {}.'.format(pks))
+        messages.info(request, 'Submissions re-queued for run: {}.'.format(sorted(pks)))
 
     return redirect(request.META.get('HTTP_REFERER'))
 
