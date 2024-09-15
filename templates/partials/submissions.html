@@ -39,18 +39,18 @@
     		<div class="row vcenter">
     			{% if submission.file %}
          			<div class="col-1">{% fa5_icon 'file' 'fas' %}</div>
-         			<div class="col-8" style="overflow-wrap: break-word">
+         			<div class="col-7" style="overflow-wrap: break-word">
         				<a href="{% url 'submission_download' submission.pk %}">{{ submission.filename }}</a>
         				{% if submission.description %}<br><small>{{ submission.description }}</small>{% endif %}
          			</div>
     			{% elif submission.docker %}
          			<div class="col-1">{% fa5_icon 'stream' 'fas' %}</div>
-         			<div class="col-8">
+         			<div class="col-7">
         				{{ submission.docker }}<br>
         				{% if submission.description %}<br><small>{{ submission.description }}</small>{% endif %}
          			</div>
     			{% else %}
-    			<div class="col-9">None</div>
+                    <div class="col-8">None</div>
     			{% endif %}
     			<div class="col-1">
     				{% if submission.runner == 'PY' %}
@@ -61,9 +61,12 @@
     				    {{ submission.runner }}
     				{% endif %}
     			</div>
-    			<div class="col-1 text-center">
+    			<div class="col-2">
     				{% if submission.status == 'Q' %}
-    				    {% fa5_icon 'clock' 'fas' color='DodgerBlue' %} {{ submission.queue }}
+                        <div class="row">
+                            <div class="col-6">{% fa5_icon 'clock' 'fas' color='DodgerBlue' %}</div>
+                            <div class="col-6 p-0 align-middle"><span class="badge badge-secondary align-middle ml-1" style="margin-bottom: 2px;">{{ submission.queue }}</span></div>
+                        </div>
     				{% elif submission.status == 'R' %}
     				    {% fa5_icon 'cog' 'fas' color='Orange' spin=True %}
     				{% elif submission.status == 'D' %}
