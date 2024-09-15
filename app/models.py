@@ -121,6 +121,12 @@ class Invitation(models.Model):
         return f"{self.course.code} AY{self.course.academic_year} Sem{self.course.semester} ({self.role}): {self.key}"
 
 
+class Partition(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
 
 class Task(models.Model):
     DEFAULT_MAX_UPLOAD_SIZE = 5 * 1024 # KB
@@ -152,6 +158,9 @@ class Task(models.Model):
 
     parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subtasks', null=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='tasks')
+
+    partition = models.ForeignKey(Partition, on_delete=models.CASCADE, null=True, blank=True, related_name="tasks")
+    gpus = models.CharField(max_length=255, null=True, blank=True)
 
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -191,6 +200,12 @@ class Task(models.Model):
     @property
     def file_url(self):
         return reverse('task_download', args=(self.course.pk,self.pk))
+
+    @property
+    def partition_name(self):
+        if self.partition is None:
+            return None
+        return self.partition.name
 
     def __str__(self):
         return "{} - {} AY{} Sem{}".format(self.name, self.course.code, self.course.academic_year, self.course.semester)
