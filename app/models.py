@@ -4,6 +4,7 @@ from datetime import timedelta
 from django.utils import timezone
 from django.shortcuts import reverse
 from django.core.files.storage import default_storage
+from .utils import make_space, int_or_flot
 import os
 import hashlib
 import json
@@ -273,14 +274,23 @@ class Submission(models.Model):
     @property
     def info(self):
         try:
-            if self.notes is not None:
-                notes = self.notes.replace('\\n',' ')
-                for er in ['Error', 'Exception', 'error']:
-                     if er in notes:
-                        return re.findall(r'(\w*%s\w*)' % er, notes)[-1] # return the last one
-            return json.loads(self.notes)['error']['type']
-        except:
-            return self.point
+            data = json.loads(self.notes)
+        except Exception:
+            data = {}
+
+        def guess_error(notes):
+            notes = notes.replace('\\n',' ')
+            for er in ['Error', 'Exception', 'error']:
+                if er in notes:
+                    return re.findall(r'(\w*%s\w*)' % er, notes)[-1] # return the last one
+
+        additional_error = guess_error(self.notes) if self.notes is not None else None
+
+        if 'error' in data:
+            return make_space(data['error'].get('type', additional_error or "Error"))
+
+        return str(int_or_flot(self.point) if self.point is not None else "N/A") + \
+               (f" ({make_space(additional_error)})" if additional_error is not None else "")
 
     @property
     def queue(self):

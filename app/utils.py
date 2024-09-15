@@ -1,5 +1,6 @@
 import math
 import os
+import re
 from django.http import HttpResponse
 
 def percentile(N, percent, key=lambda x:x):
@@ -32,3 +33,9 @@ def create_download_response(file, content_type):
     response = HttpResponse(file, content_type=content_type)
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
     return response
+
+def make_space(text):
+    return re.sub(r'((?<=[a-z])[A-Z]|(?<!\A)[A-Z](?=[a-z]))', r' \1', text)
+
+def int_or_flot(x):
+    return int(float(x)) if int(float(x)) == float(x) else float(x)
