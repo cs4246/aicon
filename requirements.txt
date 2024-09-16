@@ -12,3 +12,4 @@ xlwt
 setuptools
 python-dotenv
 json2html
+namesgenerator

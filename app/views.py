@@ -9,7 +9,7 @@ from django.db.models import Count
 from django.views.decorators.cache import cache_control
 
 from .models import Course, Invitation, Task, Submission, Participation
-from .forms import TaskForm, SubmissionForm, CourseForm, RegisterForm, CourseJoinForm
+from .forms import TaskForm, SubmissionForm, SubmissionCodeForm, CourseForm, RegisterForm, CourseJoinForm
 from .funcs import can, submission_evaluate, submission_is_allowed, course_participations, course_participation
 from . import utils
 
@@ -387,7 +387,7 @@ def stats(request, course_pk, task_pk):
     return render(request, 'stats.html', {'task': task, 'labels': labels, 'data': data})
 
 @login_required
-def submission_new(request, course_pk, task_pk):
+def _submission_new(request, course_pk, task_pk, form_class, base_submission=None):
     task = get_object_or_404(Task, pk=task_pk)
     redirect_url = reverse('submissions', args=(course_pk,task_pk))
 
@@ -407,14 +407,47 @@ def submission_new(request, course_pk, task_pk):
         messages.warning(request, 'You are doing late submission. Your mark will be deducted according to the late submission policy.')
 
     submission = Submission(task=task, user=request.user)
-    form = SubmissionForm(request.POST or None, request.FILES or None, instance=submission)
+
+    if form_class.__name__ == 'SubmissionCodeForm': # Hack: can't check with isinstance'
+        if base_submission is not None:
+            base = {
+                "code": base_submission.code,
+                "description": f"[Cloned from {base_submission.filename}] {base_submission.description}",
+            }
+        else:
+            base = { "code": Submission.get_code(task.template) } if task.template else None
+
+        form = form_class(request.POST or base, request.FILES or None, instance=submission, base_submission=base_submission)
+    else:
+        form = form_class(request.POST or None, request.FILES or None, instance=submission)
+
     if request.POST and form.is_valid():
         form.save()
         submission_evaluate(request, task, submission)
 
         return redirect(redirect_url)
 
-    return render(request, 'submission_new.html', {'form': form})
+    return render(request, 'submission_new.html', {'form': form, 'base_submission': base_submission})
+
+@login_required
+def submission_new_package(request, course_pk, task_pk):
+    return _submission_new(request, course_pk, task_pk, form_class=SubmissionForm)
+
+@login_required
+def _submission_new_code(request, course_pk, task_pk, submission=None):
+    return _submission_new(request, course_pk, task_pk,
+        form_class=SubmissionCodeForm,
+        base_submission=submission,
+    )
+
+@login_required
+def submission_new_code(request, course_pk, task_pk):
+    return _submission_new_code(request, course_pk, task_pk)
+
+@login_required
+def submission_clone_code(request, course_pk, task_pk, submission_pk):
+    submission = get_object_or_404(Submission, pk=submission_pk)
+    return _submission_new_code(request, course_pk, task_pk, submission=submission)
 
 @login_required
 def submission_download(request, pk):

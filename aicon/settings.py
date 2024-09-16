@@ -233,3 +233,8 @@ CELERY_BROKER_USER = os.getenv("CELERY_BROKER_USER")
 CELERY_BROKER_PASSWORD = os.getenv("CELERY_BROKER_PASSWORD")
 CELERY_BROKER_HOST = os.getenv("CELERY_BROKER_HOST")
 CELERY_BROKER_PORT = os.getenv("CELERY_BROKER_PORT")
+
+# Template files
+SUBMISSION_TEMPLATE_ZIPFILE = os.path.join(BASE_DIR, "app", "files", "submission.zip")
+SUBMISSION_MAIN_DIR = "aicon_submission"
+SUBMISSION_MAIN_FILE = os.path.join(SUBMISSION_MAIN_DIR, "__init__.py")

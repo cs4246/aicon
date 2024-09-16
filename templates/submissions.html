@@ -111,27 +111,37 @@
     <div class="d-flex justify-content-between">
       <div>
          <ul class="button-list">
-            <li><a href="{% url 'submission_new' task.course.pk task.pk %}" class='btn {{ button_decorator }}'>{% fa5_icon 'plus-circle' 'fas' %} New submission</a></li>
+            <li>
+                <div class="dropdown">
+                  <button class="btn {{ button_decorator }} dropdown-toggle" type="button" id="submission-new-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {% fa5_icon 'plus-circle' 'fas' %} New submission
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="{% url 'submission_new_code' task.course.pk task.pk %}">Code</a>
+                    <a class="dropdown-item" href="{% url 'submission_new_package' task.course.pk task.pk %}">Package</a>
+                  </div>
+                </div>
+            </li>
             {% if task.template %}
-            <li><a href="{% url 'template_download' task.pk %}" class='btn {{ button_decorator }} btn-secondary'>{% fa5_icon 'download' 'fas' %} Download Template</a></li>
+            <li><a href="{% url 'template_download' task.pk %}" class='btn {{ button_decorator }} btn-btn-outline-secondary'>{% fa5_icon 'download' 'fas' %} Download Template</a></li>
             {% endif %}
             {% if can_edit or task.leaderboard %}
-            <li><a href="{% url 'leaderboard' task.course.pk task.pk %}" class="btn btn-success">{% fa5_icon 'crown' 'fas' %} Leaderboard</a></li>
+            <li><a href="{% url 'leaderboard' task.course.pk task.pk %}" class="btn btn-outline-success">{% fa5_icon 'crown' 'fas' %} Leaderboard</a></li>
             {% endif %}
             {% if can_edit %}
-            <li><a href="{% url 'stats' task.course.pk task.pk %}" class="btn btn-success">{% fa5_icon 'signal' 'fas' %} Stats</a></li>
+            <li><a href="{% url 'stats' task.course.pk task.pk %}" class="btn btn-outline-success">{% fa5_icon 'signal' 'fas' %} Stats</a></li>
               {% if task.template %}
-              <li><a href="{% url 'similarities' task.course.pk task.pk %}" class="btn btn-success">{% fa5_icon 'copy' 'fas' %} Similarities</a></li>
+              <li><a href="{% url 'similarities' task.course.pk task.pk %}" class="btn btn-outline-success">{% fa5_icon 'copy' 'fas' %} Similarities</a></li>
               {% endif %}
             {% endif %}
             {% if can_view_all and not view_all %}
-              <li><a href="{% url 'submissions' task.course.pk task.pk %}?{% query_transform request others=1 %}" class="btn btn-info">{% fa5_icon 'list-ul' 'fas' %} View Others</a></li>
+              <li><a href="{% url 'submissions' task.course.pk task.pk %}?{% query_transform request others=1 %}" class="btn btn-outline-info">{% fa5_icon 'list-ul' 'fas' %} View Others</a></li>
             {% endif %}
             {% if can_view_all and view_all %}
-            <li><a href="{% url 'submissions' task.course.pk task.pk %}" class="btn btn-info">{% fa5_icon 'list-ul' 'fas' %} View Less</a></li>
+            <li><a href="{% url 'submissions' task.course.pk task.pk %}" class="btn btn-outline-info">{% fa5_icon 'list-ul' 'fas' %} View Less</a></li>
             {% endif %}
             {% if can_rerun %}
-            <li><button type="submit" name="rerun" class="btn btn-info">{% fa5_icon 'redo' 'fas' %} Re-Run</button></li>
+            <li><button type="submit" name="rerun" class="btn btn-outline-info">{% fa5_icon 'redo' 'fas' %} Re-Run</button></li>
             {% endif %}
           </ul>
       </div>
@@ -168,9 +178,11 @@
             <th>Name</th>
             {% endif %}
             <th>Submission</th>
+            <th></th>
             <th>Size</th>
             <th>Verdict</th>
             <th>Created At</th>
+            <th></th>
           </tr>
         </thead>
         <tbody hx-get="{% url 'partial_submissions' task.course.pk task.pk %}?{% query_transform request %}" hx-swap="morph:{morphStyle:'innerHTML',callbacks:{beforeAttributeUpdated:function(attributeName,node,mutationType){if(node.type=='checkbox'){return!1}if(node.classList.contains('collapse')||node.classList.contains('clickable')){return!1}}}}" hx-trigger="every 2s">

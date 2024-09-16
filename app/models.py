@@ -4,12 +4,15 @@ from datetime import timedelta
 from django.utils import timezone
 from django.shortcuts import reverse
 from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from aicon.settings import SUBMISSION_TEMPLATE_ZIPFILE, SUBMISSION_MAIN_DIR, SUBMISSION_MAIN_FILE
 from .utils import make_space, int_or_flot
 import os
 import hashlib
 import json
 import re
 import secrets
+import zipfile
 
 class ExtraFileField(models.FileField):
     def __init__(self, verbose_name=None, name=None, upload_to='', after_file_save=None, storage=None, **kwargs):
@@ -143,13 +146,11 @@ class Task(models.Model):
     file_hash = models.CharField(max_length=255)
 
     template = models.FileField(upload_to=task_path, blank=True, null=True)
-    template_file = models.CharField(max_length=255, blank=True, null=True)
 
     daily_submission_limit = models.PositiveSmallIntegerField(default=DEFAULT_DAILY_SUBMISSIONS_LIMIT)
     max_upload_size = models.IntegerField(default=DEFAULT_MAX_UPLOAD_SIZE)
     run_time_limit = models.IntegerField(default=DEFAULT_RUN_TIME_LIMIT)
     memory_limit = models.IntegerField(default=DEFAULT_MEMORY_LIMIT)
-    max_image_size = models.IntegerField(default=DEFAULT_MAX_IMAGE_SIZE)
 
     opened_at = models.DateTimeField(blank=True, null=True)
     deadline_at = models.DateTimeField(blank=True, null=True)
@@ -208,11 +209,21 @@ class Task(models.Model):
             return None
         return self.partition.name
 
+    def latest_submission(self, user):
+        submissions = self.submissions.filter(user=user)
+        if not submissions:
+            return None
+        return submissions.latest("created_at")
+
     def __str__(self):
         return "{} - {} AY{} Sem{}".format(self.name, self.course.code, self.course.academic_year, self.course.semester)
 
 
 class Submission(models.Model):
+    MAIN_DIR = SUBMISSION_MAIN_DIR
+    MAIN_FILE = SUBMISSION_MAIN_FILE
+    TEMPLATE_ZIP_FILE = SUBMISSION_TEMPLATE_ZIPFILE
+
     STATUS_QUEUED = 'Q'
     STATUS_RUNNING = 'R'
     STATUS_ERROR = 'E'
@@ -224,24 +235,8 @@ class Submission(models.Model):
         (STATUS_DONE, 'Done')
     ]
 
-    RUNNER_PYTHON = 'PY'
-    RUNNER_DOCKER = 'DO'
-    RUNNERS = [
-        (RUNNER_PYTHON, 'Python'),
-        (RUNNER_DOCKER, 'Docker')
-    ]
-
-
     description = models.TextField(blank=True, null=True)
     file = models.FileField(upload_to=submission_path, blank=True, null=True)
-    docker = models.CharField(max_length=255,blank=True, null=True)
-
-    runner = models.CharField(
-        max_length=2,
-        choices=RUNNERS,
-        default=RUNNER_PYTHON,
-    )
-    metadata = models.TextField(blank=True, null=True)
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submissions')
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='submissions')
@@ -256,6 +251,15 @@ class Submission(models.Model):
 
     created_at = models.DateTimeField(default=timezone.now)
 
+    @classmethod
+    def get_code(cls, path):
+        try:
+            with zipfile.ZipFile(path, "r", zipfile.ZIP_DEFLATED) as zipf:
+                with zipf.open(cls.MAIN_FILE, 'r') as f:
+                    return f.read().decode("utf-8")
+        except (zipfile.BadZipFile, KeyError):
+            return None
+
     @property
     def filename(self):
         return os.path.basename(self.file.name) if self.file else None
@@ -265,11 +269,50 @@ class Submission(models.Model):
         return reverse('submission_download', args=(self.task.course.pk,self.task.pk, self.pk))
 
     @property
+    def file_path(self):
+        if not self.file or not os.path.exists(self.file.path):
+            return None
+        try:
+            with zipfile.ZipFile(self.file.path, "r", zipfile.ZIP_DEFLATED) as zipf:
+                zipf.read(self.MAIN_FILE)
+            return self.file.path
+        except (zipfile.BadZipFile, KeyError):
+            return None
+
+    @property
     def file_size(self):
         try:
             return self.file.size
         except:
             return None
+
+    @property
+    def files(self):
+        if self.file_path is None:
+            return []
+        with zipfile.ZipFile(self.file_path, "r", zipfile.ZIP_DEFLATED) as zipf:
+            files = []
+            for filename in self.file_content_names:
+                with zipf.open(filename, 'r') as f:
+                    files.append(ContentFile(f.read(), name=filename))
+            return files
+
+    @property
+    def file_content_names(self):
+        if self.file_path is None:
+            return []
+        with zipfile.ZipFile(self.file.path, "r", zipfile.ZIP_DEFLATED) as zipf:
+            return zipf.namelist()
+
+    @property
+    def file_contents(self):
+        return [m for m in self.file_content_names if re.match(r".+\/.+", m) and m != self.MAIN_FILE]
+
+    @property
+    def code(self):
+        if self.file_path is None:
+            return ""
+        return self.get_code(self.file_path)
 
     @property
     def info(self):

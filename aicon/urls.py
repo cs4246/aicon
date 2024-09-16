@@ -35,7 +35,9 @@ urlpatterns = [
     path('courses/<int:course_pk>/tasks/<int:task_pk>/similarities/', views.similarities, name='similarities'),
 
     path('courses/<int:course_pk>/tasks/<int:task_pk>/submissions/', views.submissions, name='submissions'),
-    path('courses/<int:course_pk>/tasks/<int:task_pk>/submissions/new/', views.submission_new, name='submission_new'),
+    path('courses/<int:course_pk>/tasks/<int:task_pk>/submissions/new/package/', views.submission_new_package, name='submission_new_package'),
+    path('courses/<int:course_pk>/tasks/<int:task_pk>/submissions/new/code/', views.submission_new_code, name='submission_new_code'),
+    path('courses/<int:course_pk>/tasks/<int:task_pk>/submissions/<int:submission_pk>/new/code/', views.submission_clone_code, name='submission_clone_code'),
 
     path('partial/courses/<int:course_pk>/tasks/<int:task_pk>/submissions/', views.partial_submissions, name='partial_submissions'),
 

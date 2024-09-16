@@ -37,54 +37,39 @@
     	{% endif %}
     	<td class="align-middle">
     		<div class="row vcenter">
+       			<div class="col-12" style="overflow-wrap: break-word">
     			{% if submission.file %}
-         			<div class="col-1">{% fa5_icon 'file' 'fas' %}</div>
-         			<div class="col-7" style="overflow-wrap: break-word">
-        				<a href="{% url 'submission_download' submission.pk %}">{{ submission.filename }}</a>
-        				{% if submission.description %}<br><small>{{ submission.description }}</small>{% endif %}
-         			</div>
-    			{% elif submission.docker %}
-         			<div class="col-1">{% fa5_icon 'stream' 'fas' %}</div>
-         			<div class="col-7">
-        				{{ submission.docker }}<br>
-        				{% if submission.description %}<br><small>{{ submission.description }}</small>{% endif %}
-         			</div>
+    				<a href="{% url 'submission_download' submission.pk %}">{{ submission.filename }}</a>
+    				{% if submission.description %}<br><small>{{ submission.description }}</small>{% endif %}
     			{% else %}
-                    <div class="col-8">None</div>
+                    None
     			{% endif %}
-    			<div class="col-1">
-    				{% if submission.runner == 'PY' %}
-    				    {% fa5_icon 'python' 'fab' %}
-    				{% elif submission.runner == 'DO' %}
-    				    {% fa5_icon 'docker' 'fab' %}
-    				{% else %}
-    				    {{ submission.runner }}
-    				{% endif %}
-    			</div>
-    			<div class="col-2">
-    				{% if submission.status == 'Q' %}
-                        <div class="row">
-                            <div class="col-6">{% fa5_icon 'clock' 'fas' color='DodgerBlue' %}</div>
-                            <div class="col-6 p-0 align-middle"><span class="badge badge-secondary align-middle ml-1" style="margin-bottom: 2px;">{{ submission.queue }}</span></div>
-                        </div>
-    				{% elif submission.status == 'R' %}
-    				    {% fa5_icon 'cog' 'fas' color='Orange' spin=True %}
-    				{% elif submission.status == 'D' %}
-    				    {% fa5_icon 'check-circle' 'fas' color='ForestGreen' %}
-    				{% elif submission.status == 'E' %}
-    				    {% fa5_icon 'times-circle' 'fas' color='red' %}
-    				{% else %}
-    				    {{ submission.status }}
-    				{% endif %}
-    			</div>
+                </div>
     		</div>
     	</td>
+    	<td class="align-middle">
+			{% if submission.status == 'Q' %}
+                <div>{% fa5_icon 'clock' 'fas' color='DodgerBlue' %}</div>
+                <div><span class="badge badge-secondary" style="margin-bottom: 2px;">{{ submission.queue }}</span></div>
+			{% elif submission.status == 'R' %}
+			    {% fa5_icon 'cog' 'fas' color='Orange' spin=True %}
+			{% elif submission.status == 'D' %}
+			    {% fa5_icon 'check-circle' 'fas' color='ForestGreen' %}
+			{% elif submission.status == 'E' %}
+			    {% fa5_icon 'times-circle' 'fas' color='red' %}
+			{% else %}
+			    {{ submission.status }}
+			{% endif %}
+        </td>
     	<td class="align-middle">{{ submission.file_size | filesizeformat }}</td>
     	<td class="align-middle">
     		{{ submission.info }}
     		{% if submission.is_late %}<span class="badge badge-danger">Late</span>{% endif %}
     	</td>
     	<td class="align-middle">{{ submission.created_at }}</td>
+        <td class="align-middle">
+            <a href="{% url 'submission_clone_code' task.course.pk task.pk submission.pk %}" class="btn btn-outline-primary btn-block">{% fa5_icon 'clone' 'fas' %} Clone</a>
+        </td>
     </tr>
     <tr id="submission-evaluation-{{submission.pk}}" class="collapsible">
        	<td colspan="10">
@@ -116,5 +101,5 @@
        	</td>
     </tr>
 {% empty %}
-    No submission.
+    <tr><td colspan="10" class="text-center">No submission.</td></tr>
 {% endfor %}

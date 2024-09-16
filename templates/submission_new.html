@@ -1,9 +1,13 @@
 {% extends 'base.html' %}
 
 {% load crispy_forms_tags %}
+{% load static %}
+
 
 {% block extrahead %}
   {{ form.media }}
+  <link rel="stylesheet" href="{% static 'css/codemirror.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/codemirror-material.min.css' %}" />
 {% endblock %}
 
 {% block title %}
@@ -11,37 +15,46 @@
 {% endblock %}
 
 {% block breadcrumb %}
+  {% url 'submission_clone_code' form.instance.task.course.pk form.instance.task.pk base_submission.pk as submit_clone_url %}
   <li class="breadcrumb-item"><a href="{% url 'courses' %}">Courses</a></li>
   <li class="breadcrumb-item"><a href="{% url 'course' form.instance.task.course.pk %}">{{ form.instance.task.course }}</a></li>
   <li class="breadcrumb-item"><a href="{% url 'submissions' form.instance.task.course.pk form.instance.task.pk %}">{{ form.instance.task.name }}</a></li>
-  <li class="breadcrumb-item active">New Submission</li>
+  {% if request.get_full_path == submit_clone_url %}
+    <li class="breadcrumb-item active">Clone Submission: {{ base_submission.filename }}</li>
+  {% else %}
+    <li class="breadcrumb-item active">New Submission</li>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
+  {% url 'submission_new_code' form.instance.task.course.pk form.instance.task.pk as submit_code_url %}
+  {% url 'submission_new_package' form.instance.task.course.pk form.instance.task.pk as submit_file_url %}
+  {% if request.get_full_path == submit_code_url or request.get_full_path == submit_file_url %}
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link {% if request.get_full_path == submit_code_url %}active{% endif %}" href="{{ submit_code_url }}">Code</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if request.get_full_path == submit_file_url %}active{% endif %}" href="{{ submit_file_url }}">Package</a>
+      </li>
+    </ul><br>
+  {% endif %}
   <form enctype="multipart/form-data" method="post" novalidate>
     {% csrf_token %}
     {{ form|crispy }}
+    {{ form.instance.zip_list }}
+    {{ form.instance.code }}
     <button type="submit" class="btn btn-success">Submit</button>
   </form>
 
-  <script type="text/javascript">
-    var runner_elem = document.getElementById('id_runner');
-    var file_elem = document.getElementById('div_id_file');
-    var docker_elem = document.getElementById('div_id_docker');
-
-    function onRunnerChange(){
-      var index = runner_elem.selectedIndex;
-      var inputText = runner_elem.children[index].innerHTML.trim();
-      if(inputText == 'Python'){
-        docker_elem.style.display = 'none';
-        file_elem.style.display = 'block';
-      }
-      if(inputText == 'Docker'){
-        docker_elem.style.display = 'block';
-        file_elem.style.display = 'none';
-      }
-    }
-    runner_elem.onchange = onRunnerChange
-    onRunnerChange();
+  <script type="text/javascript" src="{% static 'js/codemirror.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/codemirror-python.min.js' %}"></script>
+  <script>
+    var editor = CodeMirror.fromTextArea(document.getElementById('id_code'), {
+        mode: "python",
+        theme: "material",
+        lineNumbers: true,
+    });
+    editor.save()
   </script>
 {% endblock %}
