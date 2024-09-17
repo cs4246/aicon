@@ -5,8 +5,8 @@ from django.utils import timezone
 from django.shortcuts import reverse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from aicon.settings import SUBMISSION_TEMPLATE_ZIPFILE, SUBMISSION_MAIN_DIR, SUBMISSION_MAIN_FILE
-from .utils import make_space, int_or_flot
+from aicon.settings import SUBMISSION_BASE_ZIPFILE, SUBMISSION_BASE_MAIN_DIR, SUBMISSION_BASE_MAIN_FILE, TASK_BASE_MAIN_FILE
+from .utils import get_code, make_space, int_or_flot
 import os
 import hashlib
 import json
@@ -204,6 +204,62 @@ class Task(models.Model):
         return reverse('task_download', args=(self.course.pk,self.pk))
 
     @property
+    def file_path(self):
+        if not self.file or not os.path.exists(self.file.path):
+            return None
+        try:
+            with zipfile.ZipFile(self.file.path, "r", zipfile.ZIP_DEFLATED) as zipf:
+                zipf.read(TASK_BASE_MAIN_FILE)
+            return self.file.path
+        except (zipfile.BadZipFile, KeyError):
+            return None
+
+    @property
+    def file_content_names(self):
+        if self.file_path is None:
+            return []
+        with zipfile.ZipFile(self.file.path, "r", zipfile.ZIP_DEFLATED) as zipf:
+            return zipf.namelist()
+
+    @property
+    def file_contents(self):
+        return [m for m in self.file_content_names if re.match(r".+\/.+", m) and m != TASK_BASE_MAIN_FILE]
+
+    @property
+    def code(self):
+        if self.file_path is None:
+            return ""
+        return get_code(self.file_path, TASK_BASE_MAIN_FILE)
+
+    @property
+    def template_file_path(self):
+        if not self.template or not os.path.exists(self.template.path):
+            return None
+        try:
+            with zipfile.ZipFile(self.template.path, "r", zipfile.ZIP_DEFLATED) as zipf:
+                zipf.read(SUBMISSION_BASE_MAIN_FILE)
+            return self.template.path
+        except (zipfile.BadZipFile, KeyError):
+            return None
+
+    @property
+    def template_file_content_names(self):
+        if self.template_file_path is None:
+            return []
+        with zipfile.ZipFile(self.template.path, "r", zipfile.ZIP_DEFLATED) as zipf:
+            return zipf.namelist()
+
+    @property
+    def template_file_contents(self):
+        return [m for m in self.template_file_content_names if re.match(r".+\/.+", m) and m != SUBMISSION_BASE_MAIN_FILE]
+
+    @property
+    def template_code(self):
+        if self.template_file_path is None:
+            return ""
+        return get_code(self.template_file_path, SUBMISSION_BASE_MAIN_FILE)
+
+    @property
     def partition_name(self):
         if self.partition is None:
             return None
@@ -220,9 +276,9 @@ class Task(models.Model):
 
 
 class Submission(models.Model):
-    MAIN_DIR = SUBMISSION_MAIN_DIR
-    MAIN_FILE = SUBMISSION_MAIN_FILE
-    TEMPLATE_ZIP_FILE = SUBMISSION_TEMPLATE_ZIPFILE
+    MAIN_DIR = SUBMISSION_BASE_MAIN_DIR
+    MAIN_FILE = SUBMISSION_BASE_MAIN_FILE
+    TEMPLATE_ZIP_FILE = SUBMISSION_BASE_ZIPFILE
 
     STATUS_QUEUED = 'Q'
     STATUS_RUNNING = 'R'
@@ -253,12 +309,7 @@ class Submission(models.Model):
 
     @classmethod
     def get_code(cls, path):
-        try:
-            with zipfile.ZipFile(path, "r", zipfile.ZIP_DEFLATED) as zipf:
-                with zipf.open(cls.MAIN_FILE, 'r') as f:
-                    return f.read().decode("utf-8")
-        except (zipfile.BadZipFile, KeyError):
-            return None
+        return get_code(path, cls.MAIN_FILE)
 
     @property
     def filename(self):

@@ -27,8 +27,10 @@ urlpatterns = [
     path('courses/<int:course_pk>/delete/', views.course_delete, name='course_delete'),
     path('courses/<int:course_pk>/join/', views.course_join, name='course_join'),
 
-    path('courses/<int:course_pk>/tasks/new/', views.task_edit, name='task_new'),
-	path('courses/<int:course_pk>/tasks/<int:task_pk>/edit/', views.task_edit, name='task_edit'),
+    path('courses/<int:course_pk>/tasks/new/package', views.task_edit_package, name='task_new_package'),
+    path('courses/<int:course_pk>/tasks/new/code', views.task_edit_code, name='task_new_code'),
+    path('courses/<int:course_pk>/tasks/<int:task_pk>/edit/package', views.task_edit_package, name='task_edit_package'),
+    path('courses/<int:course_pk>/tasks/<int:task_pk>/edit/code', views.task_edit_code, name='task_edit_code'),
     path('courses/<int:course_pk>/tasks/<int:task_pk>/delete/', views.task_delete, name='task_delete'),
     path('courses/<int:course_pk>/tasks/<int:task_pk>/leaderboard/', views.leaderboard, name='leaderboard'),
     path('courses/<int:course_pk>/tasks/<int:task_pk>/stats/', views.stats, name='stats'),

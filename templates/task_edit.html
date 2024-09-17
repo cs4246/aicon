@@ -1,9 +1,12 @@
 {% extends 'base.html' %}
 
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block extrahead %}
   {{ form.media }}
+  <link rel="stylesheet" href="{% static 'css/codemirror.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/codemirror-material.min.css' %}" />
 {% endblock %}
 
 {% block title %}
@@ -17,8 +20,47 @@
 {% endblock %}
 
 {% block content %}
+  {% url 'task_edit_code' form.instance.course.pk form.instance.pk as task_edit_code_url %}
+  {% url 'task_edit_package' form.instance.course.pk form.instance.pk as task_edit_package_url %}
+  {% url 'task_new_code' form.instance.course.pk as task_new_code_url %}
+  {% url 'task_new_package' form.instance.course.pk as task_new_package_url %}
+  <ul class="nav nav-tabs">
+    {% if request.get_full_path == task_edit_code_url or request.get_full_path == task_edit_package_url %}
+      <li class="nav-item">
+        <a class="nav-link {% if request.get_full_path == task_edit_code_url %}active{% endif %}" href="{{ task_edit_code_url }}">Code</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if request.get_full_path == task_edit_package_url %}active{% endif %}" href="{{ task_edit_package_url }}">Package</a>
+      </li>
+    {% endif %}
+    {% if request.get_full_path == task_new_code_url or request.get_full_path == task_new_package_url %}
+      <li class="nav-item">
+        <a class="nav-link {% if request.get_full_path == task_new_code_url %}active{% endif %}" href="{{ task_new_code_url }}">Code</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if request.get_full_path == task_new_package_url %}active{% endif %}" href="{{ task_new_package_url }}">Package</a>
+      </li>
+    {% endif %}
+  </ul><br>
   <form enctype="multipart/form-data" method="post" novalidate>
     {% csrf_token %}
     {% crispy form %}
   </form>
+
+  <script type="text/javascript" src="{% static 'js/codemirror.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/codemirror-python.min.js' %}"></script>
+  <script>
+    var editor = CodeMirror.fromTextArea(document.getElementById('id_code'), {
+        mode: "python",
+        theme: "material",
+        lineNumbers: true,
+    });
+    editor.save()
+    var template_editor = CodeMirror.fromTextArea(document.getElementById('id_template_code'), {
+        mode: "python",
+        theme: "material",
+        lineNumbers: true,
+    });
+    template_editor.save()
+  </script>
 {% endblock %}

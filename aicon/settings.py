@@ -235,6 +235,10 @@ CELERY_BROKER_HOST = os.getenv("CELERY_BROKER_HOST")
 CELERY_BROKER_PORT = os.getenv("CELERY_BROKER_PORT")
 
 # Template files
-SUBMISSION_TEMPLATE_ZIPFILE = os.path.join(BASE_DIR, "app", "files", "submission.zip")
-SUBMISSION_MAIN_DIR = "aicon_submission"
-SUBMISSION_MAIN_FILE = os.path.join(SUBMISSION_MAIN_DIR, "__init__.py")
+SUBMISSION_BASE_ZIPFILE = os.path.join(BASE_DIR, "app", "files", "submission-base.zip")
+SUBMISSION_BASE_MAIN_DIR = "aicon_submission"
+SUBMISSION_BASE_MAIN_FILE = os.path.join(SUBMISSION_BASE_MAIN_DIR, "__init__.py")
+
+TASK_BASE_ZIPFILE = os.path.join(BASE_DIR, "app", "files", "task-base.zip")
+TASK_BASE_MAIN_DIR = "aicon_task"
+TASK_BASE_MAIN_FILE = os.path.join(TASK_BASE_MAIN_DIR, "__init__.py")

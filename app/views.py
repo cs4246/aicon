@@ -7,9 +7,10 @@ from django.contrib.auth import login, authenticate
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.views.decorators.cache import cache_control
+from aicon.settings import SUBMISSION_BASE_MAIN_FILE, SUBMISSION_BASE_ZIPFILE, TASK_BASE_ZIPFILE, TASK_BASE_MAIN_FILE
 
 from .models import Course, Invitation, Task, Submission, Participation
-from .forms import TaskForm, SubmissionForm, SubmissionCodeForm, CourseForm, RegisterForm, CourseJoinForm
+from .forms import TaskForm, TaskCodeForm, SubmissionForm, SubmissionCodeForm, CourseForm, RegisterForm, CourseJoinForm
 from .funcs import can, submission_evaluate, submission_is_allowed, course_participations, course_participation
 from . import utils
 
@@ -107,7 +108,7 @@ def course(request, course_pk):
     return render(request, 'course.html', {'course': course})
 
 @login_required
-def task_edit(request, course_pk, task_pk=None):
+def _task_edit(request, course_pk, form_class, task_pk=None):
     course = get_object_or_404(Course, pk=course_pk)
 
     if not can(course, request.user, 'task.edit'):
@@ -119,7 +120,7 @@ def task_edit(request, course_pk, task_pk=None):
     else:
         task = Task(course=course)
 
-    form = TaskForm(request.POST or None, request.FILES or None, instance=task)
+    form = form_class(request.POST or None, request.FILES or None, instance=task)
     if request.POST and form.is_valid():
         form.save()
 
@@ -127,6 +128,14 @@ def task_edit(request, course_pk, task_pk=None):
         return redirect(redirect_url)
 
     return render(request, 'task_edit.html', {'form': form})
+
+@login_required
+def task_edit_package(request, course_pk, task_pk=None):
+    return _task_edit(request, course_pk, form_class=TaskForm, task_pk=task_pk)
+
+@login_required
+def task_edit_code(request, course_pk, task_pk=None):
+    return _task_edit(request, course_pk, form_class=TaskCodeForm, task_pk=task_pk)
 
 @login_required
 def task_delete(request, course_pk, task_pk):

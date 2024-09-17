@@ -24,7 +24,7 @@
   {% if can_edit %}
   <hr>
   <div class="mb-4">
-    <a href="{% url 'task_new' course.pk %}" class="btn btn-primary">{% fa5_icon 'plus-circle' 'fas' %} New task</a>
+    <a href="{% url 'task_new_code' course.pk %}" class="btn btn-primary">{% fa5_icon 'plus-circle' 'fas' %} New task</a>
   </div>
   {% else %}
   <br><br>
@@ -59,7 +59,7 @@
             {% if can_edit or can_delete %}
             <td>
               {% if can_edit %}
-              <a href="{% url 'task_edit' course.pk task.pk %}" class="btn btn-primary">{% fa5_icon 'edit' 'fas' %}</a>
+              <a href="{% url 'task_edit_code' course.pk task.pk %}" class="btn btn-primary">{% fa5_icon 'edit' 'fas' %}</a>
               {% endif %}
               {% if can_delete %}
               <a href="{% url 'task_delete' course.pk task.pk %}" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-danger">{% fa5_icon 'trash-alt' 'fas' %}</a>
