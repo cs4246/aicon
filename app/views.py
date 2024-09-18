@@ -1,3 +1,4 @@
+from tempfile import template
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -14,6 +15,7 @@ from .forms import TaskForm, TaskCodeForm, SubmissionForm, SubmissionCodeForm, C
 from .funcs import can, submission_evaluate, submission_is_allowed, course_participations, course_participation
 from . import utils
 
+import re
 import os
 import xlwt
 import collections
@@ -118,7 +120,7 @@ def _task_edit(request, course_pk, form_class, task_pk=None):
     if task_pk:
         task = get_object_or_404(Task, pk=task_pk)
     else:
-        task = Task(course=course)
+        task = Task(course=course, file=TASK_BASE_ZIPFILE, template=SUBMISSION_BASE_ZIPFILE)
 
     form = form_class(request.POST or None, request.FILES or None, instance=task)
     if request.POST and form.is_valid():
@@ -418,14 +420,16 @@ def _submission_new(request, course_pk, task_pk, form_class, base_submission=Non
     submission = Submission(task=task, user=request.user)
 
     if form_class.__name__ == 'SubmissionCodeForm': # Hack: can't check with isinstance'
-        if base_submission is not None:
-            base = {
-                "code": base_submission.code,
-                "description": f"[Cloned from {base_submission.filename}] {base_submission.description}",
-            }
-        else:
-            base = { "code": Submission.get_code(task.template) } if task.template else None
+        if base_submission is None:
+            base_submission = Submission(file=task.template or Submission.TEMPLATE_ZIP_FILE)
 
+        base = {"code": base_submission.code}
+        if base_submission.pk is None:
+            base["description"] = ""
+        elif "FROM" in base_submission.description:
+            base["description"] = re.sub(r"\[[A-Z]+ (.+)\]", f"[FROM {str(base_submission.filename)}]", base_submission.description)
+        else:
+            base["description"] = f"[FROM {base_submission.filename}]"
         form = form_class(request.POST or base, request.FILES or None, instance=submission, base_submission=base_submission)
     else:
         form = form_class(request.POST or None, request.FILES or None, instance=submission)

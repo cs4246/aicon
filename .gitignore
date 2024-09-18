@@ -88,9 +88,12 @@ local_settings.py
 .env
 db.sqlite3
 
-uploads
 
 *.bak
 *.swp
 
 db.sqlite*
+
+# Include base files
+uploads/*/*
+!uploads/base/*

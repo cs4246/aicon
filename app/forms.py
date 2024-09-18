@@ -162,17 +162,10 @@ class TaskCodeForm(forms.ModelForm):
             *TaskFormConfig.TASK_LAYOUT
         )
         super().__init__(*args, **kwargs)
-
-        if self.instance.pk is not None:
-            self.fields["code"].initial = self.instance.code
-            self.fields["template_code"].initial = self.instance.template_code
-            self.fields["delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in self.instance.file_contents]
-            self.fields["template_delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in self.instance.template_file_contents]
-        else:
-            self.fields["code"].initial = get_code(TASK_BASE_ZIPFILE, TASK_BASE_MAIN_FILE)
-            self.fields["template_code"].initial = get_code(SUBMISSION_BASE_ZIPFILE, SUBMISSION_BASE_MAIN_FILE)
-            self.fields["delete_files"].choices = []
-            self.fields["template_delete_files"].choices = []
+        self.fields["code"].initial = self.instance.code
+        self.fields["template_code"].initial = self.instance.template_code
+        self.fields["delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in self.instance.file_contents]
+        self.fields["template_delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in self.instance.template_file_contents]
 
 
     def save(self, commit=True):
@@ -181,12 +174,12 @@ class TaskCodeForm(forms.ModelForm):
         code = self.cleaned_data.get('code', False)
         upload_files = [(os.path.join(TASK_BASE_MAIN_DIR, file.name), file.read())
                         for file in self.cleaned_data.get('upload_files', False)]
-        delete_files = [TASK_BASE_MAIN_FILE] + self.cleaned_data.get('delete_files') # Remove main file otherwise there will be duplicates
+        delete_files = self.cleaned_data.get('delete_files')
 
         template_code = self.cleaned_data.get('template_code', False)
         template_upload_files = [(os.path.join(SUBMISSION_BASE_MAIN_DIR, file.name), file.read())
                                 for file in self.cleaned_data.get('template_upload_files', False)]
-        template_delete_files = [SUBMISSION_BASE_MAIN_FILE] + self.cleaned_data.get('template_delete_files') # Remove main file otherwise there will be duplicates
+        template_delete_files = self.cleaned_data.get('template_delete_files')
 
         with tempfile.NamedTemporaryFile(suffix='.zip', delete=True) as code_tmpf, \
              tempfile.NamedTemporaryFile(suffix='.zip', delete=True) as template_tmpf:
@@ -237,15 +230,10 @@ class SubmissionCodeForm(forms.ModelForm):
         model = Submission
         fields = ['code', 'source_zip_file', 'upload_files', 'delete_files', 'description']
 
-    def __init__(self, *args, base_submission=None, **kwargs):
+    def __init__(self, *args, base_submission: Submission, **kwargs):
         super().__init__(*args, **kwargs)
-        self.source_zip_file = None
-        if base_submission is not None:
-            self.source_zip_file = base_submission.file_path
-            self.fields["delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in base_submission.file_contents]
-        if self.source_zip_file is None:
-            self.source_zip_file = self.instance.task.template or Submission.TEMPLATE_ZIP_FILE
-            self.fields["delete_files"].choices = []
+        self.source_zip_file = base_submission.file_path
+        self.fields["delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in base_submission.file_contents]
 
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -253,7 +241,7 @@ class SubmissionCodeForm(forms.ModelForm):
         code = self.cleaned_data.get('code', False)
         upload_files = [(os.path.join(Submission.MAIN_DIR, file.name), file.read())
                         for file in self.cleaned_data.get('upload_files', False)]
-        delete_files = [Submission.MAIN_FILE] + self.cleaned_data.get('delete_files') # Remove main file otherwise there will be duplicates
+        delete_files = self.cleaned_data.get('delete_files')
 
         with tempfile.NamedTemporaryFile(suffix='.zip', delete=True) as tmpf:
             create_zip_file(tmpf.name, self.source_zip_file, delete_files=delete_files, upload_files=upload_files, texts=[(Submission.MAIN_FILE, code)])
