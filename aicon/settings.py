@@ -242,3 +242,4 @@ SUBMISSION_BASE_MAIN_FILE = os.path.join(SUBMISSION_BASE_MAIN_DIR, "__init__.py"
 TASK_BASE_ZIPFILE = os.path.join(BASE_DIR, "uploads", "base", "task.zip")
 TASK_BASE_MAIN_DIR = "aicon_task"
 TASK_BASE_MAIN_FILE = os.path.join(TASK_BASE_MAIN_DIR, "__init__.py")
+TASK_BASE_SETUP_FILE = "setup.py"

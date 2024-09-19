@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.shortcuts import reverse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from aicon.settings import SUBMISSION_BASE_ZIPFILE, SUBMISSION_BASE_MAIN_DIR, SUBMISSION_BASE_MAIN_FILE, TASK_BASE_MAIN_FILE
+from aicon.settings import SUBMISSION_BASE_ZIPFILE, SUBMISSION_BASE_MAIN_DIR, SUBMISSION_BASE_MAIN_FILE, TASK_BASE_MAIN_FILE, TASK_BASE_SETUP_FILE
 from .utils import get_code, make_space, int_or_flot
 import os
 import hashlib
@@ -230,6 +230,12 @@ class Task(models.Model):
         if self.file_path is None:
             return ""
         return get_code(self.file_path, TASK_BASE_MAIN_FILE)
+
+    @property
+    def setup(self):
+        if self.file_path is None:
+            return ""
+        return get_code(self.file_path, TASK_BASE_SETUP_FILE)
 
     @property
     def template_file_path(self):

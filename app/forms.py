@@ -6,7 +6,7 @@ from django.core.files import File
 from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Submit, Fieldset
-from aicon.settings import TASK_BASE_ZIPFILE, TASK_BASE_MAIN_DIR, TASK_BASE_MAIN_FILE, \
+from aicon.settings import TASK_BASE_ZIPFILE, TASK_BASE_MAIN_DIR, TASK_BASE_MAIN_FILE, TASK_BASE_SETUP_FILE, \
                            SUBMISSION_BASE_ZIPFILE, SUBMISSION_BASE_MAIN_DIR, SUBMISSION_BASE_MAIN_FILE
 from .models import Invitation, Task, Submission, Course
 from .utils import create_zip_file, get_code
@@ -142,9 +142,11 @@ class TaskCodeForm(forms.ModelForm):
     template_upload_files = MultipleFileField(required=False, attrs={'class': 'clearablefileinput form-control'})
     template_delete_files = forms.MultipleChoiceField(choices=[], widget=forms.CheckboxSelectMultiple, required=False)
 
+    setup = forms.CharField(widget=forms.Textarea, required=False)
+
     class Meta:
         model = Task
-        fields = ['name', 'description', 'code', 'upload_files', 'delete_files', 'template_code', 'template_upload_files', 'template_delete_files'] + TaskFormConfig.FIELDS
+        fields = ['name', 'description', 'code', 'upload_files', 'delete_files', 'setup', 'template_code', 'template_upload_files', 'template_delete_files'] + TaskFormConfig.FIELDS
         labels = TaskFormConfig.LABELS
         widgets = TaskFormConfig.WIDGETS
 
@@ -156,6 +158,7 @@ class TaskCodeForm(forms.ModelForm):
             'code',
             'upload_files',
             'delete_files',
+            'setup',
             'template_code',
             'template_upload_files',
             'template_delete_files',
@@ -163,6 +166,7 @@ class TaskCodeForm(forms.ModelForm):
         )
         super().__init__(*args, **kwargs)
         self.fields["code"].initial = self.instance.code
+        self.fields["setup"].initial = self.instance.setup
         self.fields["template_code"].initial = self.instance.template_code
         self.fields["delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in self.instance.file_contents]
         self.fields["template_delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in self.instance.template_file_contents]
@@ -172,19 +176,22 @@ class TaskCodeForm(forms.ModelForm):
         instance = super().save(commit=False)
         name = self.cleaned_data.get('name', False)
         code = self.cleaned_data.get('code', False)
+        setup = self.cleaned_data.get('setup', False)
         upload_files = [(os.path.join(TASK_BASE_MAIN_DIR, file.name), file.read())
                         for file in self.cleaned_data.get('upload_files', False)]
         delete_files = self.cleaned_data.get('delete_files')
+        texts = [(TASK_BASE_MAIN_FILE, code), (TASK_BASE_SETUP_FILE, setup)]
 
         template_code = self.cleaned_data.get('template_code', False)
         template_upload_files = [(os.path.join(SUBMISSION_BASE_MAIN_DIR, file.name), file.read())
                                 for file in self.cleaned_data.get('template_upload_files', False)]
         template_delete_files = self.cleaned_data.get('template_delete_files')
+        template_texts = [(SUBMISSION_BASE_MAIN_FILE, template_code)]
 
         with tempfile.NamedTemporaryFile(suffix='.zip', delete=True) as code_tmpf, \
              tempfile.NamedTemporaryFile(suffix='.zip', delete=True) as template_tmpf:
-            create_zip_file(code_tmpf.name, self.instance.file_path or TASK_BASE_ZIPFILE, delete_files=delete_files, upload_files=upload_files, texts=[(TASK_BASE_MAIN_FILE, code)])
-            create_zip_file(template_tmpf.name,self.instance.template_file_path or  SUBMISSION_BASE_ZIPFILE, delete_files=template_delete_files, upload_files=template_upload_files, texts=[(SUBMISSION_BASE_MAIN_FILE, template_code)])
+            create_zip_file(code_tmpf.name, self.instance.file_path or TASK_BASE_ZIPFILE, delete_files=delete_files, upload_files=upload_files, texts=texts)
+            create_zip_file(template_tmpf.name,self.instance.template_file_path or  SUBMISSION_BASE_ZIPFILE, delete_files=template_delete_files, upload_files=template_upload_files, texts=template_texts)
             with open(code_tmpf.name, "rb") as code_f, open(template_tmpf.name, "rb") as template_f:
                 instance.file = File(code_f, name=f"{name}.zip")
                 instance.template = File(template_f, name=f"{name}.zip")
