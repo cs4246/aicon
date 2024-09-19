@@ -46,9 +46,23 @@ class MultipleFileField(forms.FileField):
 
 
 class TaskFormConfig:
-    TASK_LAYOUT  = [
-        Fieldset(
-            'Limit',
+    TASK_LAYOUT = [
+        Div(HTML("Task"), css_class='accordion'),
+        Div(
+            'name',
+            'description',
+            Row(
+                Column('opened_at', css_class='col-4'),
+                Column('deadline_at', css_class='col-4'),
+                Column('closed_at', css_class='col-4'),
+                css_class="row"
+            ),
+            css_class='accordion-panel',
+        ),
+    ]
+    SETTINGS_LAYOUT  = [
+        Div(HTML("Settings"), css_class='accordion'),
+        Div(
             Row(
                 Column('daily_submission_limit', css_class='col-3'),
                 Column('run_time_limit', css_class='col-3'),
@@ -56,25 +70,14 @@ class TaskFormConfig:
                 Column('max_upload_size', css_class='col-3'),
                 css_class="row"
             ),
-        ),
-        Fieldset(
-            'Cluster',
             Row(
                 Column('partition', css_class='col-6'),
                 Column('gpus', css_class='col-6'),
                 css_class="row"
             ),
+            'leaderboard',
+            css_class='accordion-panel',
         ),
-        Fieldset(
-            'Timing',
-            Row(
-                Column('opened_at', css_class='col-4'),
-                Column('deadline_at', css_class='col-4'),
-                Column('closed_at', css_class='col-4'),
-                css_class="row"
-            ),
-        ),
-        'leaderboard',
     ]
     LABELS = {
         "max_upload_size": "Max upload size (KB)",
@@ -106,14 +109,14 @@ class TaskForm(forms.ModelForm):
         helper = FormHelper()
         helper.form_id = "task-form"
         helper.layout = Layout(
-            Fieldset(
-                'Task',
-                'name',
+            *TaskFormConfig.TASK_LAYOUT,
+            Div(HTML("Evaluation and Template Packages"), css_class='accordion'),
+            Div(
                 'file',
                 'template',
-                'description',
+                css_class='accordion-panel',
             ),
-            *TaskFormConfig.TASK_LAYOUT
+            *TaskFormConfig.SETTINGS_LAYOUT,
         )
         return helper
 
@@ -164,18 +167,17 @@ class TaskCodeForm(forms.ModelForm):
         helper = FormHelper()
         helper.form_id = "task-form"
         helper.layout = Layout(
-            Div(HTML("Task"), css_class='accordion'),
+            *TaskFormConfig.TASK_LAYOUT,
+            Div(HTML("Setup"), css_class='accordion'),
             Div(
-                'name',
-                'description',
+                'setup',
                 css_class='accordion-panel',
             ),
-            Div(HTML("Code"), css_class='accordion'),
+            Div(HTML("Evaluation"), css_class='accordion'),
             Div(
                 'code',
                 'add_files',
                 'delete_files',
-                'setup',
                 css_class='accordion-panel',
             ),
             Div(HTML("Template"), css_class='accordion'),
@@ -185,11 +187,7 @@ class TaskCodeForm(forms.ModelForm):
                 'template_delete_files',
                 css_class='accordion-panel',
             ),
-            Div(HTML("Settings"), css_class='accordion'),
-            Div(
-                *TaskFormConfig.TASK_LAYOUT,
-                css_class='accordion-panel',
-            ),
+            *TaskFormConfig.SETTINGS_LAYOUT,
         )
         return helper
 
