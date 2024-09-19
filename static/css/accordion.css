@@ -1,0 +1,33 @@
+/* Source: https://www.w3schools.com/howto/howto_js_accordion.asp */
+
+.accordion {
+    background-color: #eee;
+    cursor: pointer;
+    padding: 15px;
+    width: 100%;
+    transition: 0.4s;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.accordion-active,
+.accordion:hover {
+    background-color: #ccc;
+}
+
+.accordion:after {
+    content: "\002B";
+    font-weight: bold;
+    float: right;
+}
+
+.accordion-active:after {
+    content: "\2212";
+}
+
+.accordion-panel {
+    padding: 5px 0px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}

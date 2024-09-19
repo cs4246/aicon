@@ -38,7 +38,6 @@
           <th>Deadline</th>
           <th>Opened At</th>
           <th>Status</th>
-          <th>Stats</th>
           {% if can_edit or can_delete %}
           <th></th>
           {% endif %}
@@ -57,7 +56,6 @@
             </td>
             <td class="align-middle">{{ task.opened_at }}</td>
             <td class="align-middle">{{ task.get_status_display }}</td>
-            <td class="align-middle">{{ task.statistics }}</td>
             {% if can_edit or can_delete %}
             <td>
               <div class="float-right">

@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.files import File
 from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, Submit, Fieldset
+from crispy_forms.layout import Layout, Row, Column, Submit, Field, Fieldset, Div, HTML
 from aicon.settings import TASK_BASE_ZIPFILE, TASK_BASE_MAIN_DIR, TASK_BASE_MAIN_FILE, TASK_BASE_SETUP_FILE, \
                            SUBMISSION_BASE_ZIPFILE, SUBMISSION_BASE_MAIN_DIR, SUBMISSION_BASE_MAIN_FILE
 from .models import Invitation, Task, Submission, Course
@@ -164,16 +164,32 @@ class TaskCodeForm(forms.ModelForm):
         helper = FormHelper()
         helper.form_id = "task-form"
         helper.layout = Layout(
-            'name',
-            'description',
-            'code',
-            'add_files',
-            'delete_files',
-            'setup',
-            'template_code',
-            'template_add_files',
-            'template_delete_files',
-            *TaskFormConfig.TASK_LAYOUT
+            Div(HTML("Task"), css_class='accordion'),
+            Div(
+                'name',
+                'description',
+                css_class='accordion-panel',
+            ),
+            Div(HTML("Code"), css_class='accordion'),
+            Div(
+                'code',
+                'add_files',
+                'delete_files',
+                'setup',
+                css_class='accordion-panel',
+            ),
+            Div(HTML("Template"), css_class='accordion'),
+            Div(
+                'template_code',
+                'template_add_files',
+                'template_delete_files',
+                css_class='accordion-panel',
+            ),
+            Div(HTML("Settings"), css_class='accordion'),
+            Div(
+                *TaskFormConfig.TASK_LAYOUT,
+                css_class='accordion-panel',
+            ),
         )
         return helper
 

@@ -18,6 +18,7 @@
     {% endblock %}
 
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+    <link rel="stylesheet" href="{% static 'css/accordion.css' %}">
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
     <script type="text/javascript" src="{% static 'js/app.js' %}"></script>
   </head>
@@ -96,7 +97,8 @@
 
     </div>
 
-    <script src="{% static 'js/htmx.min.js' %}"></script>
-    <script src="{% static 'js/idiomorph-ext.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/accordion.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/htmx.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/idiomorph-ext.min.js' %}"></script>
   </body>
 </html>
