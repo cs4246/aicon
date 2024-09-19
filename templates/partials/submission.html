@@ -67,8 +67,10 @@
 	</td>
 	<td class="align-middle">{{ submission.created_at }}</td>
 	{% if not single %}
-        <td class="float-right">
-            <a href="{% url 'submission_clone_code' submission.task.course.pk submission.task.pk submission.pk %}" class="btn btn-outline-primary btn-block">{% fa5_icon 'clone' 'fas' %} Clone</a>
+        <td>
+            <div class="float-right">
+                <a href="{% url 'submission_clone_code' submission.task.course.pk submission.task.pk submission.pk %}" class="btn btn-outline-primary btn-block">{% fa5_icon 'clone' 'fas' %} Clone</a>
+            </div>
         </td>
     {% endif %}
 </tr>

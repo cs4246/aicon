@@ -59,16 +59,18 @@
             <td class="align-middle">{{ task.get_status_display }}</td>
             <td class="align-middle">{{ task.statistics }}</td>
             {% if can_edit or can_delete %}
-            <td class="float-right">
-              {% if can_edit %}
-              <a href="{% url 'task_edit_code' course.pk task.pk %}" class="btn btn-outline-primary">{% fa5_icon 'edit' 'fas' %}</a>
-              {% endif %}
-              {% if can_delete %}
-              <a href="{% url 'task_delete' course.pk task.pk %}" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-outline-danger">{% fa5_icon 'trash-alt' 'fas' %}</a>
-              {% endif %}
-              {% if can_download %}
-              <a href="{% url 'task_download' task.pk %}" class="btn btn-outline-success">{% fa5_icon 'download' 'fas' %}</a>
-              {% endif %}
+            <td>
+              <div class="float-right">
+                {% if can_edit %}
+                  <a href="{% url 'task_edit_code' course.pk task.pk %}" class="btn btn-outline-primary">{% fa5_icon 'edit' 'fas' %}</a>
+                {% endif %}
+                {% if can_delete %}
+                  <a href="{% url 'task_delete' course.pk task.pk %}" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-outline-danger">{% fa5_icon 'trash-alt' 'fas' %}</a>
+                {% endif %}
+                {% if can_download %}
+                  <a href="{% url 'task_download' task.pk %}" class="btn btn-outline-success">{% fa5_icon 'download' 'fas' %}</a>
+                {% endif %}
+              </div>
             </td>
             {% endif %}
           </tr>
