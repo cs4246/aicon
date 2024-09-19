@@ -9,66 +9,6 @@
 {% load humanize %}
 {% load static %}
 
-{% block extrahead %}
-  <style>
-    ul.button-list {
-    	padding: 0px;
-    	list-style: none;
-    }
-
-    ul.button-list > li {
-    	margin-right: 5px;
-    	margin-bottom: 5px;
-    	display: inline-block;
-    }
-
-    tr.collapsible > td {
-      padding: 0px;
-      border-top: 0px;
-    }
-
-    .vcenter {
-      display: flex;
-      align-items: center;
-    }
-
-    .clickable.collapsed:hover {
-      background-color: #ecf0f1;
-    }
-
-    .clickable {
-      background-color: #D6EAF8;
-      cursor: pointer;
-    }
-
-    .clickable.collapsed {
-      background-color: white;
-    }
-
-    .flash-box-next + * {
-      -webkit-animation-name: flash-anim; /* Safari 4.0 - 8.0 */
-      -webkit-animation-duration: 1.5s; /* Safari 4.0 - 8.0 */
-      animation-name: flash-anim;
-      animation-duration: 1.5s;
-      animation-direction: alternate;
-      animation-iteration-count: infinite;
-      animation-timing-function: ease-in-out;
-    }
-
-    /* Safari 4.0 - 8.0 */
-    @-webkit-keyframes flash-anim {
-      from {background-color: rgba(255, 255, 0, 0.0);}
-      to {background-color: rgba(255, 255, 0, 0.30);}
-    }
-
-    /* Standard syntax */
-    @keyframes flash-anim {
-      from {background-color: rgba(255, 255, 0, 0.0);}
-      to {background-color: rgba(255, 255, 0, 0.30);}
-    }
-  </style>
-{% endblock %}
-
 {% block title %}
   {{ task.name }} - {{ task.course }} - {{ block.super }}
 {% endblock %}
@@ -259,7 +199,4 @@
       $('[data-tooltip="tooltip"]').tooltip();
     });
   </script>
-
-  <script src="{% static 'js/htmx.min.js' %}"></script>
-  <script src="{% static 'js/idiomorph-ext.min.js' %}"></script>
 {% endblock %}

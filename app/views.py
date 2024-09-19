@@ -228,6 +228,15 @@ def partial_submissions(request, course_pk, task_pk):
 
 @login_required
 @cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)
+def partial_submission(request, pk):
+    submission = get_object_or_404(Submission, pk=pk)
+    status = None
+    if submission.status not in [Submission.STATUS_QUEUED, Submission.STATUS_RUNNING]:
+        status = 286
+    return render(request, 'partials/submission.html', {'submission': submission, 'single': True}, status=status)
+
+@login_required
+@cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)
 def leaderboard(request, course_pk, task_pk):
     task = get_object_or_404(Task, pk=task_pk)
     redirect_url = reverse('submissions', args=(course_pk,task_pk))

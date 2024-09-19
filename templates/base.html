@@ -68,7 +68,7 @@
       </div>
     </nav>
 
-    <div class="container">
+    <div class="container mb-3">
 
       {% for announcement in announcements %}
         <div class="alert {{ announcement.1 }}" style="margin-top: 10px; margin-bottom: 5px">
@@ -95,5 +95,8 @@
       <br>
 
     </div>
+
+    <script src="{% static 'js/htmx.min.js' %}"></script>
+    <script src="{% static 'js/idiomorph-ext.min.js' %}"></script>
   </body>
 </html>

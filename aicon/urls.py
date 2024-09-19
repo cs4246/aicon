@@ -42,6 +42,7 @@ urlpatterns = [
     path('courses/<int:course_pk>/tasks/<int:task_pk>/submissions/<int:submission_pk>/new/code/', views.submission_clone_code, name='submission_clone_code'),
 
     path('partial/courses/<int:course_pk>/tasks/<int:task_pk>/submissions/', views.partial_submissions, name='partial_submissions'),
+    path('partial/submissions/<int:pk>/', views.partial_submission, name='partial_submission'),
 
     path('tasks/<int:pk>/download/', views.task_download, name='task_download'),
     path('tasks/<int:pk>/template/', views.template_download, name='template_download'),

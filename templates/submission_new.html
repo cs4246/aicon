@@ -38,6 +38,12 @@
         <a class="nav-link {% if request.get_full_path == submit_file_url %}active{% endif %}" href="{{ submit_file_url }}">Package</a>
       </li>
     </ul><br>
+  {% else %}
+    <div class="table-responsive" hx-ext="morph">
+      <table class="table" style="border: 1px solid #dee2e6;" hx-get="{% url 'partial_submission' base_submission.pk %}" hx-swap="morph:{morphStyle:'innerHTML',callbacks:{beforeAttributeUpdated:function(attributeName,node,mutationType){if(node.type=='checkbox'){return!1}if(node.classList.contains('collapse')||node.classList.contains('clickable')){return!1}}}}" hx-trigger="every 2s">
+        {% include 'partials/submission.html' with submission=base_submission single=True %}
+      </table>
+    </div>
   {% endif %}
   {% crispy form %}
   <button type="submit" class="btn btn-success" form="submission-form">Submit</button>
