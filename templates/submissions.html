@@ -70,25 +70,27 @@
                 <li><button type="submit" name="rerun" class="btn btn-outline-info">{% fa5_icon 'redo' 'fas' %} Re-Run</button></li>
             {% endif %}
 
-            <li>
-                <div class="dropdown">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tile="More Options">
-                        {% fa5_icon 'bars' 'fas' %}
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        {% if can_edit or task.leaderboard %}
-                            <a href="{% url 'leaderboard' task.course.pk task.pk %}" class="dropdown-item">Leaderboard</a>
-                        {% endif %}
-
-                        {% if can_edit %}
-                            <a href="{% url 'stats' task.course.pk task.pk %}" class="dropdown-item">Stats</a>
-                            {% if task.template %}
-                                <a href="{% url 'similarities' task.course.pk task.pk %}" class="dropdown-item">Similarities</a>
+            {% if can_edit or task.leaderboard %}
+                <li>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tile="More Options">
+                            {% fa5_icon 'bars' 'fas' %}
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            {% if can_edit or task.leaderboard %}
+                                <a href="{% url 'leaderboard' task.course.pk task.pk %}" class="dropdown-item">Leaderboard</a>
                             {% endif %}
-                        {% endif %}
+
+                            {% if can_edit %}
+                                <a href="{% url 'stats' task.course.pk task.pk %}" class="dropdown-item">Stats</a>
+                                {% if task.template %}
+                                    <a href="{% url 'similarities' task.course.pk task.pk %}" class="dropdown-item">Similarities</a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+            {% endif %}
           </ul>
       </div>
       <div>
