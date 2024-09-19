@@ -60,18 +60,20 @@
         theme: "material",
         lineNumbers: true,
     });
+    editor.setSize(null, 768);
     editor.save()
-    var template_editor = CodeMirror.fromTextArea(document.getElementById('id_setup'), {
+    var setup_editor = CodeMirror.fromTextArea(document.getElementById('id_setup'), {
         mode: "python",
         theme: "material",
         lineNumbers: true,
     });
-    template_editor.save()
+    setup_editor.save()
     var template_editor = CodeMirror.fromTextArea(document.getElementById('id_template_code'), {
         mode: "python",
         theme: "material",
         lineNumbers: true,
     });
+    template_editor.setSize(null, 768);
     template_editor.save()
   </script>
 {% endblock %}
