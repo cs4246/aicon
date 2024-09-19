@@ -42,10 +42,15 @@
       </li>
     {% endif %}
   </ul><br>
-  <form enctype="multipart/form-data" method="post" novalidate>
-    {% csrf_token %}
-    {% crispy form %}
-  </form>
+  {% crispy form %}
+  <button type="submit" class="btn btn-success" form="task-form">Save</button>
+  <button type="submit" class="btn btn-info" form="task-form" onclick="
+    var input = document.createElement('input');
+    input.setAttribute('type', 'hidden');
+    input.setAttribute('name', 'continue');
+    input.setAttribute('value', 1);
+    document.getElementById('task-form').appendChild(input);
+  ">Save and continue</button>
 
   <script type="text/javascript" src="{% static 'js/codemirror.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/codemirror-python.min.js' %}"></script>

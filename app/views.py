@@ -126,6 +126,10 @@ def _task_edit(request, course_pk, form_class, task_pk=None):
     if request.POST and form.is_valid():
         form.save()
 
+        messages.success(request, f'Task saved: {task.name}')
+        if "continue" in request.POST:
+            return redirect(reverse('task_edit_code', args=(course_pk,task.pk)))
+
         redirect_url = reverse('course', args=(course_pk,))
         return redirect(redirect_url)
 
@@ -438,6 +442,9 @@ def _submission_new(request, course_pk, task_pk, form_class, base_submission=Non
         form.save()
         submission_evaluate(request, task, submission)
 
+        messages.success(request, f'Submission created: {submission.filename}')
+        if "continue" in request.POST:
+            return redirect(reverse('submission_clone_code', args=(course_pk,task_pk,submission.pk)))
         return redirect(redirect_url)
 
     return render(request, 'submission_new.html', {'form': form, 'base_submission': base_submission})

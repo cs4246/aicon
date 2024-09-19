@@ -39,13 +39,15 @@
       </li>
     </ul><br>
   {% endif %}
-  <form enctype="multipart/form-data" method="post" novalidate>
-    {% csrf_token %}
-    {{ form|crispy }}
-    {{ form.instance.zip_list }}
-    {{ form.instance.code }}
-    <button type="submit" class="btn btn-success">Submit</button>
-  </form>
+  {% crispy form %}
+  <button type="submit" class="btn btn-success" form="submission-form">Submit</button>
+  <button type="submit" class="btn btn-info" form="submission-form" onclick="
+    var input = document.createElement('input');
+    input.setAttribute('type', 'hidden');
+    input.setAttribute('name', 'continue');
+    input.setAttribute('value', 1);
+    document.getElementById('submission-form').appendChild(input);
+  ">Submit and continue</button>
 
   <script type="text/javascript" src="{% static 'js/codemirror.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/codemirror-python.min.js' %}"></script>

@@ -75,7 +75,6 @@ class TaskFormConfig:
             ),
         ),
         'leaderboard',
-        Submit('submit', 'Submit', css_class="btn btn-success")
     ]
     LABELS = {
         "max_upload_size": "Max upload size (KB)",
@@ -102,9 +101,11 @@ class TaskForm(forms.ModelForm):
         labels = TaskFormConfig.LABELS
         widgets = TaskFormConfig.WIDGETS
 
-    def __init__(self, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
+    @property
+    def helper(self):
+        helper = FormHelper()
+        helper.form_id = "task-form"
+        helper.layout = Layout(
             Fieldset(
                 'Task',
                 'name',
@@ -114,7 +115,7 @@ class TaskForm(forms.ModelForm):
             ),
             *TaskFormConfig.TASK_LAYOUT
         )
-        super().__init__(*args, **kwargs)
+        return helper
 
     def show_file_error(self):
         # Hack: fix inherent bug error not showing on file field
@@ -151,8 +152,18 @@ class TaskCodeForm(forms.ModelForm):
         widgets = TaskFormConfig.WIDGETS
 
     def __init__(self, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
+        super().__init__(*args, **kwargs)
+        self.fields["code"].initial = self.instance.code
+        self.fields["setup"].initial = self.instance.setup
+        self.fields["template_code"].initial = self.instance.template_code
+        self.fields["delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in self.instance.file_contents]
+        self.fields["template_delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in self.instance.template_file_contents]
+
+    @property
+    def helper(self):
+        helper = FormHelper()
+        helper.form_id = "task-form"
+        helper.layout = Layout(
             'name',
             'description',
             'code',
@@ -164,13 +175,7 @@ class TaskCodeForm(forms.ModelForm):
             'template_delete_files',
             *TaskFormConfig.TASK_LAYOUT
         )
-        super().__init__(*args, **kwargs)
-        self.fields["code"].initial = self.instance.code
-        self.fields["setup"].initial = self.instance.setup
-        self.fields["template_code"].initial = self.instance.template_code
-        self.fields["delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in self.instance.file_contents]
-        self.fields["template_delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in self.instance.template_file_contents]
-
+        return helper
 
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -211,6 +216,12 @@ class SubmissionForm(forms.ModelForm):
             'file': forms.FileInput(attrs={'accept':'application/zip', 'class': 'clearablefileinput form-control'}),
         }
 
+    @property
+    def helper(self):
+        helper = FormHelper()
+        helper.form_id = "submission-form"
+        return helper
+
     def clean_file(self):
         SUPPORTED_FILETYPES = ['application/zip', 'application/zip-compressed', 'application/x-zip-compressed', 'multipart/x-zip']
         file = self.cleaned_data.get('file', False)
@@ -241,6 +252,13 @@ class SubmissionCodeForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.source_zip_file = base_submission.file_path
         self.fields["delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in base_submission.file_contents]
+
+    @property
+    def helper(self):
+        helper = FormHelper()
+        helper.form_id = "submission-form"
+        helper.attrs = {"enctype": "multipart/form-data"}
+        return helper
 
     def save(self, commit=True):
         instance = super().save(commit=False)
