@@ -44,8 +44,8 @@ def int_or_flot(x):
 
 
 def create_zip_file(path: str, source_zip_file: str, delete_files: list[str],
-                    upload_files: list[tuple[str,InMemoryUploadedFile]], texts: list[tuple[str,str]]):
-    _delete_files = set(delete_files + [file_path for file_path, file in upload_files] + [file_path for file_path, text in texts])
+                    add_files: list[tuple[str,InMemoryUploadedFile]], texts: list[tuple[str,str]]):
+    _delete_files = set(delete_files + [file_path for file_path, file in add_files] + [file_path for file_path, text in texts])
     with zipfile.ZipFile(source_zip_file, "r") as source_zipf:
         with zipfile.ZipFile(path, "w") as target_zipf:
             # Add previous files except in delete list
@@ -56,7 +56,7 @@ def create_zip_file(path: str, source_zip_file: str, delete_files: list[str],
                 target_zipf.writestr(item, buffer)
 
             # Add uploaded files
-            for file_path, file_content in upload_files:
+            for file_path, file_content in add_files:
                 target_zipf.writestr(file_path, file_content)
 
             # Add texts
