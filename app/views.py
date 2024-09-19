@@ -440,9 +440,9 @@ def _submission_new(request, course_pk, task_pk, form_class, base_submission=Non
         if base_submission.pk is None:
             base["description"] = ""
         elif "FROM" in base_submission.description:
-            base["description"] = re.sub(r"\[[A-Z]+ (.+)\]", f"[FROM {str(base_submission.filename)}]", base_submission.description)
+            base["description"] = re.sub(r"\[[A-Z]+ (.+)\]", f"[FROM {str(base_submission.name)}]", base_submission.description)
         else:
-            base["description"] = f"[FROM {base_submission.filename}]"
+            base["description"] = f"[FROM {base_submission.name}]"
         form = form_class(request.POST or base, request.FILES or None, instance=submission, base_submission=base_submission)
     else:
         form = form_class(request.POST or None, request.FILES or None, instance=submission)
@@ -451,7 +451,7 @@ def _submission_new(request, course_pk, task_pk, form_class, base_submission=Non
         form.save()
         submission_evaluate(request, task, submission)
 
-        messages.success(request, f'Submission created: {submission.filename}')
+        messages.success(request, f'Submission created: {submission.name}')
         if "continue" in request.POST:
             return redirect(reverse('submission_clone_code', args=(course_pk,task_pk,submission.pk)))
         return redirect(redirect_url)

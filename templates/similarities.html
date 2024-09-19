@@ -154,7 +154,7 @@
                   </div>
                   {% if similarity.submission.file %}
                   <div class="col-8" style="overflow-wrap: break-word">
-                    <a href="{% url 'submission_download' similarity.submission.pk %}">{{ similarity.submission.filename }}</a>
+                    <a href="{% url 'submission_download' similarity.submission.pk %}">{{ similarity.submission.name }}</a>
                   </div>
                   {% elif similarity.submission.docker %}
                   <div class="col-8">

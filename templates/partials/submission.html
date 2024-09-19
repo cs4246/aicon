@@ -38,7 +38,7 @@
 		<div class="row vcenter">
    			<div class="col-12" style="overflow-wrap: break-word">
 			{% if submission.file %}
-				<a href="{% url 'submission_download' submission.pk %}">{{ submission.filename }}</a>
+				<a href="{% url 'submission_clone_code' submission.task.course.pk submission.task.pk submission.pk %}">{{ submission.name }}</a>
 				{% if submission.description %}<br><small>{{ submission.description }}</small>{% endif %}
 			{% else %}
                 None
@@ -66,13 +66,16 @@
 		{% if submission.is_late %}<span class="badge badge-danger">Late</span>{% endif %}
 	</td>
 	<td class="align-middle">{{ submission.created_at }}</td>
-	{% if not single %}
-        <td>
-            <div class="float-right">
-                <a href="{% url 'submission_clone_code' submission.task.course.pk submission.task.pk submission.pk %}" class="btn btn-outline-primary btn-block">{% fa5_icon 'clone' 'fas' %} Clone</a>
-            </div>
-        </td>
-    {% endif %}
+    <td class="align-middle">
+        <div class="float-right">
+            {% if submission.file %}
+                {% if not single %}
+                    <a href="{% url 'submission_clone_code' submission.task.course.pk submission.task.pk submission.pk %}" class="btn btn-outline-primary" title="Clone">{% fa5_icon 'clone' 'fas' %}</a>
+                {% endif %}
+                <a href="{% url 'submission_download' submission.pk %}" class="btn btn-outline-primary" title="Download">{% fa5_icon 'download' 'fas' %}</a>
+            {% endif %}
+        </div>
+    </td>
 </tr>
 <tr id="submission-evaluation-{{submission.pk}}" class="collapsible">
    	<td colspan="10">

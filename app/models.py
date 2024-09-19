@@ -6,6 +6,7 @@ from django.shortcuts import reverse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from aicon.settings import SUBMISSION_BASE_ZIPFILE, SUBMISSION_BASE_MAIN_DIR, SUBMISSION_BASE_MAIN_FILE, TASK_BASE_MAIN_FILE, TASK_BASE_SETUP_FILE
+from pathlib import Path
 from .utils import get_code, make_space, int_or_flot
 import os
 import hashlib
@@ -316,6 +317,10 @@ class Submission(models.Model):
     @classmethod
     def get_code(cls, path):
         return get_code(path, cls.MAIN_FILE)
+
+    @property
+    def name(self):
+        return Path(self.filename).stem if self.filename else None
 
     @property
     def filename(self):

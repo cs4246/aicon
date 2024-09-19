@@ -20,7 +20,7 @@
   <li class="breadcrumb-item"><a href="{% url 'course' form.instance.task.course.pk %}">{{ form.instance.task.course }}</a></li>
   <li class="breadcrumb-item"><a href="{% url 'submissions' form.instance.task.course.pk form.instance.task.pk %}">{{ form.instance.task.name }}</a></li>
   {% if request.get_full_path == submit_clone_url %}
-    <li class="breadcrumb-item active">Clone Submission: {{ base_submission.filename }}</li>
+    <li class="breadcrumb-item active">Clone Submission: {{ base_submission.name }}</li>
   {% else %}
     <li class="breadcrumb-item active">New Submission</li>
   {% endif %}
