@@ -83,10 +83,8 @@
  			<div class="card card-body">
                 {% if submission.notes %}
     				<small style="font-weight: bold;">EVALUATION:</small>
-    				<div id="submission-{{ submission.pk }}-notes-view" class="pt-3"></div>
-                        <div class="table-responsive">
-                       	    {{ submission.notes | json2html | safe }}
-                        </div>
+                    <div class="table-responsive mt-3">
+                   	    {{ submission.notes | json2html | safe }}
     				</div>
     				{% if submission.suggestions %}
         				<hr>
