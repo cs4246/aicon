@@ -4,6 +4,7 @@
 {% load query_transform %}
 {% load define %}
 {% load addstr %}
+{% load bootstrap4 %}
 
 {% block extrahead %}
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/github.min.css">
@@ -64,9 +65,9 @@
 {% endblock %}
 
 {% block breadcrumb %}
-  <li class="breadcrumb-item"><a href="{% url 'courses' %}">Courses</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'course' task.course.pk %}">{{ task.course }}</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'submissions' task.course.pk task.pk %}">{{ task.name }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'courses:index' %}">Courses</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'courses:tasks:index' task.course.pk %}">{{ task.course }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'courses:tasks:submissions:index' task.course.pk task.pk %}">{{ task.name }}</a></li>
   <li class="breadcrumb-item active">Similarities</li>
 {% endblock %}
 
@@ -87,10 +88,10 @@
               </div>
                <select name="per_page" id="per_page" class="custom-select">
                 {% for pp in per_page_options %}
-                  {% if pp == similarities.paginator.per_page %}
-                  <option selected="selected" value="{% url 'similarities' task.course.pk task.pk %}?{% query_transform request per_page=pp page=1 %}">{{pp}}</option>
+                  {% if pp == paginator.per_page %}
+                  <option selected="selected" value="?{% query_transform request per_page=pp page=1 %}">{{pp}}</option>
                     {% else %}
-                  <option value="{% url 'similarities' task.course.pk task.pk %}?{% query_transform request per_page=pp page=1 %}">{{pp}}</option>
+                  <option value="?{% query_transform request per_page=pp page=1 %}">{{pp}}</option>
                   {% endif %}
                 {% endfor %}
               </select>
@@ -133,7 +134,7 @@
               <td class="align-middle">
                 <div class="row">
                   <div class="col-12">
-                    {{forloop.counter0|add:similarities.start_index }}
+                    {{forloop.counter0|add:page_obj.start_index }}
                   </div>
                 </div>
               </td>
@@ -154,11 +155,7 @@
                   </div>
                   {% if similarity.submission.file %}
                   <div class="col-8" style="overflow-wrap: break-word">
-                    <a href="{% url 'submission_download' similarity.submission.pk %}">{{ similarity.submission.name }}</a>
-                  </div>
-                  {% elif similarity.submission.docker %}
-                  <div class="col-8">
-                    {{ similarity.submission.docker }}<br>
+                    <a href="{% url 'courses:tasks:submissions:download' similarity.submission.task.course.pk similarity.submission.task.pk similarity.submission.pk %}">{{ similarity.submission.name }}</a>
                   </div>
                   {% else %}
                   <div class="col-8">None</div>
@@ -172,7 +169,7 @@
                   </div>
                   {% if similarity.related.file %}
                   <div class="col-8" style="overflow-wrap: break-word">
-                    <a href="{% url 'submission_download' similarity.related.pk %}">{{ similarity.related.filename }}</a>
+                    <a href="{% url 'courses:tasks:submissions:download' similarity.related.task.course.pk similarity.related.task.pk similarity.related.pk %}">{{ similarity.related.filename }}</a>
                   </div>
                   {% elif similarity.related.docker %}
                   <div class="col-8">
@@ -227,55 +224,9 @@
       </table>
     </div>
 
-    {% if similarities.paginator.num_pages > 1 %}
-    <nav aria-label="Page navigation">
-      <ul class="pagination justify-content-center flex-wrap">
-        {% if similarities.has_previous %}
-        <li class="page-item">
-          <a class="page-link" href="{% url 'similarities' task.course.pk task.pk %}?{% query_transform request page=1 %}" tabindex="-1">{% fa5_icon 'angle-double-left' 'fas' %}</a>
-        </li>
-        <li class="page-item">
-          <a class="page-link" href="{% url 'similarities' task.course.pk task.pk %}?{% query_transform request page=similarities.previous_page_number %}" tabindex="-1">{% fa5_icon 'angle-left' 'fas' %}</a>
-        </li>
-        {% else %}
-        <li class="page-item disabled">
-          <a class="page-link" href="#" tabindex="-1">{% fa5_icon 'angle-double-left' 'fas' %}</a>
-        </li>
-        <li class="page-item disabled">
-          <a class="page-link" href="#" tabindex="-1">{% fa5_icon 'angle-left' 'fas' %}</a>
-        </li>
-        {% endif %}
-        {% for l in  similarities.paginator.page_range %}
-          {% if l <= similarities.number|add:5 and l >= similarities.number|add:-5 %}
-            {% if l == similarities.number %}
-            <li class="page-item active">
-              <span class="page-link">
-                <span>{{forloop.counter}}</span>
-              </span>
-            </li>
-            {% else %}
-            <li class="page-item"><a class="page-link" href="{% url 'similarities' task.course.pk task.pk %}?{% query_transform request page=forloop.counter %}">{{forloop.counter}}</a></li>
-            {% endif %}
-          {% endif %}
-        {% endfor %}
-        {% if similarities.has_next %}
-        <li class="page-item">
-          <a class="page-link" href="{% url 'similarities' task.course.pk task.pk %}?{% query_transform request page=similarities.next_page_number %}" tabindex="-1">{% fa5_icon 'angle-right' 'fas' %}</a>
-        </li>
-        <li class="page-item">
-          <a class="page-link" href="{% url 'similarities' task.course.pk task.pk %}?{% query_transform request page=similarities.paginator.num_pages %}" tabindex="-1">{% fa5_icon 'angle-double-right' 'fas' %}</a>
-        </li>
-        {% else %}
-        <li class="page-item disabled">
-          <a class="page-link" href="#" tabindex="-1">{% fa5_icon 'angle-right' 'fas' %}</a>
-        </li>
-        <li class="page-item disabled">
-          <a class="page-link" href="#" tabindex="-1">{% fa5_icon 'angle-double-right' 'fas' %}</a>
-        </li>
-        {% endif %}
-      </ul>
-    </nav>
-    {% endif %}
+    <div class="d-flex justify-content-center">
+      {% bootstrap_pagination page_obj extra=request.GET.urlencode %}
+    </div>
 
     <script type="text/javascript">
       $(document).ready(function() {

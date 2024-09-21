@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load fontawesome_5 %}
+{% load can %}
+{% load call_method %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Courses</li>
+{% endblock %}
+
+{% block content %}
+<div class="table-responsive">
+    <table class="table">
+        <thead class="thead-inverse">
+            <tr>
+                <th>Course</th>
+                <th>Role</th>
+                <th>Tasks</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in courses %}
+                {% can course request.user 'course.join' as can_join %}
+                {% can course request.user 'course.delete' as can_delete %}
+                {% can course request.user 'task.list' as can_list_task %}
+                <tr>
+                    <td>
+                        {% if can_list_task %}
+                            <a href="{% url 'courses:tasks:index' course.pk %}">{{ course.code }}</a>
+                        {% else %}
+                            <a href="{% url 'courses:join' course.pk %}">{{ course.code }}</a>
+                        {% endif %}
+                        <small class="text-muted d-block">{{ course.academic_year }} - Semester {{ course.semester }}</small>
+                    </td>
+                    <td class="align-middle">
+                        {% call_method course "role" user as course_role %}
+                        {{ course_role }}
+                    </td>
+                    <td class="align-middle">{{ course.tasks.count }}</td>
+                    <td class="align-middle">
+                        <div class="float-right">
+                            {% if can_join %}
+                                <a href="{% url 'courses:join' course.pk %}" class="btn btn-outline-primary">{% fa5_icon 'sign-in-alt' 'fas' %}</a>
+                            {% endif %}
+                            {% if can_delete %}
+                                <a href="" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-outline-danger">{% fa5_icon 'trash-alt' 'fas' %}</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

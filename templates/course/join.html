@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block extrahead %}
+    {{ form.media }}
+{% endblock %}
+
+{% block title %} Join - {{ course }} - {{ block.super }} {% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'courses:index' %}">Courses</a></li>
+    <li class="breadcrumb-item">{{ course }}</li>
+    <li class="breadcrumb-item active">Join</li>
+{% endblock %}
+
+{% block content %}
+{% crispy form %}
+{% endblock %}

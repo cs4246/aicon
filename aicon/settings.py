@@ -182,32 +182,61 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # Permissions
 
-ROLES_COURSE_ADD            = ['LEC', 'ADM']
-ROLES_COURSE_DELETE         = ['LEC', 'ADM']
-ROLES_COURSE_VIEW           = ['GUE', 'STU', 'TA', 'LEC', 'ADM']
-ROLES_COURSE_JOIN           = ['GUE', 'STU', 'TA', 'LEC', 'ADM']
-ROLES_TASK_VIEW             = ['GUE', 'STU', 'TA', 'LEC', 'ADM']
-ROLES_TASK_SUBMIT           = ['STU', 'TA', 'LEC', 'ADM']
-ROLES_TASK_EDIT             = ['TA', 'LEC', 'ADM']
-ROLES_TASK_DELETE           = ['LEC', 'ADM']
-ROLES_TASK_DOWNLOAD         = ['LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_DOWNLOAD   = ['LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_VIEW       = ['LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_RERUN      = ['LEC', 'ADM', 'TA']
+ROLES_COURSE_ADD               = ['LEC', 'ADM']
+ROLES_COURSE_DELETE            = ['LEC', 'ADM']
+ROLES_COURSE_LIST              = ['GUE', 'STU', 'TA', 'LEC', 'ADM']
+ROLES_COURSE_JOIN              = ['GUE']
+ROLES_TASK_LIST                = ['STU', 'TA', 'LEC', 'ADM']
+ROLES_TASK_CREATE              = ['TA', 'LEC', 'ADM']
+ROLES_TASK_UPDATE              = ['TA', 'LEC', 'ADM']
+ROLES_TASK_DELETE              = ['LEC', 'ADM']
+ROLES_TASK_DOWNLOAD            = ['LEC', 'ADM', 'TA']
+ROLES_TASK_DOWNLOAD_TEMPLATE   = ['STU', 'LEC', 'ADM', 'TA']
+ROLES_SUBMISSION_DOWNLOAD      = ['LEC', 'ADM', 'TA']
+ROLES_SUBMISSION_DOWNLOAD_SELF = ['STU', 'LEC', 'ADM', 'TA']
+ROLES_SUBMISSION_LIST          = ['LEC', 'ADM', 'TA']
+ROLES_SUBMISSION_LIST_SELF     = ['STU', 'LEC', 'ADM', 'TA']
+ROLES_SUBMISSION_DETAIL        = ['LEC', 'ADM', 'TA']
+ROLES_SUBMISSION_DETAIL_SELF   = ['STU', 'LEC', 'ADM', 'TA']
+ROLES_SUBMISSION_CREATE        = ['STU', 'LEC', 'ADM', 'TA']
+ROLES_SUBMISSION_UPDATE        = ['LEC', 'ADM', 'TA']
+ROLES_SUBMISSION_UPDATE_SELF   = ['STU', 'LEC', 'ADM', 'TA']
+ROLES_SUBMISSION_RUN           = ['LEC', 'ADM', 'TA']
+ROLES_SUBMISSION_RUN_SELF      = ['LEC', 'ADM', 'TA']
+ROLES_LEADERBOARD              = ['LEC', 'ADM', 'TA']
+ROLES_LEADERBOARD_SELF         = ['STU', 'LEC', 'ADM', 'TA']
+ROLES_LEADERBOARD_DOWNLOAD     = ['LEC', 'ADM', 'TA']
+ROLES_STATS                    = ['LEC', 'ADM', 'TA']
+ROLES_SIMILARITIES             = ['LEC', 'ADM', 'TA']
+ROLES_SIMILARITY_LIST          = ['LEC', 'ADM', 'TA']
 
 ROLES = {
-    'course.view': ROLES_COURSE_VIEW,
+    'course.list': ROLES_COURSE_LIST,
     'course.add': ROLES_COURSE_ADD,
     'course.delete': ROLES_COURSE_DELETE,
     'course.join': ROLES_COURSE_JOIN,
-    'task.view': ROLES_TASK_VIEW,
-    'task.edit': ROLES_TASK_EDIT,
+    'task.list': ROLES_TASK_LIST,
+    'task.create': ROLES_TASK_CREATE,
+    'task.update': ROLES_TASK_UPDATE,
     'task.delete': ROLES_TASK_DELETE,
-    'task.submit': ROLES_TASK_SUBMIT,
     'task.download': ROLES_TASK_DOWNLOAD,
+    'task.download.template': ROLES_TASK_DOWNLOAD_TEMPLATE,
     'submission.download': ROLES_SUBMISSION_DOWNLOAD,
-    'submission.view': ROLES_SUBMISSION_VIEW,
-    'submission.rerun': ROLES_SUBMISSION_RERUN,
+    'submission.download.self': ROLES_SUBMISSION_DOWNLOAD_SELF,
+    'submission.list': ROLES_SUBMISSION_LIST,
+    'submission.list.self': ROLES_SUBMISSION_LIST_SELF,
+    'submission.detail': ROLES_SUBMISSION_DETAIL,
+    'submission.detail.self': ROLES_SUBMISSION_DETAIL_SELF,
+    'submission.create': ROLES_SUBMISSION_CREATE,
+    'submission.update': ROLES_SUBMISSION_UPDATE,
+    'submission.update.self': ROLES_SUBMISSION_UPDATE_SELF,
+    'submission.run': ROLES_SUBMISSION_RUN,
+    'submission.run.self': ROLES_SUBMISSION_RUN_SELF,
+    'leaderboard': ROLES_LEADERBOARD,
+    'leaderboard.self': ROLES_LEADERBOARD_SELF, # if task enables leaderboard
+    'leaderboard.download': ROLES_LEADERBOARD_DOWNLOAD,
+    'stats': ROLES_STATS,
+    'similarity.list': ROLES_SIMILARITY_LIST,
 }
 
 # Upload

@@ -7,7 +7,7 @@ from rest_framework.routers import DefaultRouter
 
 from .models import Submission, Task, Similarity, User
 from .serializers import SubmissionSerializer, TaskSerializer, SimilaritySerializer, SimilaritySubmissionSerializer
-from .funcs import can
+from .utils import can
 from .utils import create_download_response
 
 from itertools import groupby
@@ -71,7 +71,7 @@ class TaskViewSet(viewsets.ReadOnlyModelViewSet):
             grouped_submissions = groupby(sorted(submissions, key=lambda x: x.user.pk), key=key)
             result = {}
             for user, submissions in grouped_submissions:
-                if can(task.course, user, 'task.edit') or not user.is_active:
+                if can(task.course, user, 'task.update') or not user.is_active:
                     continue
                 serializer = SimilaritySubmissionSerializer(submissions, many=True, context={'request': request})
                 result[user.pk] = serializer.data

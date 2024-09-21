@@ -1,5 +1,5 @@
 {% for submission in submissions %}
-    {% include 'partials/submission.html' with submission=submission %}
+    {% include 'submission/partial/detail.html' with submission=submission %}
 {% empty %}
     <tr><td colspan="10" class="text-center">No submission.</td></tr>
 {% endfor %}

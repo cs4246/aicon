@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% load can %}
+{% load fontawesome_5 %}
+
+{% block title %}
+    Leaderboard - {{ task.name }} - {{ task.course }} - {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+    	<a href="{% url 'courses:index' %}">Courses</a>
+    </li>
+    <li class="breadcrumb-item">
+    	<a href="{% url 'courses:tasks:index' task.course.pk %}">{{ task.course }}</a>
+    </li>
+    <li class="breadcrumb-item">
+    	<a href="{% url 'courses:tasks:submissions:index' task.course.pk task.pk %}">{{ task.name }}</a>
+    </li>
+    <li class="breadcrumb-item active">Leaderboard</li>
+{% endblock %}
+
+{% block content %}
+    {% can task.course request.user 'leaderboard.download' as can_leaderboard_download %}
+    <h1>Leaderboard</h1>
+    <span>Top {{ submissions | length }}</span>
+    <div class="mb-4">
+    	<hr>
+        {% if can_leaderboard_download %}
+            <a href="{% url 'courses:tasks:info:leaderboard-download' task.course.pk task.pk %}" class="btn btn-success">{% fa5_icon 'file-excel' 'fas' %} Export to XLS</a>
+        {% endif %}
+        <a class="btn btn-primary" id="distribution-button" data-toggle="collapse" href="#distribution" role="button" aria-expanded="false">{% fa5_icon 'chart-bar' 'fas' %} Show Distribution</a>
+    </div>
+    <div id="distribution" class="collapse">
+    	<div style="height: 300px">
+    		<canvas id="leaderboard-distribution-chart" style="min-height: 300px; height: 300px" height="300"></canvas>
+    	</div>
+    	<div class="card">
+    		<div class="card-body text-center">
+                Mean: {{ stats.mean }} &nbsp;|&nbsp; Median: {{ stats.median }} &nbsp;|&nbsp; 25th-75th Percentile: {{ stats.quantiles.0 }}-{{ stats.quantiles.1 }}
+    		</div>
+    	</div>
+    	<br>
+    </div>
+    <div class="table-responsive">
+    	<table class="table">
+    		<thead class="thead-inverse">
+    			<tr>
+    				<th>Rank</th>
+                    {% if can_edit %}
+                        <th>Username</th>
+                    {% endif %}
+                    <th>Name</th>
+                    {% if can_edit %}
+                        <th>Submission</th>
+                        <th>Size</th>
+                    {% endif %}
+                    <th>Point</th>
+    				<th>Created At</th>
+    			</tr>
+    		</thead>
+    		<tbody>
+                {% for submission in submissions %}
+                    <tr>
+        				<td class="align-middle">{{ forloop.counter }}</td>
+                            {% if can_edit %}
+                                <td class="align-middle">{{ submission.user }}</td>
+                            {% endif  %}
+                            <td class="align-middle">{{ submission.user.first_name }} {{ submission.user.last_name }}</td>
+                            {% if can_edit %}
+                                <td class="align-middle">
+                                   	<a href="{% url 'courses:tasks:submissions:download' submission.task.course.pk submission.task.pk submission.pk %}">{{ submission.filename }}</a>
+                				</td>
+                				<td class="align-middle">{{ submission.file_size | filesizeformat }}</td>
+                            {% endif  %}
+                            <td class="align-middle">{{ submission.point }}
+                            {% if submission.is_late %}
+                                <span class="badge badge-danger">Late</span>
+                            {% endif %} </td>
+        				<td class="align-middle">{{ submission.created_at }}</td>
+     			</tr>
+                {% endfor %}
+            </tbody>
+    	</table>
+    </div>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+    <script type="text/javascript">
+    	new Chart(document.getElementById("leaderboard-distribution-chart"), {
+    		type: 'bar',
+    		data: {
+    			labels: {
+    				{
+    					stats.labels | safe
+    				}
+    			},
+    			datasets: [{
+    				data: {
+    					{
+    						stats.distribution
+    					}
+    				},
+    				label: 'Percentage',
+    				borderColor: "#27ae60",
+    				backgroundColor: "#2ecc71"
+    			}, ]
+    		},
+    		options: {
+    			maintainAspectRatio: false,
+    			responsive: true,
+    			legend: {
+    				display: false
+    			},
+    			scales: {
+    				yAxes: [{
+    					ticks: {
+    						min: 0,
+    						max: 100,
+    						callback: function(value) {
+    							return value + "%"
+    						}
+    					},
+    					scaleLabel: {
+    						display: true,
+    						labelString: "Percentage"
+    					},
+    					stacked: true
+    				}]
+    			}
+    		}
+    	});
+    	$('#distribution').on('show.bs.collapse', function() {
+    		$('#distribution-button').html('{% fa5_icon 'chart-bar' 'fas' %} Hide Distribution');
+    	});
+    	$('#distribution').on('hide.bs.collapse', function() {
+    		$('#distribution-button').html('{% fa5_icon 'chart-bar' 'fas' %} Show Distribution');
+    	});
+    	$(document).ready(function() {
+    		if (location.hash != null && location.hash != "") {
+    			$('.collapse').removeClass('in');
+    			$(location.hash + '.collapse').collapse('show');
+    		}
+    	});
+    </script>
+{% endblock %}

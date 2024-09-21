@@ -1,48 +1,16 @@
 from django import forms
-from django.forms.widgets import HiddenInput
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
 from django.core.files import File
-from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, Submit, Field, Fieldset, Div, HTML
+from crispy_forms.layout import Layout, Row, Column, Div, HTML
+from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 from aicon.settings import TASK_BASE_ZIPFILE, TASK_BASE_MAIN_DIR, TASK_BASE_MAIN_FILE, TASK_BASE_SETUP_FILE, \
                            SUBMISSION_BASE_ZIPFILE, SUBMISSION_BASE_MAIN_DIR, SUBMISSION_BASE_MAIN_FILE
-from .models import Invitation, Task, Submission, Course
-from .utils import create_zip_file, get_code
+from app.forms.utils import MultipleFileField, create_zip_file
+from app.models import Task
+
 import io
-import os
 import tempfile
-import namesgenerator
-
-
-class HideableForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        hidden = kwargs.pop('hidden', False)
-        super().__init__(*args, **kwargs)
-        if hidden:
-            for fieldname in self.Meta.fields:
-                self.fields[fieldname].widget = HiddenInput()
-
-
-
-class MultipleFileInput(forms.ClearableFileInput):
-    allow_multiple_selected = True
-
-
-class MultipleFileField(forms.FileField):
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault("widget", MultipleFileInput(attrs=kwargs.get("attrs")))
-        kwargs.pop("attrs")
-        super().__init__(*args, **kwargs)
-
-    def clean(self, data, initial=None):
-        single_file_clean = super().clean
-        if isinstance(data, (list, tuple)):
-            result = [single_file_clean(d, initial) for d in data]
-        else:
-            result = [single_file_clean(data, initial)]
-        return result
+import os
 
 
 class TaskFormConfig:
@@ -95,7 +63,7 @@ class TaskFormConfig:
               'partition', 'gpus', 'opened_at', 'deadline_at', 'closed_at', 'leaderboard']
 
 
-class TaskForm(forms.ModelForm):
+class TaskPackageForm(forms.ModelForm):
     file = forms.FileField(required=False) # Hack for file field error
 
     class Meta:
@@ -217,104 +185,3 @@ class TaskCodeForm(forms.ModelForm):
                 if commit:
                     instance.save()
                 return instance
-
-
-class SubmissionForm(forms.ModelForm):
-    class Meta:
-        model = Submission
-        fields = ['file', 'description']
-        labels = {
-            "file": "File (.zip)",
-        }
-        widgets = {
-            'file': forms.FileInput(attrs={'accept':'application/zip', 'class': 'clearablefileinput form-control'}),
-        }
-
-    @property
-    def helper(self):
-        helper = FormHelper()
-        helper.form_id = "submission-form"
-        return helper
-
-    def clean_file(self):
-        SUPPORTED_FILETYPES = ['application/zip', 'application/zip-compressed', 'application/x-zip-compressed', 'multipart/x-zip']
-        file = self.cleaned_data.get('file', False)
-        if not file:
-            raise forms.ValidationError("File is required.", code='file_required')
-        if file:
-            message = None
-            if file.size > self.instance.task.max_upload_size * 1024:
-                message = f"File size is too large ({round(file.size/1024)}KB > {self.instance.task.max_upload_size}KB)."
-            if file.content_type not in SUPPORTED_FILETYPES:
-                message = f"File type: {file.content_type} is not supported."
-            if message:
-                raise forms.ValidationError(message, code='file_requirement_error')
-        return file
-
-
-class SubmissionCodeForm(forms.ModelForm):
-    code = forms.CharField(widget=forms.Textarea)
-    source_zip_file = forms.CharField(widget=forms.HiddenInput(), required=False)
-    add_files = MultipleFileField(required=False, attrs={'class': 'clearablefileinput form-control'})
-    delete_files = forms.MultipleChoiceField(choices=[], widget=forms.CheckboxSelectMultiple, required=False)
-
-    class Meta:
-        model = Submission
-        fields = ['code', 'source_zip_file', 'add_files', 'delete_files', 'description']
-
-    def __init__(self, *args, base_submission: Submission, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.source_zip_file = base_submission.file_path
-        self.fields["delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in base_submission.file_contents]
-
-    @property
-    def helper(self):
-        helper = FormHelper()
-        helper.form_id = "submission-form"
-        helper.attrs = {"enctype": "multipart/form-data"}
-        return helper
-
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        unique_id = namesgenerator.get_random_name()
-        code = self.cleaned_data.get('code', False)
-        add_files = [(os.path.join(Submission.MAIN_DIR, file.name), file.read())
-                     for file in self.cleaned_data.get('add_files', False)]
-        delete_files = self.cleaned_data.get('delete_files')
-
-        with tempfile.NamedTemporaryFile(suffix='.zip', delete=True) as tmpf:
-            create_zip_file(tmpf.name, self.source_zip_file, delete_files=delete_files, add_files=add_files, texts=[(Submission.MAIN_FILE, code)])
-            with open(tmpf.name, "rb") as f:
-                instance.file = File(f, name=f"{unique_id}.zip")
-                if commit:
-                    instance.save()
-                return instance
-
-
-class CourseForm(HideableForm):
-    class Meta:
-        model = Course
-        fields = ('code', 'academic_year', 'semester')
-
-
-class RegisterForm(UserCreationForm):
-    email = forms.EmailField(label = "Email")
-    first_name = forms.CharField(label = "First name")
-    last_name = forms.CharField(label = "Last name")
-
-    class Meta:
-        model = User
-        labels = {
-            "username": "Student ID (AXXXXXXXX)",
-        }
-        fields = ("username", "email", "first_name", "last_name")
-
-
-class InvitationForm(HideableForm):
-    class Meta:
-        model = Invitation
-        fields = ('key',)
-
-
-class CourseJoinForm(forms.Form):
-    invitation_key = forms.CharField(max_length=255, label="Invitation Key")

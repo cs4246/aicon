@@ -1,14 +1,25 @@
 {% load fontawesome_5 %}
 {% load can %}
 {% load json2html %}
+{% load define %}
+{% load call_method %}
 
-{% can submission.task.course request.user 'task.edit' as can_edit %}
+{% call_method task 'submissions_exceeded_by_user' request.user as submission_exceeded %}
+{% can submission.task.course request.user 'submission.run' as can_run %}
+{% can submission.task.course request.user 'submission.create' as can_create %}
+{% can submission.task.course request.user 'task.update' as can_update %}
+
+{% if can_update or not submission_exceeded and can_create and task.is_open %}
+    {% define "primary" as button_decorator %}
+{% else %}
+    {% define "secondary" as button_decorator %}
+{% endif %}
 
 {% if submission.status == 'R' %}
     <tr id="flash-box-{{submission.pk}}" style="display: none;" class="flash-box-next"></tr>
 {% endif %}
 <tr id="submission-{{submission.pk}}" class="clickable collapsed" data-toggle="collapse" href="#collapse-evaluation-{{submission.pk}}" role="button" aria-expanded="false" data-tooltip="tooltip" data-placement="bottom" title="Click to expand / contract">
-	{% if can_edit and not single %}
+	{% if can_run and not single %}
        	<td class="align-middle">
       		<div class="row">
      			<div class="col-12">
@@ -38,7 +49,7 @@
 		<div class="row vcenter">
    			<div class="col-12" style="overflow-wrap: break-word">
 			{% if submission.file %}
-				<a href="{% url 'submission_clone_code' submission.task.course.pk submission.task.pk submission.pk %}">{{ submission.name }}</a>
+				<a href="{% url 'courses:tasks:submissions:edit' submission.task.course.pk submission.task.pk submission.pk 'code' %}">{{ submission.name }}</a>
 				{% if submission.description %}<br><small>{{ submission.description }}</small>{% endif %}
 			{% else %}
                 None
@@ -63,16 +74,18 @@
 	<td class="align-middle">{{ submission.file_size | filesizeformat }}</td>
 	<td class="align-middle">
 		{{ submission.info }}
-		{% if submission.is_late %}<span class="badge badge-danger">Late</span>{% endif %}
+		{% if submission.is_late %}
+		    <span class="badge badge-danger float-right">Late</span>
+		{% endif %}
 	</td>
 	<td class="align-middle">{{ submission.created_at }}</td>
     <td class="align-middle">
         <div class="float-right">
             {% if submission.file %}
                 {% if not single %}
-                    <a href="{% url 'submission_clone_code' submission.task.course.pk submission.task.pk submission.pk %}" class="btn btn-outline-primary" title="Clone">{% fa5_icon 'clone' 'fas' %}</a>
+                    <a href="{% url 'courses:tasks:submissions:edit' submission.task.course.pk submission.task.pk submission.pk 'code' %}" class="btn btn-outline-{{ button_decorator }}" title="Clone">{% fa5_icon 'clone' 'fas' %}</a>
                 {% endif %}
-                <a href="{% url 'submission_download' submission.pk %}" class="btn btn-outline-primary" title="Download">{% fa5_icon 'download' 'fas' %}</a>
+                <a href="{% url 'courses:tasks:submissions:download' submission.task.course.pk submission.task.pk submission.pk %}" class="btn btn-outline-primary" title="Download">{% fa5_icon 'download' 'fas' %}</a>
             {% endif %}
         </div>
     </td>

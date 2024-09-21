@@ -15,43 +15,49 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic.base import RedirectView
+from app import apis
+from app.views import RegisterView, \
+                      CourseListView, CourseJoinView, \
+                      TaskListView, TaskCreateView, TaskUpdateView, TaskDeleteView, TaskDownloadView, TaskDownloadTemplateView, \
+                      SubmissionListView, SubmissionCreateView, SubmissionDetailView, SubmissionUpdateView, SubmissionRunView, SubmissionDownloadView, \
+                      LeaderboardView, LeaderboardDownloadView, StatsView, SimilarityListView
 
-from app import views, apis
 
+info_urls = [
+    path("leaderboard/", LeaderboardView.as_view(), name="leaderboard"),
+    path("leaderboard/download/", LeaderboardDownloadView.as_view(), name="leaderboard-download"),
+    path("stats/", StatsView.as_view(), name="stats"),
+    path("similarities/", SimilarityListView.as_view(), name="similarities"),
+]
+submissions_urls = [
+    path("", SubmissionListView.as_view(), name="index"),
+    path("run/", SubmissionRunView.as_view(), name="run"),
+    path("add/<str:mode>/", SubmissionCreateView.as_view(), name="create"),
+    path("<int:submission_pk>/", SubmissionDetailView.as_view(), name="detail"),
+    path("<int:submission_pk>/edit/<str:mode>/", SubmissionUpdateView.as_view(), name="edit"),
+    path("<int:submission_pk>/download", SubmissionDownloadView.as_view(), name="download"),
+]
+tasks_urls = [
+    path("", TaskListView.as_view(), name="index"),
+    path("add/<str:mode>/", TaskCreateView.as_view(), name="create"),
+    path("<int:task_pk>/edit/<str:mode>", TaskUpdateView.as_view(), name="edit"),
+    path("<int:task_pk>/delete/", TaskDeleteView.as_view(), name="delete"),
+    path("<int:task_pk>/download/", TaskDownloadView.as_view(), name="download"),
+    path("<int:task_pk>/template/download/", TaskDownloadTemplateView.as_view(), name="download-template"),
+    path("<int:task_pk>/submissions/", include((submissions_urls, "app"), namespace="submissions")),
+    path("<int:task_pk>/info/", include((info_urls, "app"), namespace="info")),
+]
+courses_urls = [
+    path("", CourseListView.as_view(), name="index"),
+    path("<int:course_pk>/join/", CourseJoinView.as_view(), name="join"),
+    path("<int:course_pk>/tasks/", include((tasks_urls, "app"), namespace="tasks")),
+]
 urlpatterns = [
-    path('', views.courses, name='home'),
-
-    path('courses/', views.courses, name='courses'),
-    path('courses/new/', views.course_add, name='course_add'),
-    path('courses/<int:course_pk>/', views.course, name='course'),
-    path('courses/<int:course_pk>/delete/', views.course_delete, name='course_delete'),
-    path('courses/<int:course_pk>/join/', views.course_join, name='course_join'),
-
-    path('courses/<int:course_pk>/tasks/new/package', views.task_edit_package, name='task_new_package'),
-    path('courses/<int:course_pk>/tasks/new/code', views.task_edit_code, name='task_new_code'),
-    path('courses/<int:course_pk>/tasks/<int:task_pk>/edit/package', views.task_edit_package, name='task_edit_package'),
-    path('courses/<int:course_pk>/tasks/<int:task_pk>/edit/code', views.task_edit_code, name='task_edit_code'),
-    path('courses/<int:course_pk>/tasks/<int:task_pk>/delete/', views.task_delete, name='task_delete'),
-    path('courses/<int:course_pk>/tasks/<int:task_pk>/leaderboard/', views.leaderboard, name='leaderboard'),
-    path('courses/<int:course_pk>/tasks/<int:task_pk>/stats/', views.stats, name='stats'),
-    path('courses/<int:course_pk>/tasks/<int:task_pk>/similarities/', views.similarities, name='similarities'),
-
-    path('courses/<int:course_pk>/tasks/<int:task_pk>/submissions/', views.submissions, name='submissions'),
-    path('courses/<int:course_pk>/tasks/<int:task_pk>/submissions/new/package/', views.submission_new_package, name='submission_new_package'),
-    path('courses/<int:course_pk>/tasks/<int:task_pk>/submissions/new/code/', views.submission_new_code, name='submission_new_code'),
-    path('courses/<int:course_pk>/tasks/<int:task_pk>/submissions/<int:submission_pk>/new/code/', views.submission_clone_code, name='submission_clone_code'),
-
-    path('partial/courses/<int:course_pk>/tasks/<int:task_pk>/submissions/', views.partial_submissions, name='partial_submissions'),
-    path('partial/submissions/<int:pk>/', views.partial_submission, name='partial_submission'),
-
-    path('tasks/<int:pk>/download/', views.task_download, name='task_download'),
-    path('tasks/<int:pk>/template/', views.template_download, name='template_download'),
-    path('submissions/<int:pk>/download/', views.submission_download, name='submission_download'),
-    path('submissions/action/', views.submissions_action, name='submissions_action'),
-
-    path('api/v1/', include(apis.router.urls)),
+    path('', RedirectView.as_view(pattern_name='courses:index', permanent=False), name='home'),
+    path("courses/", include((courses_urls, "app"), namespace="courses")),
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
-
-    path('signup/', views.signup, name='signup'),
+    path('accounts/register/', RegisterView.as_view(), name='register'),
+    path('api/v1/', include(apis.router.urls)),
 ]

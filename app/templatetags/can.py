@@ -1,5 +1,5 @@
 from django import template
-from ..funcs import can
+from ..utils import can
 
 register = template.Library()
 
