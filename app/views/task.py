@@ -8,7 +8,7 @@ from aicon.settings import TASK_BASE_ZIPFILE, SUBMISSION_BASE_ZIPFILE
 from app.models import Task
 from app.forms import TaskCodeForm, TaskPackageForm
 from app.views.utils import AutoSetupMixin, SuccessMessageMixin, NeverCacheMixin, AuthorizationMixin
-from app.utils import create_download_response
+from app.utils import create_download_response, make_safe_filename
 
 
 class TaskMixin(LoginRequiredMixin, NeverCacheMixin, AutoSetupMixin, AuthorizationMixin):
@@ -63,9 +63,16 @@ class TaskDeleteView(TaskMixin, SuccessMessageMixin, DeleteView):
 
 class TaskDownloadView(TaskMixin, DetailView):
     download_attribute = "file"
+
+    def get_filename(self):
+        return make_safe_filename(self.task.name.lower())
+
     def get(self, request, *args, **kwargs):
-        return create_download_response(getattr(self.get_object(), self.download_attribute), "application/zip")
+        return create_download_response(getattr(self.get_object(), self.download_attribute), "application/zip", filename=self.get_filename())
 
 
 class TaskDownloadTemplateView(TaskDownloadView):
     download_attribute = "template"
+
+    def get_filename(self):
+        return super().get_filename() + "-template"

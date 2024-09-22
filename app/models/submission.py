@@ -7,7 +7,8 @@ from aicon.settings import SUBMISSION_BASE_ZIPFILE, SUBMISSION_BASE_MAIN_DIR, SU
 from pathlib import Path
 from app.models.task import Task
 from app.models.suggestion import Suggestion
-from app.models.utils import make_space, int_or_flot, make_safe_filename, get_code
+from app.models.utils import make_space, int_or_flot, get_code
+from app.utils import make_safe_filename
 
 import re
 import zipfile

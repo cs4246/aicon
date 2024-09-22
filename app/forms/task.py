@@ -182,7 +182,7 @@ class TaskCodeForm(forms.ModelForm):
             create_zip_file(template_tmpf.name,self.instance.template_file_path or  SUBMISSION_BASE_ZIPFILE, delete_files=template_delete_files, add_files=template_add_files, texts=template_texts)
             with open(code_tmpf.name, "rb") as code_f, open(template_tmpf.name, "rb") as template_f:
                 instance.file = File(code_f, name=f"{name}.zip")
-                instance.template = File(template_f, name=f"{name}.zip")
+                instance.template = File(template_f, name=f"{name}-template.zip")
                 if commit:
                     instance.save()
                 return instance

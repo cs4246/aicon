@@ -28,15 +28,6 @@ def hash_file(file, block_size=65536):
     return hasher.hexdigest()
 
 
-def make_safe_filename(s):
-    def safe_char(c):
-        if c.isalnum():
-            return c
-        else:
-            return "_"
-    return "".join(safe_char(c) for c in s).rstrip("_")
-
-
 def compute_file_hash(instance):
     with instance.file.open():
         instance.file_hash = hash_file(instance.file)

@@ -2,9 +2,10 @@ from django.db import models
 from django.utils import timezone
 from django.shortcuts import reverse
 from aicon.settings import SUBMISSION_BASE_MAIN_FILE, TASK_BASE_MAIN_FILE, TASK_BASE_SETUP_FILE
-from app.models.utils import ExtraFileField, make_safe_filename, compute_file_hash, get_code
+from app.models.utils import ExtraFileField, compute_file_hash, get_code
 from app.models.course import Course
 from app.models.partition import Partition
+from app.utils import make_safe_filename
 
 import os
 import zipfile

@@ -6,10 +6,10 @@ from .models import Participation
 import os
 
 
-def create_download_response(file, content_type):
-    filename = os.path.basename(file.name)
+def create_download_response(file, content_type, filename=None):
+    filename = filename or os.path.basename(file.name)
     response = HttpResponse(file, content_type=content_type)
-    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    response["Content-Disposition"] = f"attachment; filename={filename}"
     return response
 
 
@@ -26,3 +26,12 @@ def can(course, user, action, submission=None, _self=False):
         permission_self = participation.role in settings.ROLES.get(action_self, [])
     permission_general = participation.role in settings.ROLES.get(action, [])
     return permission_self or permission_general
+
+
+def make_safe_filename(s):
+    def safe_char(c):
+        if c.isalnum():
+            return c
+        else:
+            return "_"
+    return "".join(safe_char(c) for c in s).rstrip("_")
