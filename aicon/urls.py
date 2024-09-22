@@ -20,6 +20,7 @@ from app import apis
 from app.views import RegisterView, \
                       CourseListView, CourseJoinView, CourseCreateView, CourseUpdateView, CourseDeleteView, \
                       InvitationListView, InvitationCreateView, InvitationUpdateView, InvitationDeleteView, \
+                      ParticipationListView, ParticipationCreateView, ParticipationUpdateView, ParticipationDeleteView, \
                       TaskListView, TaskCreateView, TaskUpdateView, TaskDeleteView, TaskDownloadView, TaskDownloadTemplateView, \
                       SubmissionListView, SubmissionCreateView, SubmissionDetailView, SubmissionUpdateView, SubmissionRunView, SubmissionDownloadView, \
                       LeaderboardView, LeaderboardDownloadView, StatsView, SimilarityListView
@@ -38,6 +39,12 @@ submissions_urls = [
     path("<int:submission_pk>/", SubmissionDetailView.as_view(), name="detail"),
     path("<int:submission_pk>/edit/<str:mode>/", SubmissionUpdateView.as_view(), name="edit"),
     path("<int:submission_pk>/download", SubmissionDownloadView.as_view(), name="download"),
+]
+participations_urls = [
+    path("", ParticipationListView.as_view(), name="index"),
+    path("add/", ParticipationCreateView.as_view(), name="create"),
+    path("<str:participation_pk>/edit/", ParticipationUpdateView.as_view(), name="edit"),
+    path("<str:participation_pk>/delete/", ParticipationDeleteView.as_view(), name="delete"),
 ]
 invitations_urls = [
     path("", InvitationListView.as_view(), name="index"),
@@ -65,6 +72,7 @@ courses_urls = [
     path("<int:course_pk>/join/", CourseJoinView.as_view(), name="join"),
     path("<int:course_pk>/tasks/", include((tasks_urls, "app"), namespace="tasks")),
     path("<int:course_pk>/invitations/", include((invitations_urls, "app"), namespace="invitations")),
+    path("<int:course_pk>/participations/", include((participations_urls, "app"), namespace="participations")),
 ]
 urlpatterns = [
     path('', RedirectView.as_view(pattern_name='courses:index', permanent=False), name='home'),

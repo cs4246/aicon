@@ -18,16 +18,20 @@
     {% can course request.user 'task.delete' as can_delete %}
     {% can course request.user 'task.download' as can_download %}
     {% can course request.user 'invitation.list' as can_invitation %}
+    {% can course request.user 'participation.list' as can_participation %}
     <h1>{{ course.code }}</h1>
     <span>{{ course.academic_year }} - Semester {{ course.semester }}</span>
-    {% if can_create or can_invitation %}
+    {% if can_create or can_invitation or can_participation %}
         <hr>
         <div class="mb-4">
-            {% if can_create or can_invitation %}
+            {% if can_create %}
        	        <a href="{% url 'courses:tasks:create' course.pk 'code' %}" class="btn btn-primary">{% fa5_icon 'plus-circle' 'fas' %} New task</a>
             {% endif %}
-            {% if can_create or can_invitation %}
+            {% if can_invitation %}
        	        <a href="{% url 'courses:invitations:index' course.pk %}" class="btn btn-primary">{% fa5_icon 'key' 'fas' %} Invitation Keys</a>
+            {% endif %}
+            {% if can_participation %}
+       	        <a href="{% url 'courses:participations:index' course.pk %}" class="btn btn-primary">{% fa5_icon 'users' 'fas' %} Participations</a>
             {% endif %}
         </div>
     {% else %}

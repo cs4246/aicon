@@ -7,13 +7,17 @@
 {% endblock %}
 
 {% block title %}
-    {{ form.instance.pk | default:"New Invitation Key" }} - {{ block.super }}
+    {% if not form.instance.updated_at %}
+        New Invitation Key
+    {% else %}
+        {{ form.instance.pk }}
+    {% endif %} - {{ course.code }} - {{ block.super }}
 {% endblock %}
 
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'courses:index' %}">Courses</a></li>
     <li class="breadcrumb-item"><a href="{% url 'courses:detail' course.pk %}">{{ course }}</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'courses:invitations:index' course.pk %}">Invitations</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'courses:invitations:index' course.pk %}">Invitation Keys</a></li>
     <li class="breadcrumb-item active">
         {% if not form.instance.updated_at %}
             New Invitation

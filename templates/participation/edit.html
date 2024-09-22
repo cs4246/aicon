@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block extrahead %}
+    {{ form.media }}
+{% endblock %}
+
+{% block title %}
+    {{ form.instance.user | default:"New Participation" }} - {{ course.code }} - {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'courses:index' %}">Courses</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'courses:detail' course.pk %}">{{ course }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'courses:participations:index' course.pk %}">Participations</a></li>
+    <li class="breadcrumb-item active">{{ form.instance.user | default:"New Participation" }}</li>
+{% endblock %}
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load fontawesome_5 %}
+{% load can %}
+
+{% block title %}
+    Participations - {{ course }} - {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'courses:index' %}">Courses</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'courses:detail' course.pk %}">{{ course }}</a></li>
+    <li class="breadcrumb-item active">Participations</li>
+{% endblock %}
+
+{% block content %}
+    {% can course request.user 'participation.create' as can_create %}
+    {% can course request.user 'participation.update' as can_update %}
+    {% can course request.user 'participation.delete' as can_delete %}
+
+    {% if can_create %}
+    <div class="mb-4">
+        <a href="{% url 'courses:participations:create' course.pk %}" class="btn btn-primary">{% fa5_icon 'plus-circle' 'fas' %} New Participation</a>
+    </div>
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead class="thead-inverse">
+                <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for participation in participations %}
+                    <tr>
+                        <td class="align-middle">{{ participation.user.first_name }} {{ participation.user.last_name }}</td>
+                        <td class="align-middle">{{ participation.get_role_display }}</td>
+                        <td class="align-middle">
+                            <div class="float-right">
+                                {% if can_update %}
+                                    <a href="{% url 'courses:participations:edit' course.pk participation.pk %}" class="btn btn-outline-primary">{% fa5_icon 'edit' 'fas' %}</a>
+                                {% endif %}
+                                {% if can_delete %}
+                                    <form action="{% url 'courses:participations:delete' course.pk participation.pk %}" method="post" id="delete-{{ participation.pk }}" style="display:none;">{% csrf_token %}</form>
+                                    <button form="delete-{{ participation.pk }}" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-outline-danger">{% fa5_icon 'trash-alt' 'fas' %}</button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

@@ -209,10 +209,14 @@ ROLES_LEADERBOARD_DOWNLOAD     = ['LEC', 'ADM', 'TA']
 ROLES_STATS                    = ['LEC', 'ADM', 'TA']
 ROLES_SIMILARITIES             = ['LEC', 'ADM', 'TA']
 ROLES_SIMILARITY_LIST          = ['LEC', 'ADM', 'TA']
-ROLES_INVITATION_LIST          = ['LEC', 'ADM']
+ROLES_INVITATION_LIST          = ['TA', 'LEC', 'ADM']
 ROLES_INVITATION_CREATE        = ['ADM']
 ROLES_INVITATION_UPDATE        = ['ADM']
 ROLES_INVITATION_DELETE        = ['ADM']
+ROLES_PARTICIPATION_LIST       = ['TA', 'LEC', 'ADM']
+ROLES_PARTICIPATION_CREATE     = ['LEC', 'ADM']
+ROLES_PARTICIPATION_UPDATE     = ['LEC', 'ADM']
+ROLES_PARTICIPATION_DELETE     = ['LEC', 'ADM']
 
 ROLES = {
     'course.list': ROLES_COURSE_LIST,
@@ -223,6 +227,10 @@ ROLES = {
     'invitation.create': ROLES_INVITATION_CREATE,
     'invitation.update': ROLES_INVITATION_CREATE,
     'invitation.delete': ROLES_INVITATION_DELETE,
+    'participation.list': ROLES_PARTICIPATION_LIST,
+    'participation.create': ROLES_PARTICIPATION_CREATE,
+    'participation.update': ROLES_PARTICIPATION_UPDATE,
+    'participation.delete': ROLES_PARTICIPATION_DELETE,
     'task.list': ROLES_TASK_LIST,
     'task.create': ROLES_TASK_CREATE,
     'task.update': ROLES_TASK_UPDATE,

@@ -2,10 +2,14 @@
 {% load fontawesome_5 %}
 {% load can %}
 
+{% block title %}
+    Invitation Keys - {{ course }} - {{ block.super }}
+{% endblock %}
+
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'courses:index' %}">Courses</a></li>
     <li class="breadcrumb-item"><a href="{% url 'courses:detail' course.pk %}">{{ course }}</a></li>
-    <li class="breadcrumb-item active">Invitations</li>
+    <li class="breadcrumb-item active">Invitation Keys</li>
 {% endblock %}
 
 {% block content %}

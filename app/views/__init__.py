@@ -6,3 +6,4 @@ from .leaderboard import *
 from .stats import *
 from .similarity import *
 from .invitation import *
+from .participation import *
