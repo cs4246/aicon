@@ -46,7 +46,7 @@ class Task(models.Model):
     parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subtasks', null=True, blank=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='tasks')
 
-    partition = models.ForeignKey(Partition, on_delete=models.CASCADE, null=True, blank=True, related_name="tasks")
+    partition = models.ForeignKey(Partition, on_delete=models.SET_NULL, null=True, blank=True, related_name="tasks")
     gpus = models.CharField(max_length=255, null=True, blank=True)
 
     created_at = models.DateTimeField(default=timezone.now)
