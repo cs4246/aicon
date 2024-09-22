@@ -1,5 +1,7 @@
 from django import forms
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
 
 import zipfile
 
@@ -30,6 +32,23 @@ class MultipleFileField(forms.FileField):
         else:
             result = [single_file_clean(data, initial)]
         return result
+
+
+class SubmitHelperFormMixin:
+    @property
+    def helper(self):
+        helper = getattr(super(), "helper", FormHelper())
+        helper.add_input(Submit('submit', 'Submit', css_class='btn-primary'))
+        return helper
+
+
+class DisabledFieldsFormMixin:
+    disabled_fields = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.disabled_fields:
+            self.fields[field].disabled = True
 
 
 def create_zip_file(path: str, source_zip_file: str, delete_files: list[str],

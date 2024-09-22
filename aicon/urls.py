@@ -19,6 +19,7 @@ from django.views.generic.base import RedirectView
 from app import apis
 from app.views import RegisterView, \
                       CourseListView, CourseJoinView, CourseCreateView, CourseUpdateView, CourseDeleteView, \
+                      InvitationListView, InvitationCreateView, InvitationUpdateView, InvitationDeleteView, \
                       TaskListView, TaskCreateView, TaskUpdateView, TaskDeleteView, TaskDownloadView, TaskDownloadTemplateView, \
                       SubmissionListView, SubmissionCreateView, SubmissionDetailView, SubmissionUpdateView, SubmissionRunView, SubmissionDownloadView, \
                       LeaderboardView, LeaderboardDownloadView, StatsView, SimilarityListView
@@ -38,9 +39,16 @@ submissions_urls = [
     path("<int:submission_pk>/edit/<str:mode>/", SubmissionUpdateView.as_view(), name="edit"),
     path("<int:submission_pk>/download", SubmissionDownloadView.as_view(), name="download"),
 ]
+invitations_urls = [
+    path("", InvitationListView.as_view(), name="index"),
+    path("add/", InvitationCreateView.as_view(), name="create"),
+    path("<str:invitation_pk>/edit/", InvitationUpdateView.as_view(), name="edit"),
+    path("<str:invitation_pk>/delete/", InvitationDeleteView.as_view(), name="delete"),
+]
 tasks_urls = [
     path("", TaskListView.as_view(), name="index"),
     path("add/<str:mode>/", TaskCreateView.as_view(), name="create"),
+    path("<int:task_pk>/", RedirectView.as_view(pattern_name='courses:tasks:submissions:index', permanent=False), name="detail"),
     path("<int:task_pk>/edit/<str:mode>", TaskUpdateView.as_view(), name="edit"),
     path("<int:task_pk>/delete/", TaskDeleteView.as_view(), name="delete"),
     path("<int:task_pk>/download/", TaskDownloadView.as_view(), name="download"),
@@ -51,10 +59,12 @@ tasks_urls = [
 courses_urls = [
     path("", CourseListView.as_view(), name="index"),
     path("add", CourseCreateView.as_view(), name="create"),
+    path("<int:course_pk>/", RedirectView.as_view(pattern_name='courses:tasks:index', permanent=False), name="detail"),
     path("<int:course_pk>/edit/", CourseUpdateView.as_view(), name="edit"),
     path("<int:course_pk>/delete/", CourseDeleteView.as_view(), name="delete"),
     path("<int:course_pk>/join/", CourseJoinView.as_view(), name="join"),
     path("<int:course_pk>/tasks/", include((tasks_urls, "app"), namespace="tasks")),
+    path("<int:course_pk>/invitations/", include((invitations_urls, "app"), namespace="invitations")),
 ]
 urlpatterns = [
     path('', RedirectView.as_view(pattern_name='courses:index', permanent=False), name='home'),

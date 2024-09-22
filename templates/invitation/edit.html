@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block extrahead %}
+    {{ form.media }}
+{% endblock %}
+
+{% block title %}
+    {{ form.instance.pk | default:"New Invitation Key" }} - {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'courses:index' %}">Courses</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'courses:detail' course.pk %}">{{ course }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'courses:invitations:index' course.pk %}">Invitations</a></li>
+    <li class="breadcrumb-item active">
+        {% if not form.instance.updated_at %}
+            New Invitation
+        {% else %}
+            {{ form.instance.pk }}
+        {% endif %}
+    </li>
+{% endblock %}
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}

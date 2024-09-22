@@ -13,15 +13,22 @@
 {% endblock %}
 
 {% block content %}
+    {% can course request.user 'task.create' as can_create %}
     {% can course request.user 'task.update' as can_update %}
     {% can course request.user 'task.delete' as can_delete %}
     {% can course request.user 'task.download' as can_download %}
+    {% can course request.user 'invitation.list' as can_invitation %}
     <h1>{{ course.code }}</h1>
     <span>{{ course.academic_year }} - Semester {{ course.semester }}</span>
-    {% if can_update %}
+    {% if can_create or can_invitation %}
         <hr>
         <div class="mb-4">
-       	<a href="{% url 'courses:tasks:create' course.pk 'code' %}" class="btn btn-primary">{% fa5_icon 'plus-circle' 'fas' %} New task</a>
+            {% if can_create or can_invitation %}
+       	        <a href="{% url 'courses:tasks:create' course.pk 'code' %}" class="btn btn-primary">{% fa5_icon 'plus-circle' 'fas' %} New task</a>
+            {% endif %}
+            {% if can_create or can_invitation %}
+       	        <a href="{% url 'courses:invitations:index' course.pk %}" class="btn btn-primary">{% fa5_icon 'key' 'fas' %} Invitation Keys</a>
+            {% endif %}
         </div>
     {% else %}
         <br>

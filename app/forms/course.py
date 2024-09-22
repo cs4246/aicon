@@ -1,17 +1,6 @@
 from django import forms
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
 from app.models import Course, Invitation, Participation
-from app.forms.utils import HideableForm
-
-
-class SubmitHelperFormMixin:
-    @property
-    def helper(self):
-        helper = FormHelper()
-        helper.add_input(Submit('submit', 'Submit', css_class='btn-primary'))
-        helper.form_method = 'POST'
-        return helper
+from app.forms.utils import HideableForm, SubmitHelperFormMixin
 
 
 class CourseForm(SubmitHelperFormMixin, HideableForm):

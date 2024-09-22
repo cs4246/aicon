@@ -1,7 +1,13 @@
 from app.models import Invitation
-from app.forms.utils import HideableForm
+from django import forms
+from app.forms.utils import SubmitHelperFormMixin, DisabledFieldsFormMixin
 
-class InvitationForm(HideableForm):
+
+class InvitationCreateForm(SubmitHelperFormMixin, forms.ModelForm):
     class Meta:
         model = Invitation
-        fields = ('key',)
+        fields = ('key', 'role', 'valid')
+
+
+class InvitationUpdateForm(DisabledFieldsFormMixin, InvitationCreateForm):
+    disabled_fields = ['key', 'role']

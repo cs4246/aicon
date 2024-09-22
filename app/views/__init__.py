@@ -5,3 +5,4 @@ from .register import *
 from .leaderboard import *
 from .stats import *
 from .similarity import *
+from .invitation import *
