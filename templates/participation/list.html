@@ -27,7 +27,9 @@
         <table class="table">
             <thead class="thead-inverse">
                 <tr>
-                    <th>User</th>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Email</th>
                     <th>Role</th>
                     <th></th>
                 </tr>
@@ -36,6 +38,8 @@
                 {% for participation in participations %}
                     <tr>
                         <td class="align-middle">{{ participation.user.first_name }} {{ participation.user.last_name }}</td>
+                        <td class="align-middle">{{ participation.user.username }}</td>
+                        <td class="align-middle">{{ participation.user.email | default:'N/A' }}</td>
                         <td class="align-middle">{{ participation.get_role_display }}</td>
                         <td class="align-middle">
                             <div class="float-right">
