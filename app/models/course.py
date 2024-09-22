@@ -1,3 +1,4 @@
+from typing import Optional
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -6,8 +7,8 @@ class Course(models.Model):
     class Meta:
         unique_together = (('code', 'academic_year', 'semester'),)
 
-    code = models.CharField(max_length=6)
-    academic_year = models.CharField(max_length=30)
+    code = models.CharField(max_length=32)
+    academic_year = models.CharField(max_length=32)
     semester = models.PositiveSmallIntegerField()
     visible = models.BooleanField(default=True)
     participants = models.ManyToManyField(
@@ -15,6 +16,12 @@ class Course(models.Model):
         through='Participation',
         through_fields=('course', 'user'),
     )
+
+    @property
+    def name(self) -> Optional[str]:
+        if self.code is None or self.academic_year is None or self.semester is None:
+            return None
+        return "{} - {} Semester {}".format(self.code, self.academic_year, self.semester)
 
     def role(self, user: User):
         from app.models.participation import Participation # avoid circular import
@@ -24,7 +31,7 @@ class Course(models.Model):
             return None
 
     def __str__(self):
-        return "{} - {} Semester {}".format(self.code, self.academic_year, self.semester)
+        return self.name or "None"
 
     def __eq__(self, other):
         if not isinstance(other, Course):

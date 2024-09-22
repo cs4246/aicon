@@ -8,6 +8,14 @@
 {% endblock %}
 
 {% block content %}
+{% can None request.user 'course.create' as can_create %}
+
+{% if can_create %}
+<div class="mb-4">
+    <a href="{% url 'courses:create' %}" class="btn btn-primary">{% fa5_icon 'plus-circle' 'fas' %} New Course</a>
+</div>
+{% endif %}
+
 <div class="table-responsive">
     <table class="table">
         <thead class="thead-inverse">
@@ -21,6 +29,7 @@
         <tbody>
             {% for course in courses %}
                 {% can course request.user 'course.join' as can_join %}
+                {% can course request.user 'course.update' as can_update %}
                 {% can course request.user 'course.delete' as can_delete %}
                 {% can course request.user 'task.list' as can_list_task %}
                 <tr>
@@ -39,11 +48,15 @@
                     <td class="align-middle">{{ course.tasks.count }}</td>
                     <td class="align-middle">
                         <div class="float-right">
-                            {% if can_join %}
-                                <a href="{% url 'courses:join' course.pk %}" class="btn btn-outline-primary">{% fa5_icon 'sign-in-alt' 'fas' %}</a>
+                            {% if can_update %}
+                                <a href="{% url 'courses:edit' course.pk %}" class="btn btn-outline-primary">{% fa5_icon 'edit' 'fas' %}</a>
                             {% endif %}
                             {% if can_delete %}
-                                <a href="" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-outline-danger">{% fa5_icon 'trash-alt' 'fas' %}</a>
+                                <form action="{% url 'courses:delete' course.pk %}" method="post" id="delete-{{ course.pk }}" style="display:none;">{% csrf_token %}</form>
+                                <button form="delete-{{ course.pk }}" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-outline-danger">{% fa5_icon 'trash-alt' 'fas' %}</button>
+                            {% endif %}
+                            {% if can_join %}
+                                <a href="{% url 'courses:join' course.pk %}" class="btn btn-outline-primary">{% fa5_icon 'sign-in-alt' 'fas' %}</a>
                             {% endif %}
                         </div>
                     </td>

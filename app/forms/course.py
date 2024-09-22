@@ -5,26 +5,28 @@ from app.models import Course, Invitation, Participation
 from app.forms.utils import HideableForm
 
 
-class CourseForm(HideableForm):
-    class Meta:
-        model = Course
-        fields = ('code', 'academic_year', 'semester')
-
-
-class CourseJoinForm(HideableForm):
-    invitation_key = forms.CharField(max_length=255, label="Invitation Key")
-
-    class Meta:
-        model = Course
-        fields = ('code',)
-        widgets = {'code': forms.HiddenInput(),}
-
+class SubmitHelperFormMixin:
     @property
     def helper(self):
         helper = FormHelper()
         helper.add_input(Submit('submit', 'Submit', css_class='btn-primary'))
         helper.form_method = 'POST'
         return helper
+
+
+class CourseForm(SubmitHelperFormMixin, HideableForm):
+    class Meta:
+        model = Course
+        fields = ('code', 'academic_year', 'semester')
+
+
+class CourseJoinForm(SubmitHelperFormMixin, HideableForm):
+    invitation_key = forms.CharField(max_length=255, label="Invitation Key")
+
+    class Meta:
+        model = Course
+        fields = ('code',)
+        widgets = {'code': forms.HiddenInput(),}
 
     def clean_invitation_key(self):
         invitation_key = self.cleaned_data.get('invitation_key', False)

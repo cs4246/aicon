@@ -182,8 +182,8 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # Permissions
 
-ROLES_COURSE_ADD               = ['LEC', 'ADM']
-ROLES_COURSE_DELETE            = ['LEC', 'ADM']
+ROLES_COURSE_UPDATE            = ['ADM']
+ROLES_COURSE_DELETE            = ['ADM']
 ROLES_COURSE_LIST              = ['GUE', 'STU', 'TA', 'LEC', 'ADM']
 ROLES_COURSE_JOIN              = ['GUE']
 ROLES_TASK_LIST                = ['STU', 'TA', 'LEC', 'ADM']
@@ -212,7 +212,7 @@ ROLES_SIMILARITY_LIST          = ['LEC', 'ADM', 'TA']
 
 ROLES = {
     'course.list': ROLES_COURSE_LIST,
-    'course.add': ROLES_COURSE_ADD,
+    'course.update': ROLES_COURSE_UPDATE,
     'course.delete': ROLES_COURSE_DELETE,
     'course.join': ROLES_COURSE_JOIN,
     'task.list': ROLES_TASK_LIST,
@@ -237,6 +237,10 @@ ROLES = {
     'leaderboard.download': ROLES_LEADERBOARD_DOWNLOAD,
     'stats': ROLES_STATS,
     'similarity.list': ROLES_SIMILARITY_LIST,
+}
+
+GROUPS = {
+    'course.create': ['Lecturer']
 }
 
 # Upload

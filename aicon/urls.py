@@ -18,7 +18,7 @@ from django.urls import path, include
 from django.views.generic.base import RedirectView
 from app import apis
 from app.views import RegisterView, \
-                      CourseListView, CourseJoinView, \
+                      CourseListView, CourseJoinView, CourseCreateView, CourseUpdateView, CourseDeleteView, \
                       TaskListView, TaskCreateView, TaskUpdateView, TaskDeleteView, TaskDownloadView, TaskDownloadTemplateView, \
                       SubmissionListView, SubmissionCreateView, SubmissionDetailView, SubmissionUpdateView, SubmissionRunView, SubmissionDownloadView, \
                       LeaderboardView, LeaderboardDownloadView, StatsView, SimilarityListView
@@ -50,6 +50,9 @@ tasks_urls = [
 ]
 courses_urls = [
     path("", CourseListView.as_view(), name="index"),
+    path("add", CourseCreateView.as_view(), name="create"),
+    path("<int:course_pk>/edit/", CourseUpdateView.as_view(), name="edit"),
+    path("<int:course_pk>/delete/", CourseDeleteView.as_view(), name="delete"),
     path("<int:course_pk>/join/", CourseJoinView.as_view(), name="join"),
     path("<int:course_pk>/tasks/", include((tasks_urls, "app"), namespace="tasks")),
 ]

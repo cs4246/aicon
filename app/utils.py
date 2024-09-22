@@ -14,10 +14,12 @@ def create_download_response(file, content_type):
 
 
 def can(course, user, action, submission=None, _self=False):
+    if user.groups.filter(name__in=settings.GROUPS.get(action, [])).exists():
+        return True
     try:
         participation = Participation.objects.get(user=user, course=course)
     except Participation.DoesNotExist:
-        return "GUE" in settings.ROLES[action]
+        return "GUE" in settings.ROLES.get(action, [])
     permission_self = False
     action_self = f"{action}.self"
     if submission is not None and submission.user == user or _self:
