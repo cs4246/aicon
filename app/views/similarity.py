@@ -1,5 +1,3 @@
-from django.http import HttpResponse
-from django.db.models.aggregates import Max
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from app.views.utils import AutoSetupMixin, AuthorizationMixin

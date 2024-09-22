@@ -1,7 +1,6 @@
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from django.http.response import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from app.models import Invitation
 from app.forms import InvitationCreateForm, InvitationUpdateForm

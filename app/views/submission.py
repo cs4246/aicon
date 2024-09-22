@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework.request import Request
 from aicon.celery import app as celery_app
-from app.models import Submission, Course, Task
+from app.models import Submission, Task
 from app.serializers import TaskSerializer, SubmissionSerializer
 from app.forms import SubmissionCodeForm, SubmissionPackageForm
 from app.views.utils import AutoSetupMixin, SuccessMessageMixin, NeverCacheMixin, StatusResponseMixin, AuthorizationMixin

@@ -3,7 +3,6 @@ from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import DeleteView, UpdateView
 from django.urls import reverse
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from aicon.settings import TASK_BASE_ZIPFILE, SUBMISSION_BASE_ZIPFILE
 from app.models import Task

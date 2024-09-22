@@ -53,8 +53,8 @@
                                     <a href="{% url 'courses:invitations:edit' course.pk invitation.pk %}" class="btn btn-outline-primary">{% fa5_icon 'edit' 'fas' %}</a>
                                 {% endif %}
                                 {% if can_delete %}
-                                    <form action="{% url 'courses:invitations:delete' course.pk invitation.pk %}" method="post" id="delete-{{ course.pk }}" style="display:none;">{% csrf_token %}</form>
-                                    <button form="delete-{{ course.pk }}" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-outline-danger">{% fa5_icon 'trash-alt' 'fas' %}</button>
+                                    <form action="{% url 'courses:invitations:delete' course.pk invitation.pk %}" method="post" id="delete-{{ invitation.pk }}" style="display:none;">{% csrf_token %}</form>
+                                    <button form="delete-{{ invitation.pk }}" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-outline-danger">{% fa5_icon 'trash-alt' 'fas' %}</button>
                                 {% endif %}
                             </div>
                         </td>
