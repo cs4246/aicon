@@ -133,6 +133,7 @@ class TaskCodeForm(forms.ModelForm):
     @property
     def helper(self):
         helper = FormHelper()
+        helper.attrs = {"novalidate": ""}
         helper.form_id = "task-form"
         helper.layout = Layout(
             *TaskFormConfig.TASK_LAYOUT,

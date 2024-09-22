@@ -66,11 +66,10 @@ class SubmissionSingleMixin(SubmissionMixin, SuccessMessageMixin):
         if "submission_pk" in self.kwargs:
             self.base_submission = get_object_or_404(Submission, pk=self.kwargs["submission_pk"])
         else:
-            self.base_submission = Submission(
-                user=self.request.user,
-                task=self.task,
-                file=self.task.template or Submission.TEMPLATE_ZIP_FILE
-            )
+            self.base_submission = Submission(user=self.request.user, task=self.task)
+
+        if self.base_submission.file_path is None:
+            self.base_submission.file = self.task.template or Submission.TEMPLATE_ZIP_FILE
 
         if self.request.POST:
             return self.initial.copy()

@@ -61,7 +61,7 @@ class SubmissionCodeForm(forms.ModelForm):
     def helper(self):
         helper = FormHelper()
         helper.form_id = "submission-form"
-        helper.attrs = {"enctype": "multipart/form-data"}
+        helper.attrs = {"enctype": "multipart/form-data", "novalidate": ""}
         return helper
 
     def save(self, commit=True):
