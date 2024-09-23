@@ -13,3 +13,4 @@ namesgenerator==0.3
 PyYAML==6.0.2
 rules==3.5.0
 environs==11.0.0
+gunicorn==23.0.0

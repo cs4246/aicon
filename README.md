@@ -2,17 +2,6 @@
 
 A platform that enables lecturers to create an environment where students can run and evaluate their artificial intelligence agents.
 
-## Screenshots
-
-| ![Courses](/assets/courses.png?raw=true "Courses") | ![Tasks](/assets/tasks.png?raw=true "Tasks") |
-|:-------------------------:|:-------------------------:|
-| ![Task Edit](/assets/task_edit.png?raw=true "Task Edit") | ![Submissions](/assets/submissions.png?raw=true "Submissions")
-| ![Submission](/assets/submission.png?raw=true "Submission") | ![Leaderboard](/assets/leaderboard.png?raw=true "Leaderboard") |
-
-## Status
-
-This project is still under development, please report any issues if you encounter them.
-
 ## Requirements
 
  * Python >= 3.12
@@ -57,16 +46,21 @@ Make sure to replace `<your_username>` and `<your_password>` with secure credent
 2. Duplicate the `example.env` file to create a new `.env` file.
 3. Update the values in the `.env` file according to server configuration.
 4. Create a secret key and store it in ``.env`` as ``SECRET_KEY=<Your Key>``.
-5. Migrate, load data, and create the superuser
+5. Migrate, load data, and create the superuser.
   ```bash
   python manage.py makemigrations
   python manage.py migrate
   python manage.py loaddata groups partitions
   python manage.py createsuperuser
   ```
-6. Run server
+6. Run server.
   ```bash
   python manage.py runserver
+  ```
+7. For deployment, make sure to set `DEBUG=False` and use a robust WSGI server like Gunicorn.
+  ```bash
+  python manage.py collectstatic
+  gunicorn --bind 0.0.0.0:8000 aicon.wsgi
   ```
 
 ## API
