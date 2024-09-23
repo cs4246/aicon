@@ -58,7 +58,7 @@
                 {% endif %}
                 {% if task.template and can_download_template_task %}
                     <li>
-                        <a href="{% url 'courses:tasks:download-template' task.course.pk task.pk %}" class="btn btn-primary btn-btn-outline-secondary">{% fa5_icon 'download' 'fas' %} Download Template</a>
+                        <a href="{% url 'courses:tasks:download-template' task.course.pk task.pk %}" class="btn btn-primary btn-btn-outline-secondary">{% fa5_icon 'download' 'fas' %} Template</a>
                     </li>
                 {% endif %}
                 <li>
