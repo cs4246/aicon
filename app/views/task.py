@@ -7,11 +7,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from aicon.settings import TASK_BASE_ZIPFILE, SUBMISSION_BASE_ZIPFILE
 from app.models import Task
 from app.forms import TaskCodeForm, TaskPackageForm
-from app.views.utils import AutoSetupMixin, SuccessMessageMixin, NeverCacheMixin, AuthorizationMixin
+from app.views.utils import AutoSetupMixin, SuccessMessageMixin, NeverCacheMixin, CoursePermissionMixin, TaskPermissionMixin, AutoPermissionRequiredMixin
 from app.utils import create_download_response, make_safe_filename
 
 
-class TaskMixin(LoginRequiredMixin, NeverCacheMixin, AutoSetupMixin, AuthorizationMixin):
+class TaskMixin(LoginRequiredMixin, NeverCacheMixin, AutoSetupMixin, CoursePermissionMixin, AutoPermissionRequiredMixin):
     model = Task
     pk_url_kwarg = "task_pk"
 

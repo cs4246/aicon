@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% load can %}
+{% load rules %}
 {% load fontawesome_5 %}
 
 {% block title %}
@@ -21,7 +21,8 @@
 {% endblock %}
 
 {% block content %}
-    {% can task.course request.user 'leaderboard.download' as can_leaderboard_download %}
+    {% has_perm 'leaderboard.download' request.user course as can_leaderboard_download %}
+
     <h1>Leaderboard</h1>
     <span>Top {{ submissions | length }}</span>
     <div class="mb-4">

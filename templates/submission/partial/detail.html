@@ -1,15 +1,16 @@
 {% load fontawesome_5 %}
-{% load can %}
+{% load rules %}
 {% load json2html %}
 {% load define %}
 {% load call_method %}
 
-{% call_method task 'submissions_exceeded_by_user' request.user as submission_exceeded %}
-{% can submission.task.course request.user 'submission.run' as can_run %}
-{% can submission.task.course request.user 'submission.create' as can_create %}
-{% can submission.task.course request.user 'task.update' as can_update %}
 
-{% if can_update or not submission_exceeded and can_create and task.is_open %}
+{% has_perm 'submission.update' request.user submission as can_update_submission %}
+{% has_perm 'submission.update.permission' request.user task as has_update_submission_permission %}
+{% has_perm 'submission.download' request.user submission as can_download_submission %}
+{% has_perm 'submission.run' request.user submission as can_run_submission %}
+
+{% if can_update_submission %}
     {% define "primary" as button_decorator %}
 {% else %}
     {% define "secondary" as button_decorator %}
@@ -19,7 +20,7 @@
     <tr id="flash-box-{{submission.pk}}" style="display: none;" class="flash-box-next"></tr>
 {% endif %}
 <tr id="submission-{{submission.pk}}" class="clickable collapsed" data-toggle="collapse" href="#collapse-evaluation-{{submission.pk}}" role="button" aria-expanded="false" data-tooltip="tooltip" data-placement="bottom" title="Click to expand / contract">
-	{% if can_run and not single %}
+	{% if can_run_submission and not single %}
        	<td class="align-middle">
       		<div class="row">
      			<div class="col-12">
@@ -82,10 +83,12 @@
     <td class="align-middle">
         <div class="float-right">
             {% if submission.file %}
-                {% if not single %}
+                {% if not single and has_update_submission_permission %}
                     <a href="{% url 'courses:tasks:submissions:edit' submission.task.course.pk submission.task.pk submission.pk 'code' %}" class="btn btn-outline-{{ button_decorator }}" title="Clone">{% fa5_icon 'clone' 'fas' %}</a>
                 {% endif %}
-                <a href="{% url 'courses:tasks:submissions:download' submission.task.course.pk submission.task.pk submission.pk %}" class="btn btn-outline-primary" title="Download">{% fa5_icon 'download' 'fas' %}</a>
+                {% if can_download_submission %}
+                    <a href="{% url 'courses:tasks:submissions:download' submission.task.course.pk submission.task.pk submission.pk %}" class="btn btn-outline-primary" title="Download">{% fa5_icon 'download' 'fas' %}</a>
+                {% endif %}
             {% endif %}
         </div>
     </td>

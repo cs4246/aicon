@@ -6,10 +6,10 @@ from django.shortcuts import redirect, reverse
 from django.contrib import messages
 from app.models import Participation
 from app.forms import ParticipationCreateForm, ParticipationUpdateForm
-from app.views.utils import NeverCacheMixin, AutoSetupMixin, AuthorizationMixin, SuccessMessageMixin
+from app.views.utils import NeverCacheMixin, AutoSetupMixin, CoursePermissionMixin, AutoPermissionRequiredMixin, SuccessMessageMixin
 
 
-class ParticipationMixin(LoginRequiredMixin, NeverCacheMixin, AutoSetupMixin, AuthorizationMixin):
+class ParticipationMixin(LoginRequiredMixin, NeverCacheMixin, AutoSetupMixin, CoursePermissionMixin, AutoPermissionRequiredMixin):
     model = Participation
     pk_url_kwarg = "participation_pk"
 

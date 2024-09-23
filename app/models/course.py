@@ -23,10 +23,10 @@ class Course(models.Model):
             return None
         return "{} - {} Semester {}".format(self.code, self.academic_year, self.semester)
 
-    def role(self, user: User):
+    def group(self, user: User) -> Optional[str]:
         from app.models.participation import Participation # avoid circular import
         try:
-            return self.participation_set.get(user=user).get_role_display()
+            return self.participation_set.get(user=user).group
         except Participation.DoesNotExist:
             return None
 

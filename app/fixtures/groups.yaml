@@ -1,4 +1,24 @@
 - model: auth.group
   fields:
+    name: Observer
+    permissions: []
+
+- model: auth.group
+  fields:
+    name: Student
+    permissions: []
+
+- model: auth.group
+  fields:
+    name: Teaching Assistant
+    permissions: []
+
+- model: auth.group
+  fields:
     name: Lecturer
+    permissions: []
+
+- model: auth.group
+  fields:
+    name: Admin
     permissions: []

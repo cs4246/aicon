@@ -3,12 +3,12 @@ from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from django.urls import reverse_lazy
 from django.http.response import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from app.models import Course, Participation
+from app.models import Course, Participation, Group
 from app.forms import CourseForm, CourseJoinForm
-from app.views.utils import NeverCacheMixin, AutoSetupMixin, AuthorizationMixin, SuccessMessageMixin
+from app.views.utils import NeverCacheMixin, AutoSetupMixin, CoursePermissionMixin, AutoPermissionRequiredMixin, SuccessMessageMixin
 
 
-class CourseMixin(LoginRequiredMixin, NeverCacheMixin, AutoSetupMixin, AuthorizationMixin):
+class CourseMixin(LoginRequiredMixin, NeverCacheMixin, AutoSetupMixin, CoursePermissionMixin, AutoPermissionRequiredMixin):
     model = Course
     pk_url_kwarg = "course_pk"
     success_url = reverse_lazy("courses:index")
@@ -30,7 +30,7 @@ class CourseCreateView(CourseSingleMixin, SuccessMessageMixin, CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        participation = Participation(user=self.request.user, course=form.instance, role="ADM")
+        participation = Participation(user=self.request.user, course=form.instance, group=Group.objects.get(Group.ADMIN))
         participation.save()
         return response
 

@@ -27,6 +27,6 @@ class CourseJoinForm(SubmitHelperFormMixin, HideableForm):
 
     def save(self, commit=True):
         if commit:
-            participation = Participation(user=self.user, course=self.instance, role=self.invitation.role)
+            participation = Participation(user=self.user, course=self.instance, group=self.invitation.group)
             participation.save()
         return self.instance

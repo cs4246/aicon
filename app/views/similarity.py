@@ -1,9 +1,9 @@
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from app.views.utils import AutoSetupMixin, AuthorizationMixin
+from app.views.utils import AutoSetupMixin, TaskPermissionMixin, AutoPermissionRequiredMixin
 
 
-class SimilarityListView(AutoSetupMixin, LoginRequiredMixin, AuthorizationMixin, ListView):
+class SimilarityListView(AutoSetupMixin, LoginRequiredMixin, TaskPermissionMixin, AutoPermissionRequiredMixin, ListView):
     template_name = "info/similarities.html"
     context_object_name = "similarities"
     per_page_options = [10, 20, 50, 100, 1000]

@@ -6,7 +6,7 @@ from app.forms.utils import SubmitHelperFormMixin, DisabledFieldsFormMixin
 class ParticipationCreateForm(SubmitHelperFormMixin, forms.ModelForm):
     class Meta:
         model = Participation
-        fields = ('user', 'role')
+        fields = ('user', 'group')
 
 
 class ParticipationUpdateForm(DisabledFieldsFormMixin, ParticipationCreateForm):

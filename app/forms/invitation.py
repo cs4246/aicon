@@ -6,8 +6,8 @@ from app.forms.utils import SubmitHelperFormMixin, DisabledFieldsFormMixin
 class InvitationCreateForm(SubmitHelperFormMixin, forms.ModelForm):
     class Meta:
         model = Invitation
-        fields = ('key', 'role', 'valid')
+        fields = ('key', 'group', 'valid')
 
 
 class InvitationUpdateForm(DisabledFieldsFormMixin, InvitationCreateForm):
-    disabled_fields = ['key', 'role']
+    disabled_fields = ['key', 'group']

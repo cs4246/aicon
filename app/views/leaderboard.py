@@ -3,8 +3,7 @@ from django.db.models.aggregates import Max
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from app.models import Task
-from app.utils import can
-from app.views.utils import AutoSetupMixin, AuthorizationMixin
+from app.views.utils import AutoSetupMixin, TaskPermissionMixin, AutoPermissionRequiredMixin
 
 import math
 import statistics
@@ -38,7 +37,7 @@ def quantiles(N, percents):
     return [percentile(N, p) for p in percents]
 
 
-class LeaderboardView(AutoSetupMixin, LoginRequiredMixin, AuthorizationMixin, DetailView):
+class LeaderboardDetailView(AutoSetupMixin, LoginRequiredMixin, TaskPermissionMixin, AutoPermissionRequiredMixin, DetailView):
     model = Task
     context_object_name = "task"
     pk_url_kwarg = "task_pk"
@@ -55,7 +54,7 @@ class LeaderboardView(AutoSetupMixin, LoginRequiredMixin, AuthorizationMixin, De
         # Hack: otherwise will output multiple same user if got the same point on multiple submissions
         leaderboard_list, users = [], {}
         for submission in submissions.all():
-            if can(self.object.course, submission.user, 'task.update'):# or not s.user.is_active:
+            if submission.user.has_perm("task.update", self.object):
                 continue
             if submission.user.id not in users:
                 users[submission.user.id] = True
@@ -91,7 +90,7 @@ class LeaderboardView(AutoSetupMixin, LoginRequiredMixin, AuthorizationMixin, De
         stats = self.get_stats(leaderboard_list)
 
         student_view = 'student_view' in self.request.GET
-        if not can(self.object.course, self.request.user, 'task.update') or student_view:
+        if self.request.user.has_perm("task.update", self.course) or student_view:
             n_show = max(int(len(leaderboard_list) * 0.5), 20)
             leaderboard_list = leaderboard_list[:n_show] # show only half the submissions
 
@@ -103,7 +102,7 @@ class LeaderboardView(AutoSetupMixin, LoginRequiredMixin, AuthorizationMixin, De
         return self.task.leaderboard
 
 
-class LeaderboardDownloadView(LeaderboardView):
+class LeaderboardDownloadView(LeaderboardDetailView):
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
 

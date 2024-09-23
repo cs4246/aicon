@@ -51,23 +51,23 @@ Make sure to replace `<your_username>` and `<your_password>` with secure credent
 ## Setup
 
 1. Install the requirements
-```bash
-pip install -r requirements.txt
-```
+  ```bash
+  pip install -r requirements.txt
+  ```
 2. Duplicate the `example.env` file to create a new `.env` file.
 3. Update the values in the `.env` file according to server configuration.
 4. Create a secret key and store it in ``.env`` as ``SECRET_KEY=<Your Key>``.
-5. Migrate and create the superuser
-```bash
-python manage.py makemigrations
-python manage.py sqlmigrate app 0001
-python manage.py migrate
-python manage.py createsuperuser
-```
+5. Migrate, load data, and create the superuser
+  ```bash
+  python manage.py makemigrations
+  python manage.py migrate
+  python manage.py loaddata groups partitions
+  python manage.py createsuperuser
+  ```
 6. Run server
-```bash
-python manage.py runserver
-```
+  ```bash
+  python manage.py runserver
+  ```
 
 ## API
 

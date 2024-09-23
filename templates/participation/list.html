@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load fontawesome_5 %}
-{% load can %}
+{% load rules %}
 
 {% block title %}
     Participations - {{ course }} - {{ block.super }}
@@ -13,11 +13,9 @@
 {% endblock %}
 
 {% block content %}
-    {% can course request.user 'participation.create' as can_create %}
-    {% can course request.user 'participation.update' as can_update %}
-    {% can course request.user 'participation.delete' as can_delete %}
+    {% has_perm 'participation.create' request.user course as can_create_participation %}
 
-    {% if can_create %}
+    {% if can_create_participation %}
     <div class="mb-4">
         <a href="{% url 'courses:participations:create' course.pk %}" class="btn btn-primary">{% fa5_icon 'plus-circle' 'fas' %} New Participation</a>
     </div>
@@ -30,23 +28,26 @@
                     <th>Name</th>
                     <th>Username</th>
                     <th>Email</th>
-                    <th>Role</th>
+                    <th>Group</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 {% for participation in participations %}
+                    {% has_perm 'participation.update' request.user participation as can_update_participation %}
+                    {% has_perm 'participation.delete' request.user participation as can_delete_participation %}
+
                     <tr>
                         <td class="align-middle">{{ participation.user.first_name }} {{ participation.user.last_name }}</td>
                         <td class="align-middle">{{ participation.user.username }}</td>
                         <td class="align-middle">{{ participation.user.email | default:'N/A' }}</td>
-                        <td class="align-middle">{{ participation.get_role_display }}</td>
+                        <td class="align-middle">{{ participation.group }}</td>
                         <td class="align-middle">
                             <div class="float-right">
-                                {% if can_update %}
+                                {% if can_update_participation %}
                                     <a href="{% url 'courses:participations:edit' course.pk participation.pk %}" class="btn btn-outline-primary">{% fa5_icon 'edit' 'fas' %}</a>
                                 {% endif %}
-                                {% if can_delete %}
+                                {% if can_delete_participation %}
                                     <form action="{% url 'courses:participations:delete' course.pk participation.pk %}" method="post" id="delete-{{ participation.pk }}" style="display:none;">{% csrf_token %}</form>
                                     <button form="delete-{{ participation.pk }}" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-outline-danger">{% fa5_icon 'trash-alt' 'fas' %}</button>
                                 {% endif %}

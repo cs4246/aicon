@@ -4,10 +4,10 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from app.models import Invitation
 from app.forms import InvitationCreateForm, InvitationUpdateForm
-from app.views.utils import NeverCacheMixin, AutoSetupMixin, AuthorizationMixin, SuccessMessageMixin
+from app.views.utils import NeverCacheMixin, AutoSetupMixin, CoursePermissionMixin, AutoPermissionRequiredMixin, SuccessMessageMixin
 
 
-class InvitationMixin(LoginRequiredMixin, NeverCacheMixin, AutoSetupMixin, AuthorizationMixin):
+class InvitationMixin(LoginRequiredMixin, NeverCacheMixin, AutoSetupMixin, CoursePermissionMixin, AutoPermissionRequiredMixin):
     model = Invitation
     pk_url_kwarg = "invitation_pk"
 

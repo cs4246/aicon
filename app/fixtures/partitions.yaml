@@ -1,12 +1,15 @@
 - model: app.Partition
   fields:
     name: normal
+
 - model: app.Partition
   fields:
     name: long
+
 - model: app.Partition
   fields:
     name: gpu
+
 - model: app.Partition
   fields:
     name: gpu-long

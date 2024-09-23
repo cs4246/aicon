@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'fontawesome_5',
     'rest_framework',
     'rest_framework.authtoken',
+    'rules.apps.AutodiscoverRulesConfig',
     'app',
 ]
 
@@ -180,84 +181,11 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
-# Permissions
-
-ROLES_COURSE_UPDATE            = ['ADM']
-ROLES_COURSE_DELETE            = ['ADM']
-ROLES_COURSE_LIST              = ['GUE', 'STU', 'TA', 'LEC', 'ADM']
-ROLES_COURSE_JOIN              = ['GUE']
-ROLES_TASK_LIST                = ['STU', 'TA', 'LEC', 'ADM']
-ROLES_TASK_CREATE              = ['TA', 'LEC', 'ADM']
-ROLES_TASK_UPDATE              = ['TA', 'LEC', 'ADM']
-ROLES_TASK_DELETE              = ['LEC', 'ADM']
-ROLES_TASK_DOWNLOAD            = ['LEC', 'ADM', 'TA']
-ROLES_TASK_DOWNLOAD_TEMPLATE   = ['STU', 'LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_DOWNLOAD      = ['LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_DOWNLOAD_SELF = ['STU', 'LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_LIST          = ['LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_LIST_SELF     = ['STU', 'LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_DETAIL        = ['LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_DETAIL_SELF   = ['STU', 'LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_CREATE        = ['STU', 'LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_UPDATE        = ['LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_UPDATE_SELF   = ['STU', 'LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_RUN           = ['LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_RUN_SELF      = ['LEC', 'ADM', 'TA']
-ROLES_LEADERBOARD              = ['LEC', 'ADM', 'TA']
-ROLES_LEADERBOARD_SELF         = ['STU', 'LEC', 'ADM', 'TA']
-ROLES_LEADERBOARD_DOWNLOAD     = ['LEC', 'ADM', 'TA']
-ROLES_STATS                    = ['LEC', 'ADM', 'TA']
-ROLES_SIMILARITIES             = ['LEC', 'ADM', 'TA']
-ROLES_SIMILARITY_LIST          = ['LEC', 'ADM', 'TA']
-ROLES_INVITATION_LIST          = ['TA', 'LEC', 'ADM']
-ROLES_INVITATION_CREATE        = ['ADM']
-ROLES_INVITATION_UPDATE        = ['ADM']
-ROLES_INVITATION_DELETE        = ['ADM']
-ROLES_PARTICIPATION_LIST       = ['TA', 'LEC', 'ADM']
-ROLES_PARTICIPATION_CREATE     = ['LEC', 'ADM']
-ROLES_PARTICIPATION_UPDATE     = ['LEC', 'ADM']
-ROLES_PARTICIPATION_DELETE     = ['LEC', 'ADM']
-
-ROLES = {
-    'course.list': ROLES_COURSE_LIST,
-    'course.update': ROLES_COURSE_UPDATE,
-    'course.delete': ROLES_COURSE_DELETE,
-    'course.join': ROLES_COURSE_JOIN,
-    'invitation.list': ROLES_INVITATION_LIST,
-    'invitation.create': ROLES_INVITATION_CREATE,
-    'invitation.update': ROLES_INVITATION_CREATE,
-    'invitation.delete': ROLES_INVITATION_DELETE,
-    'participation.list': ROLES_PARTICIPATION_LIST,
-    'participation.create': ROLES_PARTICIPATION_CREATE,
-    'participation.update': ROLES_PARTICIPATION_UPDATE,
-    'participation.delete': ROLES_PARTICIPATION_DELETE,
-    'task.list': ROLES_TASK_LIST,
-    'task.create': ROLES_TASK_CREATE,
-    'task.update': ROLES_TASK_UPDATE,
-    'task.delete': ROLES_TASK_DELETE,
-    'task.download': ROLES_TASK_DOWNLOAD,
-    'task.download.template': ROLES_TASK_DOWNLOAD_TEMPLATE,
-    'submission.download': ROLES_SUBMISSION_DOWNLOAD,
-    'submission.download.self': ROLES_SUBMISSION_DOWNLOAD_SELF,
-    'submission.list': ROLES_SUBMISSION_LIST,
-    'submission.list.self': ROLES_SUBMISSION_LIST_SELF,
-    'submission.detail': ROLES_SUBMISSION_DETAIL,
-    'submission.detail.self': ROLES_SUBMISSION_DETAIL_SELF,
-    'submission.create': ROLES_SUBMISSION_CREATE,
-    'submission.update': ROLES_SUBMISSION_UPDATE,
-    'submission.update.self': ROLES_SUBMISSION_UPDATE_SELF,
-    'submission.run': ROLES_SUBMISSION_RUN,
-    'submission.run.self': ROLES_SUBMISSION_RUN_SELF,
-    'leaderboard': ROLES_LEADERBOARD,
-    'leaderboard.self': ROLES_LEADERBOARD_SELF, # if task enables leaderboard
-    'leaderboard.download': ROLES_LEADERBOARD_DOWNLOAD,
-    'stats': ROLES_STATS,
-    'similarity.list': ROLES_SIMILARITY_LIST,
-}
-
-GROUPS = {
-    'course.create': ['Lecturer']
-}
+# Authentication backends
+AUTHENTICATION_BACKENDS = (
+    'rules.permissions.ObjectPermissionBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 # Upload
 

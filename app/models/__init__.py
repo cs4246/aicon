@@ -7,3 +7,4 @@ from .similarity import *
 from .submission import *
 from .suggestion import *
 from .task import *
+from .group import *

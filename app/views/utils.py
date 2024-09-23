@@ -3,9 +3,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import UserPassesTestMixin
+from rules.contrib.views import PermissionRequiredMixin
 from typing import Optional
 from app.models import Course, Task, Submission
-from app.utils import can
 
 import re
 
@@ -61,14 +61,22 @@ class StatusResponseMixin:
         )
 
 
-class AuthorizationMixin(UserPassesTestMixin):
-    def get_self(self):
-        return False
+class AutoPermissionRequiredMixin(PermissionRequiredMixin):
+    def get_permission_required(self):
+        permission_required = ".".join(re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', self.__class__.__name__).lower().split()[:-1])
+        return [permission_required]
 
-    def test_func(self):
-        course = getattr(self, "course", None)
-        user = self.request.user
-        action = ".".join(re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', self.__class__.__name__).lower().split()[:-1])
-        submission = getattr(self, "submission", None)
-        _self = self.get_self()
-        return can(course, user, action, submission=submission, _self=_self)
+
+class CoursePermissionMixin:
+    def get_permission_object(self):
+        return getattr(self, "course", None)
+
+
+class SubmissionPermissionMixin:
+    def get_permission_object(self):
+        return getattr(self, "submission", None)
+
+
+class TaskPermissionMixin:
+    def get_permission_object(self):
+        return getattr(self, "task", None)

@@ -3,13 +3,13 @@ from django.db.models.aggregates import Max, Count
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from app.models import Task, Submission
-from app.views.utils import AutoSetupMixin, AuthorizationMixin
+from app.views.utils import AutoSetupMixin, TaskPermissionMixin, AutoPermissionRequiredMixin
 from datetime import timedelta
 
 import collections
 
 
-class StatsView(AutoSetupMixin, LoginRequiredMixin, AuthorizationMixin, DetailView):
+class StatsDetailView(AutoSetupMixin, LoginRequiredMixin, TaskPermissionMixin, AutoPermissionRequiredMixin, DetailView):
     model = Task
     context_object_name = "task"
     pk_url_kwarg = "task_pk"

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load fontawesome_5 %}
-{% load can %}
+{% load rules %}
 
 {% block title %}
     Invitation Keys - {{ course }} - {{ block.super }}
@@ -13,11 +13,9 @@
 {% endblock %}
 
 {% block content %}
-    {% can course request.user 'invitation.create' as can_create %}
-    {% can course request.user 'invitation.update' as can_update %}
-    {% can course request.user 'invitation.delete' as can_delete %}
+    {% has_perm 'invitation.create' request.user course as can_create_invitation %}
 
-    {% if can_create %}
+    {% if can_create_invitation %}
     <div class="mb-4">
         <a href="{% url 'courses:invitations:create' course.pk %}" class="btn btn-primary">{% fa5_icon 'plus-circle' 'fas' %} New Invitation Key</a>
     </div>
@@ -28,7 +26,7 @@
             <thead class="thead-inverse">
                 <tr>
                     <th>Invitation Key</th>
-                    <th>Role</th>
+                    <th>Group</th>
                     <th>Active</th>
                     <th>Created At</th>
                     <th>Updated At</th>
@@ -37,11 +35,16 @@
             </thead>
             <tbody>
                 {% for invitation in invitations %}
+                    {% has_perm 'invitation.update' request.user invitation as can_update_invitation %}
+                    {% has_perm 'invitation.delete' request.user invitation as can_delete_invitation %}
+
                     <tr>
                         <td class="align-middle">
                             <input type="text" class="form-control" value="{{ invitation.key }}" disabled/>
                         </td>
-                        <td class="align-middle">{{ invitation.get_role_display }}</td>
+                        <td class="align-middle">
+                            {{ invitation.group }}
+                        </td>
                         <td class="align-middle">
                             {% if invitation.valid %}
                  			    {% fa5_icon 'check-circle' 'fas' color='ForestGreen' %}
@@ -53,10 +56,10 @@
                         <td class="align-middle">{{ invitation.updated_at }}</td>
                         <td class="align-middle">
                             <div class="float-right">
-                                {% if can_update %}
+                                {% if can_update_invitation %}
                                     <a href="{% url 'courses:invitations:edit' course.pk invitation.pk %}" class="btn btn-outline-primary">{% fa5_icon 'edit' 'fas' %}</a>
                                 {% endif %}
-                                {% if can_delete %}
+                                {% if can_delete_invitation %}
                                     <form action="{% url 'courses:invitations:delete' course.pk invitation.pk %}" method="post" id="delete-{{ invitation.pk }}" style="display:none;">{% csrf_token %}</form>
                                     <button form="delete-{{ invitation.pk }}" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-outline-danger">{% fa5_icon 'trash-alt' 'fas' %}</button>
                                 {% endif %}

@@ -13,21 +13,6 @@ def create_download_response(file, content_type, filename=None):
     return response
 
 
-def can(course, user, action, submission=None, _self=False):
-    if user.groups.filter(name__in=settings.GROUPS.get(action, [])).exists():
-        return True
-    try:
-        participation = Participation.objects.get(user=user, course=course)
-    except Participation.DoesNotExist:
-        return "GUE" in settings.ROLES.get(action, [])
-    permission_self = False
-    action_self = f"{action}.self"
-    if submission is not None and submission.user == user or _self:
-        permission_self = participation.role in settings.ROLES.get(action_self, [])
-    permission_general = participation.role in settings.ROLES.get(action, [])
-    return permission_self or permission_general
-
-
 def make_safe_filename(s):
     def safe_char(c):
         if c.isalnum():

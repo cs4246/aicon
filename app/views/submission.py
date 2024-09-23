@@ -11,8 +11,9 @@ from aicon.celery import app as celery_app
 from app.models import Submission, Task
 from app.serializers import TaskSerializer, SubmissionSerializer
 from app.forms import SubmissionCodeForm, SubmissionPackageForm
-from app.views.utils import AutoSetupMixin, SuccessMessageMixin, NeverCacheMixin, StatusResponseMixin, AuthorizationMixin
-from app.utils import create_download_response, can
+from app.views.utils import AutoSetupMixin, SuccessMessageMixin, NeverCacheMixin, StatusResponseMixin, \
+                            TaskPermissionMixin, SubmissionPermissionMixin, AutoPermissionRequiredMixin
+from app.utils import create_download_response
 
 import re
 
@@ -33,7 +34,9 @@ class SubmissionAllowedMixin:
             "task_pk": self.kwargs["task_pk"],
         })
 
-        if can(self.task.course, self.request.user, 'task.update'):
+        # Intercept special permission
+        permission_required = self.get_permission_required()[0]
+        if request.user.has_perm(permission_required, self.submission if permission_required == "submission.update" else self.task):
             return super().dispatch(request, *args, **kwargs)
 
         if not self.task.is_open:
@@ -50,12 +53,12 @@ class SubmissionAllowedMixin:
         return super().dispatch(request, *args, **kwargs)
 
 
-class SubmissionMixin(LoginRequiredMixin, NeverCacheMixin, AutoSetupMixin, AuthorizationMixin):
+class SubmissionMixin(LoginRequiredMixin, NeverCacheMixin, AutoSetupMixin, StatusResponseMixin, AutoPermissionRequiredMixin):
     model = Submission
     pk_url_kwarg = "submission_pk"
 
 
-class SubmissionSingleMixin(SubmissionMixin, SuccessMessageMixin):
+class SubmissionChangeMixin:
     template_name = "submission/edit.html"
     success_message = "Submission created: {self.object.name}"
 
@@ -123,7 +126,7 @@ class SubmissionSingleMixin(SubmissionMixin, SuccessMessageMixin):
         })
 
 
-class SubmissionListView(SubmissionMixin, StatusResponseMixin, ListView):
+class SubmissionListView(TaskPermissionMixin, SubmissionMixin, ListView):
     template_name = "submission/list.html"
     partial_template_name = "submission/partial/list.html"
     context_object_name = "submissions"
@@ -134,8 +137,11 @@ class SubmissionListView(SubmissionMixin, StatusResponseMixin, ListView):
             return [self.partial_template_name]
         return super().get_template_names()
 
-    def get_self(self):
-        return "all" not in self.request.GET
+    def get_permission_required(self):
+        if "all" in self.request.GET:
+            return ["submission.list.all"]
+        else:
+            return ["submission.list"]
 
     def get_queryset(self):
         if "all" in self.request.GET:
@@ -158,15 +164,15 @@ class SubmissionListView(SubmissionMixin, StatusResponseMixin, ListView):
         return 286 if len(waiting_submissions) == 0 else None
 
 
-class SubmissionCreateView(SubmissionSingleMixin, SubmissionAllowedMixin, UpdateView): # using UpdateView to allow form pre-fill using get_object
+class SubmissionCreateView(SubmissionAllowedMixin, TaskPermissionMixin, SubmissionChangeMixin, SubmissionMixin, UpdateView): # using UpdateView to allow form pre-fill using get_object
     pass
 
 
-class SubmissionUpdateView(SubmissionSingleMixin, SubmissionAllowedMixin, UpdateView):
+class SubmissionUpdateView(SubmissionAllowedMixin, SubmissionPermissionMixin, SubmissionChangeMixin, SubmissionMixin, UpdateView):
     pass
 
 
-class SubmissionDetailView(SubmissionMixin, StatusResponseMixin, DetailView):
+class SubmissionDetailView(SubmissionPermissionMixin, SubmissionMixin, DetailView):
     template_name = "submission/partial/detail.html"
 
     def get_context_data(self, **kwargs):
@@ -178,12 +184,12 @@ class SubmissionDetailView(SubmissionMixin, StatusResponseMixin, DetailView):
         return 286 if self.object.status not in [Submission.STATUS_QUEUED, Submission.STATUS_RUNNING] else None
 
 
-class SubmissionDownloadView(SubmissionMixin, DetailView):
+class SubmissionDownloadView(SubmissionPermissionMixin, SubmissionMixin, DetailView):
     def get(self, request, *args, **kwargs):
         return create_download_response(self.get_object().file, "application/zip")
 
 
-class SubmissionRunView(SubmissionMixin, View):
+class SubmissionRunView(TaskPermissionMixin, SubmissionMixin, View):
     def post(self, request, *args, **kwargs):
         redirect_url = reverse('courses:tasks:submissions:index', args=(self.course.pk, self.task.pk))
 

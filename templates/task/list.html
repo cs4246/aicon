@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% load fontawesome_5 %}
-{% load can %}
+{% load rules %}
 
 {% block title %}
     {{ course }} - {{ block.super }}
@@ -13,24 +13,22 @@
 {% endblock %}
 
 {% block content %}
-    {% can course request.user 'task.create' as can_create %}
-    {% can course request.user 'task.update' as can_update %}
-    {% can course request.user 'task.delete' as can_delete %}
-    {% can course request.user 'task.download' as can_download %}
-    {% can course request.user 'invitation.list' as can_invitation %}
-    {% can course request.user 'participation.list' as can_participation %}
+    {% has_perm 'task.create' request.user course as can_create_task %}
+    {% has_perm 'invitation.list' request.user course as can_list_invitation %}
+    {% has_perm 'participation.list' request.user course as can_list_participation %}
+
     <h1>{{ course.code }}</h1>
     <span>{{ course.academic_year }} - Semester {{ course.semester }}</span>
-    {% if can_create or can_invitation or can_participation %}
+    {% if can_create_task or can_list_invitation or can_list_participation %}
         <hr>
         <div class="mb-4">
-            {% if can_create %}
+            {% if can_create_task %}
        	        <a href="{% url 'courses:tasks:create' course.pk 'code' %}" class="btn btn-primary">{% fa5_icon 'plus-circle' 'fas' %} New task</a>
             {% endif %}
-            {% if can_invitation %}
+            {% if can_list_invitation %}
        	        <a href="{% url 'courses:invitations:index' course.pk %}" class="btn btn-primary">{% fa5_icon 'key' 'fas' %} Invitation Keys</a>
             {% endif %}
-            {% if can_participation %}
+            {% if can_list_participation %}
        	        <a href="{% url 'courses:participations:index' course.pk %}" class="btn btn-primary">{% fa5_icon 'users' 'fas' %} Participations</a>
             {% endif %}
         </div>
@@ -46,13 +44,17 @@
     				<th>Deadline</th>
     				<th>Opened At</th>
     				<th>Status</th>
-                    {% if can_update or can_delete %}
+                    {% if can_update_task or can_delete_task %}
                         <th></th>
                     {% endif %}
     			</tr>
     		</thead>
     		<tbody>
                 {% for task in tasks %}
+                    {% has_perm 'task.update' request.user task as can_update_task %}
+                    {% has_perm 'task.delete' request.user task as can_delete_task %}
+                    {% has_perm 'task.download' request.user task as can_download_task %}
+
                     <tr>
         				<td class="align-middle">
            					<a href="{% url 'courses:tasks:submissions:index' course.pk task.pk %}">{{ task.name }}</a>
@@ -67,17 +69,17 @@
         				</td>
         				<td class="align-middle">{{ task.opened_at }}</td>
         				<td class="align-middle">{{ task.get_status_display }}</td>
-                        {% if can_update or can_delete %}
+                        {% if can_update_task or can_delete_task or can_download_task %}
                             <td>
                					<div class="float-right">
-                                    {% if can_update %}
+                                    {% if can_update_task %}
                                         <a href="{% url 'courses:tasks:edit' task.course.pk task.pk 'code' %}" class="btn btn-outline-primary">{% fa5_icon 'edit' 'fas' %}</a>
                                     {% endif %}
-                                    {% if can_delete %}
+                                    {% if can_delete_task %}
                                         <form action="{% url 'courses:tasks:delete' task.course.pk task.pk %}" method="post" id="delete-{{ task.pk }}" style="display:none;">{% csrf_token %}</form>
                                         <button form="delete-{{ task.pk }}" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-outline-danger">{% fa5_icon 'trash-alt' 'fas' %}</button>
                                     {% endif %}
-                                    {% if can_download %}
+                                    {% if can_download_task %}
                                         <a href="{% url 'courses:tasks:download' task.course.pk task.pk %}" class="btn btn-outline-success">{% fa5_icon 'download' 'fas' %}</a>
                                     {% endif %}
                					</div>

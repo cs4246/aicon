@@ -23,13 +23,13 @@ from app.views import RegisterView, \
                       ParticipationListView, ParticipationCreateView, ParticipationUpdateView, ParticipationDeleteView, \
                       TaskListView, TaskCreateView, TaskUpdateView, TaskDeleteView, TaskDownloadView, TaskDownloadTemplateView, \
                       SubmissionListView, SubmissionCreateView, SubmissionDetailView, SubmissionUpdateView, SubmissionRunView, SubmissionDownloadView, \
-                      LeaderboardView, LeaderboardDownloadView, StatsView, SimilarityListView
+                      LeaderboardDetailView, LeaderboardDownloadView, StatsDetailView, SimilarityListView
 
 
 info_urls = [
-    path("leaderboard/", LeaderboardView.as_view(), name="leaderboard"),
+    path("leaderboard/", LeaderboardDetailView.as_view(), name="leaderboard"),
     path("leaderboard/download/", LeaderboardDownloadView.as_view(), name="leaderboard-download"),
-    path("stats/", StatsView.as_view(), name="stats"),
+    path("stats/", StatsDetailView.as_view(), name="stats"),
     path("similarities/", SimilarityListView.as_view(), name="similarities"),
 ]
 submissions_urls = [

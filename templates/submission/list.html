@@ -2,7 +2,7 @@
 
 {% load fontawesome_5 %}
 {% load call_method %}
-{% load can %}
+{% load rules %}
 {% load define %}
 {% load addstr %}
 {% load query_transform %}
@@ -25,15 +25,17 @@
 
 {% block content %}
     {% url 'courses:tasks:submissions:index' course.pk task.pk as submissions_index_url %}
-    {% call_method task 'submissions_exceeded_by_user' request.user as submission_exceeded %}
-    {% can task.course request.user 'task.update' as can_update %}
-    {% can task.course request.user 'task.download.template' as can_download_template %}
-    {% can task.course request.user 'submission.create' as can_create %}
-    {% can task.course request.user 'submission.list' as can_view_all %}
-    {% can task.course request.user 'submission.run' as can_run %}
-    {% can task.course request.user 'leaderboard' as can_leaderboard %}
-    {% can task.course request.user 'stats' as can_stats %}
-    {% if can_update or not submission_exceeded and can_create and task.is_open %}
+
+    {% has_perm 'submission.list.all' request.user task as can_list_all_submission %}
+    {% has_perm 'submission.create' request.user task as can_create_submission %}
+    {% has_perm 'submission.create.permission' request.user task as has_create_submission_permission %}
+    {% has_perm 'submission.run' request.user task as can_run_submission %}
+    {% has_perm 'task.download.template' request.user task as can_download_template_task %}
+    {% has_perm 'leaderboard.detail' request.user task as can_detail_leaderboard %}
+    {% has_perm 'stats.detail' request.user task as can_detail_stats %}
+    {% has_perm 'similarity.list' request.user task as can_list_similarity %}
+
+    {% if can_create_submission %}
         {% define "primary" as button_decorator %}
     {% else %}
         {% define "secondary" as button_decorator %}
@@ -54,44 +56,46 @@
     <div class="d-flex justify-content-between">
         <div>
             <ul class="button-list">
-                <li>
-                    <div class="dropdown">
-                        <button class="btn btn-{{ button_decorator }} dropdown-toggle"  type="button" id="submission-new-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {% fa5_icon 'plus-circle' 'fas' %} New submission
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" href="{% url 'courses:tasks:submissions:create' task.course.pk task.pk 'code' %}">Code</a>
-                            <a class="dropdown-item" href="{% url 'courses:tasks:submissions:create' task.course.pk task.pk 'package' %}">Package</a>
+                {% if has_create_submission_permission %}
+                    <li>
+                        <div class="dropdown">
+                            <button class="btn btn-{{ button_decorator }} dropdown-toggle"  type="button" id="submission-new-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {% fa5_icon 'plus-circle' 'fas' %} New submission
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="{% url 'courses:tasks:submissions:create' task.course.pk task.pk 'code' %}">Code</a>
+                                <a class="dropdown-item" href="{% url 'courses:tasks:submissions:create' task.course.pk task.pk 'package' %}">Package</a>
+                            </div>
                         </div>
-                    </div>
-                </li>
-                {% if task.template and can_download_template %}
+                    </li>
+                {% endif %}
+                {% if task.template and can_download_template_task %}
                     <li>
                         <a href="{% url 'courses:tasks:download-template' task.course.pk task.pk %}" class="btn btn-primary btn-btn-outline-secondary">{% fa5_icon 'download' 'fas' %} Download Template</a>
                     </li>
                 {% endif %}
-                {% if can_run %}
+                {% if can_run_submission %}
                     <li>
                         <button type="submit" form="submissions-run" class="btn btn-outline-info">
                             {% fa5_icon 'redo' 'fas' %} Re-Run
                         </button>
                     </li>
                 {% endif %}
-                {% if can_leaderboard or can_stats or task.leaderboard %}
+                {% if can_detail_leaderboard or can_details_stats or can_list_similarity %}
                     <li>
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="More Options">
                                 {% fa5_icon 'bars' 'fas' %}
                             </button>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                {% if can_leaderboard or task.leaderboard %}
+                                {% if can_detail_leaderboard %}
                                     <a href="{% url 'courses:tasks:info:leaderboard' task.course.pk task.pk %}" class="dropdown-item">Leaderboard</a>
                                 {% endif %}
-                                {% if can_stats %}
+                                {% if can_detail_stats %}
                                     <a href="{% url 'courses:tasks:info:stats' task.course.pk task.pk %}" class="dropdown-item">Stats</a>
-                                    {% if task.template %}
-                                        <a href="{% url 'courses:tasks:info:similarities' task.course.pk task.pk %}" class="dropdown-item">Similarities</a>
-                                    {% endif %}
+                                {% endif %}
+                                {% if can_list_similarity and task.template %}
+                                    <a href="{% url 'courses:tasks:info:similarities' task.course.pk task.pk %}" class="dropdown-item">Similarities</a>
                                 {% endif %}
                             </div>
                         </div>
@@ -117,7 +121,7 @@
         </div>
     </div>
 
-    {% if can_view_all %}
+    {% if can_list_all_submission %}
         <ul class="nav nav-tabs">
             <li class="nav-item">
                 <a class="nav-link {% if not view_all %}active{% endif %}" href="{% url 'courses:tasks:submissions:index' task.course.pk task.pk %}">My Submissions</a>
