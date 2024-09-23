@@ -227,3 +227,14 @@ TASK_BASE_ZIPFILE = os.path.join(BASE_DIR, "uploads", "base", "task.zip")
 TASK_BASE_MAIN_DIR = "aicon_task"
 TASK_BASE_MAIN_FILE = os.path.join(TASK_BASE_MAIN_DIR, "__init__.py")
 TASK_BASE_SETUP_FILE = "setup.py"
+
+# Email
+
+with env.prefixed("EMAIL_"):
+    EMAIL_HOST = env.str("HOST")
+    EMAIL_PORT = env.int("PORT")
+    EMAIL_HOST_USER = env.str("HOST_USER")
+    EMAIL_HOST_PASSWORD = env.str("HOST_PASSWORD")
+    EMAIL_USE_TLS = env.bool("USE_TLS")
+    EMAIL_USE_SSL = env.bool("USE_SSL")
+    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
