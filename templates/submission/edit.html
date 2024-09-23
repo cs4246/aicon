@@ -16,7 +16,6 @@
 
 {% block breadcrumb %}
     {% url 'courses:tasks:submissions:edit' form.instance.task.course.pk form.instance.task.pk base_submission.pk 'code' as submission_edit_url %}
-    <li class="breadcrumb-item"><a href="{% url 'courses:index' %}">Courses</a></li>
     <li class="breadcrumb-item">
         <a href="{% url 'courses:tasks:index' form.instance.task.course.pk %}">{{ form.instance.task.course }}</a>
     </li>

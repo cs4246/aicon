@@ -1,104 +1,111 @@
 {% load static %}
 {% load fontawesome_5 %}
+{% load rules %}
+{% load bootstrap4 %}
+
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>{% block title %}AI Contest Platform{% endblock %}</title>
 
-    <title>{% block title %}AI Contest Platform{% endblock %}</title>
+		{% bootstrap_css %}
+		{% bootstrap_javascript jquery='full' %}
+		{% fontawesome_5_static %}
 
-    {% load bootstrap4 %}
-    {% bootstrap_css %}
-    {% bootstrap_javascript jquery='full' %}
+		{% block extrahead %}
+		{% endblock %}
 
-    {% fontawesome_5_static %}
+		<link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}" />
+		<link rel="stylesheet" href="{% static 'css/accordion.css' %}">
+		<link rel="stylesheet" href="{% static 'css/app.css' %}">
+	</head>
+	<body>
+		<nav class="navbar navbar-expand-md navbar-dark bg-primary">
+			<div class="container">
+			    <a class="navbar-brand" href="{% url 'home' %}">{% fa5_icon 'robot' 'fas' %}</a>
 
-    {% block extrahead %}
-    {% endblock %}
+			    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+							<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="navbar-collapse collapse" id="collapsingNavbar">
+					<ol class="breadcrumb-nav breadcrumb m-0 p-0 bg-transparent text-light">
+					   {% block breadcrumb %} {% endblock %}
+					</ol>
+					<ul class="navbar-nav ml-auto">
+					    {% if course %}
+                            {% has_perm 'task.list' request.user course as can_list_task %}
+                            {% has_perm 'invitation.list' request.user course as can_list_invitation %}
+                            {% has_perm 'participation.list' request.user course as can_list_participation %}
 
-    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
-    <link rel="stylesheet" href="{% static 'css/accordion.css' %}">
-    <link rel="stylesheet" href="{% static 'css/app.css' %}">
-  </head>
-  <body>
+           					{% if can_list_task %}
+           					    <li class="nav-item">
+         							<a class="nav-link {% if request.resolver_match.namespace == 'courses:tasks' or request.resolver_match.namespace == 'courses:tasks:submissions' %}active{% endif %}" href="{% url 'courses:tasks:index' course.pk %}">Tasks</a>
+          						</li>
+           					{% endif %}
+           					{% if can_list_invitation %}
+           					    <li class="nav-item">
+         							<a class="nav-link {% if request.resolver_match.namespace == 'courses:invitations' %}active{% endif %}" href="{% url 'courses:invitations:index' course.pk %}">Invitations</a>
+          						</li>
+           					{% endif %}
+           					{% if can_list_participation %}
+           					    <li class="nav-item">
+         							<a class="nav-link {% if request.resolver_match.namespace == 'courses:participations' %}active{% endif %}" href="{% url 'courses:participations:index' course.pk %}">Participations</a>
+          						</li>
+           					{% endif %}
+    					{% endif %}
 
-    <nav class="navbar navbar-expand-md navbar-dark bg-primary">
-      <div class="container">
-	{% now "m-d" as cdate %}
-        {% if cdate == '02-12' or cdate == '02-13' or cdate == '02-14' %}
-        	<a class="navbar-brand" href="{% url 'home' %}">{% fa5_icon 'robot' 'fas' %} &nbsp;愛con</a>
-        {% else %}
-		<a class="navbar-brand" href="{% url 'home' %}">{% fa5_icon 'robot' 'fas' %} &nbsp;aicon</a>
-        {% endif %}
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="navbar-collapse collapse" id="collapsingNavbar">
-          <ul class="navbar-nav">
-          </ul>
-          <ul class="navbar-nav ml-auto">
-            {% if user.is_staff %}
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
-              </li>
-            {% endif %}
-            {% if user.is_authenticated %}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {{ user.username }}
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <form action="{% url 'logout' %}" method="post">
-                  {% csrf_token %}
-                  <button class="dropdown-item">Logout</button>
-                </form>
-              </div>
-            </li>
-            {% else %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Login</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'register' %}">Register</a>
-            </li>
-            {% endif %}
-          </ul>
-        </div>
-      </div>
-    </nav>
+    					{% if user.is_staff %}
+    					    <li class="nav-item">
+    							<a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
+    						</li>
+    					{% endif %}
+    					{% if user.is_authenticated %}
+    					    <li class="nav-item dropdown">
+    							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    								{{ user.username }}
+    							</a>
+    							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+    								<form action="{% url 'logout' %}" method="post"> {% csrf_token %} <button class="dropdown-item">Logout</button>
+    								</form>
+    							</div>
+    						</li>
+    					{% else %}
+    					    <li class="nav-item">
+    							<a class="nav-link" href="{% url 'login' %}">Login</a>
+    						</li>
+    						<li class="nav-item">
+    							<a class="nav-link" href="{% url 'register' %}">Register</a>
+    						</li>
+    					{% endif %}
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<div class="container my-4">
+    		{% for announcement in announcements %}
+    		    <div class="alert {{ announcement.1 }}" style="margin-top: 10px; margin-bottom: 5px">
+    				{{ announcement.0 | safe }}
+    			</div>
+    		{% endfor %}
+    		{% for message in messages %}
+    		    <div class="alert {{ message.tags }} alert-dismissible" role="alert" style="margin-top: 20px">
+    				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    					<span aria-hidden="true">&times;</span>
+    				</button>
+    				{{ message }}
+    			</div>
+    		{% endfor %}
 
-    <div class="container mb-3">
+    		{% block content %}
+    		{% endblock %}
 
-      {% for announcement in announcements %}
-        <div class="alert {{ announcement.1 }}" style="margin-top: 10px; margin-bottom: 5px">
-          {{ announcement.0 | safe }}
-        </div>
-      {% endfor %}
-
-      {% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible" role="alert" style="margin-top: 20px">
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          {{ message }}
-        </div>
-      {% endfor %}
-
-      <ol class="breadcrumb my-4">
-        {% block breadcrumb %}
-        {% endblock %}
-      </ol>
-
-      {% block content %}
-      {% endblock %}
-      <br>
-
-    </div>
-
-    <script type="text/javascript" src="{% static 'js/accordion.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/htmx.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/idiomorph-ext.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/app.js' %}"></script>
-  </body>
+    		<br>
+		</div>
+		<script type="text/javascript" src="{% static 'js/accordion.js' %}"></script>
+		<script type="text/javascript" src="{% static 'js/htmx.min.js' %}"></script>
+		<script type="text/javascript" src="{% static 'js/idiomorph-ext.min.js' %}"></script>
+		<script type="text/javascript" src="{% static 'js/app.js' %}"></script>
+	</body>
 </html>

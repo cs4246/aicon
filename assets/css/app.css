@@ -74,3 +74,31 @@ tr.collapsible > td {
         background-color: rgba(255, 255, 0, 0.3);
     }
 }
+
+.breadcrumb-nav .breadcrumb-item + .breadcrumb-item::before {
+    color: #f8f9fabf;
+}
+
+.breadcrumb-nav .breadcrumb-item {
+    color: #f8f9fabf;
+}
+
+.breadcrumb-nav .breadcrumb-item.active {
+    color: #f8f9fa;
+}
+
+.breadcrumb-nav .breadcrumb-item a {
+    color: #f8f9fabf;
+}
+
+.breadcrumb-nav .breadcrumb-item.active a {
+    color: #f8f9fa;
+}
+
+.btn.btn-collapse-primary.collapsed {
+    background-color: #007bff;
+}
+
+.btn.btn-collapse-primary {
+    background-color: #0061ca;
+}

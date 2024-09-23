@@ -8,33 +8,18 @@
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="breadcrumb-item"><a href="{% url 'courses:index' %}">Courses</a></li>
-    <li class="breadcrumb-item active">{{ course }}</li>
+    <li class="breadcrumb-item active"><a href="{% url 'courses:detail' course.pk %}">{{ course }}</a></li>
 {% endblock %}
 
 {% block content %}
     {% has_perm 'task.create' request.user course as can_create_task %}
-    {% has_perm 'invitation.list' request.user course as can_list_invitation %}
-    {% has_perm 'participation.list' request.user course as can_list_participation %}
 
-    <h1>{{ course.code }}</h1>
-    <span>{{ course.academic_year }} - Semester {{ course.semester }}</span>
-    {% if can_create_task or can_list_invitation or can_list_participation %}
-        <hr>
+    {% if can_create_task %}
         <div class="mb-4">
             {% if can_create_task %}
-       	        <a href="{% url 'courses:tasks:create' course.pk 'code' %}" class="btn btn-primary">{% fa5_icon 'plus-circle' 'fas' %} New task</a>
-            {% endif %}
-            {% if can_list_invitation %}
-       	        <a href="{% url 'courses:invitations:index' course.pk %}" class="btn btn-primary">{% fa5_icon 'key' 'fas' %} Invitation Keys</a>
-            {% endif %}
-            {% if can_list_participation %}
-       	        <a href="{% url 'courses:participations:index' course.pk %}" class="btn btn-primary">{% fa5_icon 'users' 'fas' %} Participations</a>
+       	        <a href="{% url 'courses:tasks:create' course.pk 'code' %}" class="btn btn-primary">{% fa5_icon 'plus-circle' 'fas' %} New Task</a>
             {% endif %}
         </div>
-    {% else %}
-        <br>
-        <br>
     {% endif %}
     <div class="table-responsive">
     	<table class="table">

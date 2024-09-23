@@ -15,7 +15,6 @@
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="breadcrumb-item"><a href="{% url 'courses:index' %}">Courses</a></li>
     <li class="breadcrumb-item">
         <a href="{% url 'courses:tasks:index' task.course.pk %}">{{ task.course }}</a>
     </li>
@@ -41,18 +40,6 @@
         {% define "secondary" as button_decorator %}
     {% endif %}
 
-    <h1>{{ task.name }}</h1>
-    <span>{{ task.description }}</span>
-
-    <div class="card" style="margin-top: 20px; margin-bottom: 20px">
-        <div class="card-body">
-            {{ task.daily_submission_limit }} max daily submission(s),
-            {{ task.max_upload_size|intcomma }} KB max size,
-            {{ task.run_time_limit|intcomma }} second(s) time limit,
-            {{ task.memory_limit|intcomma }} KB memory limit.
-        </div>
-    </div>
-
     <div class="d-flex justify-content-between">
         <div>
             <ul class="button-list">
@@ -60,7 +47,7 @@
                     <li>
                         <div class="dropdown">
                             <button class="btn btn-{{ button_decorator }} dropdown-toggle"  type="button" id="submission-new-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                {% fa5_icon 'plus-circle' 'fas' %} New submission
+                                {% fa5_icon 'plus-circle' 'fas' %} New Submission
                             </button>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                 <a class="dropdown-item" href="{% url 'courses:tasks:submissions:create' task.course.pk task.pk 'code' %}">Code</a>
@@ -74,6 +61,9 @@
                         <a href="{% url 'courses:tasks:download-template' task.course.pk task.pk %}" class="btn btn-primary btn-btn-outline-secondary">{% fa5_icon 'download' 'fas' %} Download Template</a>
                     </li>
                 {% endif %}
+                <li>
+                    <button class="btn btn-primary btn-collapse-primary collapsed" type="button" data-toggle="collapse" data-target="#collapse-info" aria-expanded="false" aria-controls="collapseExample">{% fa5_icon 'info-circle' 'fas' %} Task Info</button>
+                </li>
                 {% if can_run_submission %}
                     <li>
                         <button type="submit" form="submissions-run" class="btn btn-outline-info">
@@ -115,6 +105,22 @@
                 </form>
                 <div class="input-group-append">
                     <button class="btn btn-primary" type="submit" form="search-form">{% fa5_icon 'search' 'fas' %}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="collapse" id="collapse-info">
+        <div class="card card-body mb-4">
+            <h5>{{ task.name }}</h5>
+            <span>{{ task.description }}</span>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    {{ task.daily_submission_limit }} max daily submission(s),
+                    {{ task.max_upload_size|intcomma }} KB max size,
+                    {{ task.run_time_limit|intcomma }} second(s) time limit,
+                    {{ task.memory_limit|intcomma }} KB memory limit.
                 </div>
             </div>
         </div>

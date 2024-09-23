@@ -9,9 +9,6 @@
 
 {% block breadcrumb %}
     <li class="breadcrumb-item">
-    	<a href="{% url 'courses:index' %}">Courses</a>
-    </li>
-    <li class="breadcrumb-item">
     	<a href="{% url 'courses:tasks:index' task.course.pk %}">{{ task.course }}</a>
     </li>
     <li class="breadcrumb-item">

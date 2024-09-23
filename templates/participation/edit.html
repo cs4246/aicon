@@ -11,9 +11,7 @@
 {% endblock %}
 
 {% block breadcrumb %}
-    <li class="breadcrumb-item"><a href="{% url 'courses:index' %}">Courses</a></li>
     <li class="breadcrumb-item"><a href="{% url 'courses:detail' course.pk %}">{{ course }}</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'courses:participations:index' course.pk %}">Participations</a></li>
     <li class="breadcrumb-item active">{{ form.instance.user | default:"New Participation" }}</li>
 {% endblock %}
 
