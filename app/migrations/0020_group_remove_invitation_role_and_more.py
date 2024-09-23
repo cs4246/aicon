@@ -21,7 +21,7 @@ def add_default_group_to_invitation(apps, schema_editor):
 
 def add_default_group_to_participation(apps, schema_editor):
     Group = apps.get_model("app", "Group")
-    Participation = apps.get_model("app", "Invitation")
+    Participation = apps.get_model("app", "Participation")
     Participation.objects.update(group=Group.objects.get(name=AppGroup.DEFAULT))
 
 
