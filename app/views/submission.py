@@ -191,8 +191,6 @@ class SubmissionDownloadView(SubmissionPermissionMixin, SubmissionMixin, DetailV
 
 class SubmissionRunView(TaskPermissionMixin, SubmissionMixin, View):
     def post(self, request, *args, **kwargs):
-        redirect_url = reverse('courses:tasks:submissions:index', args=(self.course.pk, self.task.pk))
-
         pks = [int(pk) for pk in request.POST.getlist('submissions_selected[]')]
         submissions_run = Submission.objects.filter(pk__in=pks)
 
@@ -202,4 +200,4 @@ class SubmissionRunView(TaskPermissionMixin, SubmissionMixin, View):
             submission_evaluate(request, submission.task, submission)
 
         messages.info(request, 'Submissions re-queued for run: {}.'.format(sorted(pks)))
-        return HttpResponseRedirect(redirect_url)
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
