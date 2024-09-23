@@ -105,18 +105,17 @@
         </div>
         <div>
             <div class="input-group">
-                <div class="input-group-prepend">
-                    <div class="input-group-text">Per Page</div>
-                </div>
-                <select name="per_page" id="per_page" class="custom-select">
-                    {% for pp in per_page_options %}
-                        {% if pp == paginator.per_page %}
-                            <option selected="selected" value="{{ submissions_url }}?{% query_transform request per_page=pp page=1 %}">{{pp}}</option>
-                        {% else %}
-                            <option value="{{ submissions_url }}?{% query_transform request per_page=pp page=1 %}">{{pp}}</option>
+                <form action="" method="get" id="search-form">
+                    {% for k,v in request.GET.items %}
+                        {% if k != 'search' %}
+                            <input type="hidden" name="{{ k }}" value="{{ v }}">
                         {% endif %}
                     {% endfor %}
-                </select>
+                    <input type="text" class="form-control" placeholder="Search" name="search" value="{{ request.GET.search }}">
+                </form>
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="submit" form="search-form">{% fa5_icon 'search' 'fas' %}</button>
+                </div>
             </div>
         </div>
     </div>
@@ -167,8 +166,27 @@
         </div>
     </form>
 
-    <div class="d-flex justify-content-center">
-        {% bootstrap_pagination page_obj extra=request.GET.urlencode %}
+    <div class="d-flex justify-content-between">
+        <div>
+            {% bootstrap_pagination page_obj extra=request.GET.urlencode %}
+        </div>
+
+        <div>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">Per Page</div>
+                </div>
+                <select name="per_page" id="per_page" class="custom-select">
+                    {% for pp in per_page_options %}
+                        {% if pp == paginator.per_page %}
+                            <option selected="selected" value="{{ submissions_url }}?{% query_transform request per_page=pp page=1 %}">{{pp}}</option>
+                        {% else %}
+                            <option value="{{ submissions_url }}?{% query_transform request per_page=pp page=1 %}">{{pp}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
     </div>
 
     <script type="text/javascript">

@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 from rest_framework.request import Request
 from aicon.celery import app as celery_app
 from app.models import Submission, Task
@@ -132,6 +133,10 @@ class SubmissionListView(TaskPermissionMixin, SubmissionMixin, ListView):
     context_object_name = "submissions"
     per_page_options = [10, 20, 50, 100, 1000]
 
+    @property
+    def view_all(self):
+        return bool(self.request.GET.get("all", 0))
+
     def get_template_names(self):
         if "partial" in self.request.GET:
             return [self.partial_template_name]
@@ -144,9 +149,20 @@ class SubmissionListView(TaskPermissionMixin, SubmissionMixin, ListView):
             return ["submission.list"]
 
     def get_queryset(self):
-        if "all" in self.request.GET:
-            return self.task.submissions.order_by('-created_at')
-        return self.task.submissions.filter(user=self.request.user).order_by('-created_at')
+        submissions = self.task.submissions.order_by('-created_at')
+        search = self.request.GET.get("search", None)
+        if search is not None:
+            submissions = submissions.filter(
+                Q(file__icontains=search) |
+                Q(description__icontains=search) |
+                Q(notes__icontains=search) |
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search) |
+                Q(user__username__icontains=search)
+            )
+        if self.view_all:
+            return submissions
+        return submissions.filter(user=self.request.user)
 
     def get_paginate_by(self, queryset):
         return self.request.GET.get('per_page', 10)
@@ -154,7 +170,7 @@ class SubmissionListView(TaskPermissionMixin, SubmissionMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["per_page_options"] = self.per_page_options
-        context["view_all"] = "all" in self.request.GET
+        context["view_all"] = self.view_all
         self.object_list = context["object_list"]
         return context
 
