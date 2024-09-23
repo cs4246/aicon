@@ -138,8 +138,10 @@
             <table class="table">
                 <thead class="thead-inverse">
                     <tr>
-                        {% if can_run %}
-                            <th>#</th>
+                        {% if can_run_submission %}
+                            <th>
+                                <input type="checkbox" onClick="toggle_checkboxes(this)" />
+                            </th>
                         {% endif %}
                         <th>ID</th>
                         {% if view_all %}
@@ -170,20 +172,13 @@
     </div>
 
     <script type="text/javascript">
-        $("#per_page").change(function (e) {
-            window.location.href = $(this).val();
-        });
+        $('[data-tooltip="tooltip"]').tooltip();
 
-        $(document).ready(function () {
-            $(document).on("click", ".clickable input", function (event) {
-                event.stopPropagation();
-            });
-
-            $(document).on("click", ".clickable a", function (event) {
-                event.stopPropagation();
-            });
-
-            $('[data-tooltip="tooltip"]').tooltip();
-        });
+        function toggle_checkboxes(source) {
+            checkboxes = document.getElementsByName('submissions_selected[]');
+            for(var i=0, n=checkboxes.length;i<n;i++) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
     </script>
 {% endblock %}
