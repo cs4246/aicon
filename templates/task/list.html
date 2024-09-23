@@ -44,9 +44,7 @@
     				<th>Deadline</th>
     				<th>Opened At</th>
     				<th>Status</th>
-                    {% if can_update_task or can_delete_task %}
-                        <th></th>
-                    {% endif %}
+                    <th></th>
     			</tr>
     		</thead>
     		<tbody>
@@ -69,7 +67,6 @@
         				</td>
         				<td class="align-middle">{{ task.opened_at }}</td>
         				<td class="align-middle">{{ task.get_status_display }}</td>
-                        {% if can_update_task or can_delete_task or can_download_task %}
                             <td>
                					<div class="float-right">
                                     {% if can_update_task %}
@@ -84,7 +81,6 @@
                                     {% endif %}
                					</div>
             				</td>
-                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>
