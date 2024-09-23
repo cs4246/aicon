@@ -40,28 +40,28 @@ Make sure to replace `<your_username>` and `<your_password>` with secure credent
 ## Setup
 
 1. Install the requirements
-  ```bash
-  pip install -r requirements.txt
-  ```
+    ```bash
+    pip install -r requirements.txt
+    ```
 2. Duplicate the `example.env` file to create a new `.env` file.
 3. Update the values in the `.env` file according to server configuration.
 4. Create a secret key and store it in ``.env`` as ``SECRET_KEY=<Your Key>``.
 5. Migrate, load data, and create the superuser.
-  ```bash
-  python manage.py makemigrations
-  python manage.py migrate
-  python manage.py loaddata groups partitions
-  python manage.py createsuperuser
-  ```
+    ```bash
+    python manage.py makemigrations
+    python manage.py migrate
+    python manage.py loaddata groups partitions
+    python manage.py createsuperuser
+    ```
 6. Run server.
-  ```bash
-  python manage.py runserver
-  ```
+    ```bash
+    python manage.py runserver
+    ```
 7. For deployment, make sure to set `DEBUG=False` and use a robust WSGI server like Gunicorn.
-  ```bash
-  python manage.py collectstatic
-  gunicorn --bind 0.0.0.0:8000 aicon.wsgi
-  ```
+    ```bash
+    python manage.py collectstatic
+    gunicorn --bind 0.0.0.0:8000 aicon.wsgi
+    ```
 
 ## API
 
