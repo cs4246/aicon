@@ -53,6 +53,7 @@
                 hx-get="{% url 'courses:tasks:submissions:detail' course.pk task.pk base_submission.pk %}?{% query_transform request partial=1 %}"
                 hx-swap="morph:{morphStyle:'innerHTML',callbacks:{beforeAttributeUpdated:function(attributeName,node,mutationType){if(node.type=='checkbox'){return!1}if(node.classList.contains('collapse')||node.classList.contains('clickable')){return!1}}}}"
                 hx-trigger="every 2s"
+                hx-on::after-settle="uncollapseSubmissionIfFinished(this, event);"
             >
                 {% include 'submission/partial/detail.html' with submission=base_submission single=True %}
             </table>

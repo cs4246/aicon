@@ -16,6 +16,7 @@
     {% define "secondary" as button_decorator %}
 {% endif %}
 
+<tr data-submission-id="{{ submission.pk }}" data-submission-status="{{ submission.status }}" style="display: none;"></tr>
 {% if submission.status == 'R' %}
     <tr id="flash-box-{{submission.pk}}" style="display: none;" class="flash-box-next"></tr>
 {% endif %}
