@@ -3,6 +3,7 @@
 {% load crispy_forms_tags %}
 {% load static %}
 {% load query_transform %}
+{% load rules %}
 
 {% block extrahead %}
     {{ form.media }}
@@ -32,19 +33,24 @@
 {% endblock %}
 
 {% block content %}
+    {% has_perm 'submission.create.code' request.user form.instance as can_create_submission_code %}
+    {% has_perm 'submission.create.package' request.user form.instance as can_create_submission_package %}
+
     {% url 'courses:tasks:submissions:create' form.instance.task.course.pk form.instance.task.pk 'code' as submission_create_code_url %}
     {% url 'courses:tasks:submissions:create' form.instance.task.course.pk form.instance.task.pk 'package' as submission_create_package_url %}
 
     {% if request.get_full_path == submission_create_code_url or request.get_full_path == submission_create_package_url %}
-        <ul class="nav nav-tabs">
-            <li class="nav-item">
-                <a class="nav-link {% if request.get_full_path == submission_create_code_url %}active{% endif %}" href="{{ submission_create_code_url }}">Code</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {% if request.get_full_path == submission_create_package_url %}active{% endif %}" href="{{ submission_create_package_url }}">Package</a>
-            </li>
-        </ul>
-        <br />
+        {% if can_create_submission_code and can_create_submission_package %}
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.get_full_path == submission_create_code_url %}active{% endif %}" href="{{ submission_create_code_url }}">Code</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.get_full_path == submission_create_package_url %}active{% endif %}" href="{{ submission_create_package_url }}">Package</a>
+                </li>
+            </ul>
+            <br />
+        {% endif %}
     {% else %}
         <div class="table-responsive" hx-ext="morph">
             <table

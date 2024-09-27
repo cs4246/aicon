@@ -106,8 +106,15 @@ def is_task_submission_exceeded(user: User, task: Task) -> rules.Predicate:
 def is_leaderboard_open(user: User, task: Task) -> rules.Predicate:
     return task.leaderboard
 
+@rules.predicate
+@target_type(Task)
+def is_submission_files_allowed(user: User, task: Task) -> rules.Predicate:
+    return task.allow_files
+
 
 is_task_submittable = is_task_open & ~is_task_submission_exceeded
+can_create_submission = is_course_student
+can_update_submission = (is_course_student & is_submission_creator)
 
 
 rules.add_perm("course.list", rules.is_authenticated)
@@ -141,10 +148,13 @@ rules.add_perm("submission.list", is_course_participant)
 rules.add_perm("submission.list.all", is_course_teaching_staff)
 rules.add_perm("submission.detail", is_submission_creator | is_course_teaching_staff)
 rules.add_perm("submission.download", is_submission_creator | is_course_teaching_staff)
-rules.add_perm("submission.create.permission", is_course_student | is_course_teaching_staff)
-rules.add_perm("submission.update.permission", (is_course_student & is_submission_creator) | is_course_teaching_staff)
-rules.add_perm("submission.create", (is_course_student & is_task_submittable) | is_course_teaching_staff)
-rules.add_perm("submission.update", (is_course_student & is_submission_creator & is_task_submittable) | is_course_teaching_staff)
+rules.add_perm("submission.files", is_submission_files_allowed | is_course_teaching_staff)
+rules.add_perm("submission.create.permission", can_create_submission | is_course_teaching_staff)
+rules.add_perm("submission.update.permission", can_update_submission | is_course_teaching_staff)
+rules.add_perm("submission.create.code", (can_create_submission & is_task_submittable) | is_course_teaching_staff)
+rules.add_perm("submission.create.package", (can_create_submission & is_task_submittable & is_submission_files_allowed) | is_course_teaching_staff)
+rules.add_perm("submission.update.code", (can_update_submission & is_task_submittable) | is_course_teaching_staff)
+rules.add_perm("submission.update.package", (can_update_submission & is_task_submittable & is_submission_files_allowed) | is_course_teaching_staff)
 rules.add_perm("submission.delete", is_course_manager)
 rules.add_perm("submission.run", is_course_teaching_staff)
 

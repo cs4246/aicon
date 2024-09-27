@@ -43,6 +43,7 @@ class Task(models.Model):
     closed_at = models.DateTimeField(blank=True, null=True)
 
     leaderboard = models.BooleanField(default=False)
+    allow_files = models.BooleanField(default=True)
 
     parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subtasks', null=True, blank=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='tasks')

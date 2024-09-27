@@ -44,18 +44,20 @@ class SubmissionPackageForm(forms.ModelForm):
 
 class SubmissionCodeForm(forms.ModelForm):
     code = forms.CharField(widget=forms.Textarea)
-    source_zip_file = forms.CharField(widget=forms.HiddenInput(), required=False)
     add_files = MultipleFileField(required=False, attrs={'class': 'clearablefileinput form-control'})
     delete_files = forms.MultipleChoiceField(choices=[], widget=forms.CheckboxSelectMultiple, required=False)
 
     class Meta:
         model = Submission
-        fields = ['code', 'source_zip_file', 'add_files', 'delete_files', 'description']
+        fields = ['code', 'add_files', 'delete_files', 'description']
 
-    def __init__(self, *args, base_submission: Submission, **kwargs):
+    def __init__(self, *args, base_submission: Submission, submission_files_allowed: bool, **kwargs):
         super().__init__(*args, **kwargs)
         self.source_zip_file = base_submission.file_path
         self.fields["delete_files"].choices = [(f, "/".join(f.split('/')[1:])) for f in base_submission.file_contents]
+        if not submission_files_allowed:
+            for field_name in ['add_files', 'delete_files']:
+                del self.fields[field_name]
 
     @property
     def helper(self):
@@ -69,8 +71,8 @@ class SubmissionCodeForm(forms.ModelForm):
         unique_id = namesgenerator.get_random_name()
         code = self.cleaned_data.get('code', False)
         add_files = [(os.path.join(Submission.MAIN_DIR, file.name), file.read())
-                     for file in self.cleaned_data.get('add_files', False)]
-        delete_files = self.cleaned_data.get('delete_files')
+                     for file in self.cleaned_data.get('add_files', [])]
+        delete_files = self.cleaned_data.get('delete_files', [])
 
         with tempfile.NamedTemporaryFile(suffix='.zip', delete=True) as tmpf:
             create_zip_file(tmpf.name, self.source_zip_file, delete_files=delete_files, add_files=add_files, texts=[(Submission.MAIN_FILE, code)])

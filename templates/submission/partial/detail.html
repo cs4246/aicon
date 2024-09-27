@@ -5,12 +5,13 @@
 {% load call_method %}
 
 
-{% has_perm 'submission.update' request.user submission as can_update_submission %}
-{% has_perm 'submission.update.permission' request.user task as has_update_submission_permission %}
+{% has_perm 'submission.update.code' request.user submission as can_update_submission_code %}
+{% has_perm 'submission.update.package' request.user submission as can_update_submission_package %}
+{% has_perm 'submission.update.permission' request.user submission as has_update_submission_permission %}
 {% has_perm 'submission.download' request.user submission as can_download_submission %}
 {% has_perm 'submission.run' request.user submission as can_run_submission %}
 
-{% if can_update_submission %}
+{% if can_update_submission_code or can_update_submission_package %}
     {% define "primary" as button_decorator %}
 {% else %}
     {% define "secondary" as button_decorator %}

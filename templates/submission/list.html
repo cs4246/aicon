@@ -26,7 +26,8 @@
     {% url 'courses:tasks:submissions:index' course.pk task.pk as submissions_index_url %}
 
     {% has_perm 'submission.list.all' request.user task as can_list_all_submission %}
-    {% has_perm 'submission.create' request.user task as can_create_submission %}
+    {% has_perm 'submission.create.code' request.user task as can_create_submission_code %}
+    {% has_perm 'submission.create.package' request.user task as can_create_submission_package %}
     {% has_perm 'submission.create.permission' request.user task as has_create_submission_permission %}
     {% has_perm 'submission.run' request.user task as can_run_submission %}
     {% has_perm 'task.download.template' request.user task as can_download_template_task %}
@@ -34,7 +35,7 @@
     {% has_perm 'stats.detail' request.user task as can_detail_stats %}
     {% has_perm 'similarity.list' request.user task as can_list_similarity %}
 
-    {% if can_create_submission %}
+    {% if can_create_submission_code or can_create_submission_package %}
         {% define "primary" as button_decorator %}
     {% else %}
         {% define "secondary" as button_decorator %}
@@ -51,7 +52,9 @@
                             </button>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                 <a class="dropdown-item" href="{% url 'courses:tasks:submissions:create' task.course.pk task.pk 'code' %}">Code</a>
-                                <a class="dropdown-item" href="{% url 'courses:tasks:submissions:create' task.course.pk task.pk 'package' %}">Package</a>
+                                {% if can_create_submission_package %}
+                                    <a class="dropdown-item" href="{% url 'courses:tasks:submissions:create' task.course.pk task.pk 'package' %}">Package</a>
+                                {% endif %}
                             </div>
                         </div>
                     </li>

@@ -35,9 +35,12 @@ class SubmissionAllowedMixin:
             "task_pk": self.kwargs["task_pk"],
         })
 
+        if self.task.is_late:
+            messages.warning(self.request, 'You are doing late submission. Your mark will be deducted according to the late submission policy.')
+
         # Intercept special permission
         permission_required = self.get_permission_required()[0]
-        if request.user.has_perm(permission_required, self.submission if permission_required == "submission.update" else self.task):
+        if request.user.has_perm(permission_required, self.submission if "submission.update" in permission_required else self.task):
             return super().dispatch(request, *args, **kwargs)
 
         if not self.task.is_open:
@@ -47,9 +50,6 @@ class SubmissionAllowedMixin:
         if self.task.submissions_exceeded_by_user(self.request.user):
             messages.error(self.request, f'Daily submission limit exceeded: {self.task.daily_submission_limit}')
             return redirect(redirect_url)
-
-        if self.task.is_late:
-            messages.warning(self.request, 'You are doing late submission. Your mark will be deducted according to the late submission policy.')
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -62,6 +62,10 @@ class SubmissionMixin(LoginRequiredMixin, NeverCacheMixin, AutoSetupMixin, Statu
 class SubmissionChangeMixin:
     template_name = "submission/edit.html"
     success_message = "Submission created: {self.object.name}"
+
+    def get_permission_required(self):
+        permission_required = super().get_permission_required()
+        return [f"{perm}.{self.kwargs['mode']}" for perm in permission_required]
 
     def get_object(self):
         return Submission(task=self.task, user=self.request.user)
@@ -101,6 +105,7 @@ class SubmissionChangeMixin:
         if self.kwargs["mode"] == "package":
             return kwargs
         kwargs.update({"base_submission": self.base_submission})
+        kwargs.update({"submission_files_allowed": self.request.user.has_perm("submission.files", self.task)})
         return kwargs
 
     def get_context_data(self, **kwargs):
