@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
 
 {% load crispy_forms_tags %}
-{% load static %}
 {% load query_transform %}
 {% load rules %}
 
 {% block extrahead %}
     {{ form.media }}
-    <link rel="stylesheet" href="{% static 'css/codemirror.min.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/codemirror-material.min.css' %}" />
+    {% include 'codemirror/head.html' %}
 {% endblock %}
 
 {% block title %}
@@ -81,21 +79,7 @@
         Submit and continue
     </button>
 
-    <script
-        type="text/javascript"
-        src="{% static 'js/codemirror.min.js' %}"
-    ></script>
-    <script
-        type="text/javascript"
-        src="{% static 'js/codemirror-python.min.js' %}"
-    ></script>
-    <script>
-        var editor = CodeMirror.fromTextArea(document.getElementById("id_code"), {
-            mode: "python",
-            theme: "material",
-            lineNumbers: true,
-        });
-        editor.setSize(null, 768);
-        editor.save();
-    </script>
+    {% with "['id_code']" as textarea_ids %}
+        {% include 'codemirror/body.html' with textarea_ids=textarea_ids %}
+    {% endwith %}
 {% endblock %}
