@@ -25,7 +25,7 @@ class TaskMixin(LoginRequiredMixin, NeverCacheMixin, AutoSetupMixin, CoursePermi
         return reverse("courses:tasks:index", kwargs={"course_pk": self.kwargs["course_pk"]})
 
 
-class TaskSingleMixin(TaskMixin):
+class TaskChangeMixin(TaskMixin):
     template_name = "task/edit.html"
 
     def get_form_class(self):
@@ -38,6 +38,10 @@ class TaskSingleMixin(TaskMixin):
                 raise Http404
 
 
+class TaskSingleMixin(TaskPermissionMixin, TaskMixin):
+    pass
+
+
 class TaskListView(TaskMixin, ListView):
     template_name = "task/list.html"
     context_object_name = "tasks"
@@ -46,22 +50,22 @@ class TaskListView(TaskMixin, ListView):
         return self.course.tasks.all()
 
 
-class TaskCreateView(TaskSingleMixin, SuccessMessageMixin, UpdateView): # using UpdateView to allow form pre-fill using get_object
+class TaskCreateView(TaskSingleMixin, TaskChangeMixin, SuccessMessageMixin, UpdateView): # using UpdateView to allow form pre-fill using get_object
     success_message = "Task created: {self.object.name}"
 
     def get_object(self):
         return Task(course=self.course, file=TASK_BASE_ZIPFILE, template=SUBMISSION_BASE_ZIPFILE)
 
 
-class TaskUpdateView(TaskSingleMixin, SuccessMessageMixin, UpdateView):
+class TaskUpdateView(TaskSingleMixin, TaskChangeMixin, SuccessMessageMixin, UpdateView):
     success_message = "Task saved: {self.object.name}"
 
 
-class TaskDeleteView(TaskMixin, SuccessMessageMixin, DeleteView):
+class TaskDeleteView(TaskSingleMixin, SuccessMessageMixin, DeleteView):
     success_message = "Task deleted: {self.object.name}"
 
 
-class TaskDownloadView(TaskMixin, DetailView):
+class TaskDownloadView(TaskSingleMixin, DetailView):
     download_attribute = "file"
 
     def get_filename(self):
