@@ -26,6 +26,7 @@
     		<thead class="thead-inverse">
     			<tr>
     				<th>Task</th>
+    				<th></th>
     				<th>Deadline</th>
     				<th>Opened At</th>
     				<th>Status</th>
@@ -34,24 +35,35 @@
     		</thead>
     		<tbody>
                 {% for task in tasks %}
+                    {% has_perm 'task.detail' request.user task as can_detail_task %}
                     {% has_perm 'task.update' request.user task as can_update_task %}
                     {% has_perm 'task.delete' request.user task as can_delete_task %}
                     {% has_perm 'task.download' request.user task as can_download_task %}
 
-                    <tr>
-        				<td class="align-middle">
-           					<a href="{% url 'courses:tasks:submissions:index' course.pk task.pk %}">{{ task.name }}</a>
-           					<small class="text-muted d-block">{{ task.description |slice:":80" }}</small>
-        				</td>
-        				<td class="align-middle">
-           					{{ task.deadline }}
-                            {% if task.deadline != task.closed_at %}
-                                <br>
-               					<small class="text-muted d-block">Closed: {{ task.closed_at }}</small>
-                            {% endif %}
-        				</td>
-        				<td class="align-middle">{{ task.opened_at }}</td>
-        				<td class="align-middle">{{ task.get_status_display }}</td>
+                    {% if can_detail_task %}
+                        <tr>
+            				<td class="align-middle">
+               					<a href="{% url 'courses:tasks:submissions:index' course.pk task.pk %}">{{ task.name }}</a>
+               					<small class="text-muted d-block">{{ task.description |slice:":80" }}</small>
+            				</td>
+                            <td class="align-middle">
+                                {% if can_update_task %}
+                                    {% if task.published %}
+                         			    <div title="Published: visible">{% fa5_icon 'check-circle' 'fas' color='ForestGreen' %}</div>
+                         			{% else %}
+                         			    <div title="Not published: invisible">{% fa5_icon 'times-circle' 'fas' color='red' %}</div>
+                         			{% endif %}
+                                {% endif %}
+                            </td>
+            				<td class="align-middle">
+               					{{ task.deadline }}
+                                {% if task.deadline != task.closed_at %}
+                                    <br>
+                   					<small class="text-muted d-block">Closed: {{ task.closed_at }}</small>
+                                {% endif %}
+            				</td>
+            				<td class="align-middle">{{ task.opened_at }}</td>
+            				<td class="align-middle">{{ task.get_status_display }}</td>
                             <td>
                					<div class="float-right">
                                     {% if can_update_task %}
@@ -66,7 +78,8 @@
                                     {% endif %}
                					</div>
             				</td>
-                    </tr>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
             </tbody>
     	</table>

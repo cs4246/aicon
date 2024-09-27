@@ -25,6 +25,7 @@ class TaskFormConfig:
                 Column('closed_at', css_class='col-4'),
                 css_class="row"
             ),
+            'published',
             css_class='accordion-panel',
         ),
     ]
@@ -64,7 +65,7 @@ class TaskFormConfig:
         'closed_at': DateTimePickerInput(range_from="deadline_at"),
     }
     FIELDS = ['daily_submission_limit', 'max_upload_size', 'run_time_limit', 'memory_limit',
-              'partition', 'gpus', 'opened_at', 'deadline_at', 'closed_at', 'leaderboard', 'allow_files']
+              'partition', 'gpus', 'opened_at', 'deadline_at', 'closed_at', 'published', 'leaderboard', 'allow_files']
 
 
 class TaskPackageForm(forms.ModelForm):

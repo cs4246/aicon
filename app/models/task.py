@@ -44,6 +44,7 @@ class Task(models.Model):
 
     leaderboard = models.BooleanField(default=False)
     allow_files = models.BooleanField(default=True)
+    published = models.BooleanField(default=False)
 
     parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subtasks', null=True, blank=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='tasks')

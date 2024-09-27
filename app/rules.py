@@ -98,6 +98,11 @@ def is_task_open(user: User, task: Task) -> rules.Predicate:
 
 @rules.predicate
 @target_type(Task)
+def is_task_published(user: User, task: Task) -> rules.Predicate:
+    return task.published
+
+@rules.predicate
+@target_type(Task)
 def is_task_submission_exceeded(user: User, task: Task) -> rules.Predicate:
     return task.submissions_exceeded_by_user(user)
 
@@ -112,7 +117,7 @@ def is_submission_files_allowed(user: User, task: Task) -> rules.Predicate:
     return task.allow_files
 
 
-is_task_submittable = is_task_open & ~is_task_submission_exceeded
+is_task_submittable = is_task_open & is_task_published & ~is_task_submission_exceeded
 can_create_submission = is_course_student
 can_update_submission = (is_course_student & is_submission_creator)
 
@@ -137,14 +142,14 @@ rules.add_perm("participation.update", is_course_manager)
 rules.add_perm("participation.delete", is_course_manager)
 
 rules.add_perm("task.list", is_course_participant)
-rules.add_perm("task.detail", is_course_participant)
-rules.add_perm("task.download.template", is_course_participant)
+rules.add_perm("task.detail", is_course_participant & is_task_published)
+rules.add_perm("task.download.template", is_course_participant & is_task_published)
 rules.add_perm("task.download", is_course_teaching_staff)
 rules.add_perm("task.create", is_course_teaching_staff)
 rules.add_perm("task.update", is_course_teaching_staff)
 rules.add_perm("task.delete", is_course_manager)
 
-rules.add_perm("submission.list", is_course_participant)
+rules.add_perm("submission.list", is_course_participant & is_task_published)
 rules.add_perm("submission.list.all", is_course_teaching_staff)
 rules.add_perm("submission.detail", is_submission_creator | is_course_teaching_staff)
 rules.add_perm("submission.download", is_submission_creator | is_course_teaching_staff)
