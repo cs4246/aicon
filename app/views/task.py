@@ -50,7 +50,7 @@ class TaskListView(TaskMixin, ListView):
         return self.course.tasks.all()
 
 
-class TaskCreateView(TaskSingleMixin, TaskChangeMixin, SuccessMessageMixin, UpdateView): # using UpdateView to allow form pre-fill using get_object
+class TaskCreateView(TaskChangeMixin, SuccessMessageMixin, UpdateView): # using UpdateView to allow form pre-fill using get_object
     success_message = "Task created: {self.object.name}"
 
     def get_object(self):
