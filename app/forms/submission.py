@@ -7,6 +7,7 @@ from app.models import Submission
 import tempfile
 import namesgenerator
 import os
+import uuid
 
 
 class SubmissionPackageForm(forms.ModelForm):
@@ -68,7 +69,7 @@ class SubmissionCodeForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        unique_id = namesgenerator.get_random_name()
+        unique_id = namesgenerator.get_random_name() + "_" + uuid.uuid4().hex.upper()[0:4].lower()
         code = self.cleaned_data.get('code', False)
         add_files = [(os.path.join(Submission.MAIN_DIR, file.name), file.read())
                      for file in self.cleaned_data.get('add_files', [])]

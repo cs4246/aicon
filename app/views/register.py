@@ -15,5 +15,5 @@ class RegisterView(SuccessMessageMixin, FormView):
         user = form.save(commit=False)
         user.is_active = True
         user.save()
-        login(self.request, user)
+        login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
         return super().form_valid(form)

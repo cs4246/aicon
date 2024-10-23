@@ -39,7 +39,7 @@ class Submission(models.Model):
     ]
 
     description = models.TextField(blank=True, null=True)
-    file = models.FileField(upload_to=submission_path, blank=True, null=True)
+    file = models.FileField(upload_to=submission_path, blank=True, null=True, max_length=255)
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submissions')
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='submissions')

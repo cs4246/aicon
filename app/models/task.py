@@ -28,10 +28,10 @@ class Task(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
-    file = ExtraFileField(upload_to=task_path, after_file_save=compute_file_hash)
+    file = ExtraFileField(upload_to=task_path, after_file_save=compute_file_hash, max_length=255)
     file_hash = models.CharField(max_length=255)
 
-    template = models.FileField(upload_to=task_path, blank=True, null=True)
+    template = models.FileField(upload_to=task_path, blank=True, null=True, max_length=255)
 
     daily_submission_limit = models.PositiveSmallIntegerField(default=DEFAULT_DAILY_SUBMISSIONS_LIMIT)
     max_upload_size = models.IntegerField(default=DEFAULT_MAX_UPLOAD_SIZE)
