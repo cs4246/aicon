@@ -87,17 +87,9 @@
     	new Chart(document.getElementById("leaderboard-distribution-chart"), {
     		type: 'bar',
     		data: {
-    			labels: {
-    				{
-    					stats.labels | safe
-    				}
-    			},
+    			labels: {{ stats.labels | safe }},
     			datasets: [{
-    				data: {
-    					{
-    						stats.distribution
-    					}
-    				},
+    				data: {{ stats.distribution }},
     				label: 'Percentage',
     				borderColor: "#27ae60",
     				backgroundColor: "#2ecc71"

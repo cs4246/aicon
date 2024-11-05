@@ -90,7 +90,7 @@ class LeaderboardDetailView(AutoSetupMixin, LoginRequiredMixin, TaskPermissionMi
         stats = self.get_stats(leaderboard_list)
 
         student_view = 'student_view' in self.request.GET
-        if self.request.user.has_perm("task.update", self.course) or student_view:
+        if not self.request.user.has_perm("leaderboard.download", self.task) or student_view:
             n_show = max(int(len(leaderboard_list) * 0.5), 20)
             leaderboard_list = leaderboard_list[:n_show] # show only half the submissions
 
