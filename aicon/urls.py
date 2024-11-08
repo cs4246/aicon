@@ -21,7 +21,7 @@ from app.views import RegisterView, \
                       CourseListView, CourseJoinView, CourseCreateView, CourseUpdateView, CourseDeleteView, \
                       InvitationListView, InvitationCreateView, InvitationUpdateView, InvitationDeleteView, \
                       ParticipationListView, ParticipationCreateView, ParticipationUpdateView, ParticipationDeleteView, \
-                      TaskListView, TaskCreateView, TaskUpdateView, TaskDeleteView, TaskDownloadView, TaskDownloadTemplateView, \
+                      TaskListView, TaskDetailView, TaskCreateView, TaskUpdateView, TaskDeleteView, TaskDownloadView, TaskDownloadTemplateView, \
                       SubmissionListView, SubmissionCreateView, SubmissionDetailView, SubmissionUpdateView, SubmissionRunView, SubmissionDownloadView, \
                       LeaderboardDetailView, LeaderboardDownloadView, StatsDetailView, SimilarityListView
 
@@ -55,7 +55,7 @@ invitations_urls = [
 tasks_urls = [
     path("", TaskListView.as_view(), name="index"),
     path("add/<str:mode>/", TaskCreateView.as_view(), name="create"),
-    path("<int:task_pk>/", RedirectView.as_view(pattern_name='courses:tasks:submissions:index', permanent=False), name="detail"),
+    path("<int:task_pk>/", TaskDetailView.as_view(), name="detail"),
     path("<int:task_pk>/edit/<str:mode>", TaskUpdateView.as_view(), name="edit"),
     path("<int:task_pk>/delete/", TaskDeleteView.as_view(), name="delete"),
     path("<int:task_pk>/download/", TaskDownloadView.as_view(), name="download"),

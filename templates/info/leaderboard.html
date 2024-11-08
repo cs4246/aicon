@@ -12,7 +12,7 @@
     	<a href="{% url 'courses:tasks:index' task.course.pk %}">{{ task.course }}</a>
     </li>
     <li class="breadcrumb-item">
-    	<a href="{% url 'courses:tasks:submissions:index' task.course.pk task.pk %}">{{ task.name }}</a>
+    	<a href="{% url 'courses:tasks:detail' task.course.pk task.pk %}">{{ task.name }}</a>
     </li>
     <li class="breadcrumb-item active">Leaderboard</li>
 {% endblock %}
@@ -20,7 +20,7 @@
 {% block content %}
     {% has_perm 'leaderboard.download' request.user course as can_leaderboard_download %}
 
-    <h1>Leaderboard</h1>
+    <h5>Leaderboard</h5>
     <span>Top {{ submissions | length }}</span>
     <div class="mb-4">
     	<hr>

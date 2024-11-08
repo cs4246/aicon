@@ -18,7 +18,10 @@
     <li class="breadcrumb-item">
         <a href="{% url 'courses:tasks:index' task.course.pk %}">{{ task.course }}</a>
     </li>
-    <li class="breadcrumb-item active">{{ task.name }}</li>
+    <li class="breadcrumb-item">
+        <a href="{% url 'courses:tasks:detail' task.course.pk task.pk %}">{{ task.name }}</a>
+    </li>
+    <li class="breadcrumb-item active">Submissions</li>
 {% endblock %}
 
 
@@ -30,10 +33,6 @@
     {% has_perm 'submission.create.package' request.user task as can_create_submission_package %}
     {% has_perm 'submission.create.permission' request.user task as has_create_submission_permission %}
     {% has_perm 'submission.run' request.user task as can_run_submission %}
-    {% has_perm 'task.download.template' request.user task as can_download_template_task %}
-    {% has_perm 'leaderboard.detail' request.user task as can_detail_leaderboard %}
-    {% has_perm 'stats.detail' request.user task as can_detail_stats %}
-    {% has_perm 'similarity.list' request.user task as can_list_similarity %}
 
     {% if can_create_submission_code or can_create_submission_package %}
         {% define "primary" as button_decorator %}
@@ -59,39 +58,11 @@
                         </div>
                     </li>
                 {% endif %}
-                {% if task.template and can_download_template_task %}
-                    <li>
-                        <a href="{% url 'courses:tasks:download-template' task.course.pk task.pk %}" class="btn btn-primary btn-btn-outline-secondary">{% fa5_icon 'download' 'fas' %} Template</a>
-                    </li>
-                {% endif %}
-                <li>
-                    <button class="btn btn-primary btn-collapse-primary collapsed" type="button" data-toggle="collapse" data-target="#collapse-info" aria-expanded="false" aria-controls="collapseExample">{% fa5_icon 'info-circle' 'fas' %} Task Info</button>
-                </li>
                 {% if can_run_submission %}
                     <li>
                         <button type="submit" form="submissions-run" class="btn btn-outline-info">
                             {% fa5_icon 'redo' 'fas' %} Re-Run
                         </button>
-                    </li>
-                {% endif %}
-                {% if can_detail_leaderboard or can_details_stats or can_list_similarity %}
-                    <li>
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="More Options">
-                                {% fa5_icon 'bars' 'fas' %}
-                            </button>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                {% if can_detail_leaderboard %}
-                                    <a href="{% url 'courses:tasks:info:leaderboard' task.course.pk task.pk %}" class="dropdown-item">Leaderboard</a>
-                                {% endif %}
-                                {% if can_detail_stats %}
-                                    <a href="{% url 'courses:tasks:info:stats' task.course.pk task.pk %}" class="dropdown-item">Stats</a>
-                                {% endif %}
-                                {% if can_list_similarity and task.template %}
-                                    <a href="{% url 'courses:tasks:info:similarities' task.course.pk task.pk %}" class="dropdown-item">Similarities</a>
-                                {% endif %}
-                            </div>
-                        </div>
                     </li>
                 {% endif %}
             </ul>
@@ -108,22 +79,6 @@
                 </form>
                 <div class="input-group-append">
                     <button class="btn btn-primary" type="submit" form="search-form">{% fa5_icon 'search' 'fas' %}</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="collapse" id="collapse-info">
-        <div class="card card-body mb-4">
-            <h5>{{ task.name }}</h5>
-            <span>{{ task.description }}</span>
-
-            <div class="card mt-4">
-                <div class="card-body">
-                    {{ task.daily_submission_limit }} max daily submission(s),
-                    {{ task.max_upload_size|intcomma }} KB max size,
-                    {{ task.run_time_limit|intcomma }} second(s) time limit,
-                    {{ task.memory_limit|intcomma }} KB memory limit.
                 </div>
             </div>
         </div>

@@ -65,6 +65,10 @@ class TaskDeleteView(TaskSingleMixin, SuccessMessageMixin, DeleteView):
     success_message = "Task deleted: {self.object.name}"
 
 
+class TaskDetailView(TaskSingleMixin, DetailView):
+    template_name = "task/detail.html"
+
+
 class TaskDownloadView(TaskSingleMixin, DetailView):
     download_attribute = "file"
 

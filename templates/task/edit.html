@@ -15,7 +15,14 @@
     <li class="breadcrumb-item">
         <a href="{% url 'courses:tasks:index' form.instance.course.pk %}">{{ form.instance.course }}</a>
     </li>
-    <li class="breadcrumb-item active">{{ form.instance.name | default:"New Task" }}</li>
+    {% if form.instance.name %}
+        <li class="breadcrumb-item">
+            <a href="{% url 'courses:tasks:detail' form.instance.course.pk form.instance.pk %}">{{ form.instance.name }}</a>
+        </li>
+        <li class="breadcrumb-item active">Edit</li>
+    {% else %}
+        <li class="breadcrumb-item active">New Task</li>
+    {% endif %}
 {% endblock %}
 
 {% block content %}

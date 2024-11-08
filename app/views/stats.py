@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from app.models import Task, Submission
 from app.views.utils import AutoSetupMixin, TaskPermissionMixin, AutoPermissionRequiredMixin
 from datetime import timedelta
+from django.contrib import messages
 
 import collections
 
@@ -79,4 +80,5 @@ class StatsDetailView(AutoSetupMixin, LoginRequiredMixin, TaskPermissionMixin, A
         context = super().get_context_data(**kwargs)
         stats = self.get_stats()
         context = {**stats, **context}
+        messages.error(self.request, "This feature is currently undergoing maintenance. Please check back later.")
         return context

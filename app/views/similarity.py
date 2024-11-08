@@ -1,6 +1,7 @@
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from app.views.utils import AutoSetupMixin, TaskPermissionMixin, AutoPermissionRequiredMixin
+from django.contrib import messages
 
 
 class SimilarityListView(AutoSetupMixin, LoginRequiredMixin, TaskPermissionMixin, AutoPermissionRequiredMixin, ListView):
@@ -17,4 +18,5 @@ class SimilarityListView(AutoSetupMixin, LoginRequiredMixin, TaskPermissionMixin
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["per_page_options"] = self.per_page_options
+        messages.error(self.request, "This feature is currently undergoing maintenance. Please check back later.")
         return context

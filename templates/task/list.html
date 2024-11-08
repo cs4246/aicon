@@ -27,8 +27,8 @@
     			<tr>
     				<th>Task</th>
     				<th></th>
-    				<th>Deadline</th>
-    				<th>Opened At</th>
+    				<th>Ends At</th>
+    				<th>Opens At</th>
     				<th>Status</th>
                     <th></th>
     			</tr>
@@ -43,7 +43,7 @@
                     {% if can_detail_task %}
                         <tr>
             				<td class="align-middle">
-               					<a href="{% url 'courses:tasks:submissions:index' course.pk task.pk %}">{{ task.name }}</a>
+               					<a href="{% url 'courses:tasks:detail' course.pk task.pk %}">{{ task.name }}</a>
                					<small class="text-muted d-block">{{ task.description |slice:":80" }}</small>
             				</td>
                             <td class="align-middle">
@@ -59,7 +59,7 @@
                					{{ task.deadline }}
                                 {% if task.deadline != task.closed_at %}
                                     <br>
-                   					<small class="text-muted d-block">Closed: {{ task.closed_at }}</small>
+                   					<small class="text-muted d-block">Closes at: {{ task.closed_at }}</small>
                                 {% endif %}
             				</td>
             				<td class="align-middle">{{ task.opened_at }}</td>

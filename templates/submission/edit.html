@@ -19,7 +19,10 @@
         <a href="{% url 'courses:tasks:index' form.instance.task.course.pk %}">{{ form.instance.task.course }}</a>
     </li>
     <li class="breadcrumb-item">
-        <a href="{% url 'courses:tasks:submissions:index' form.instance.task.course.pk form.instance.task.pk %}">{{ form.instance.task.name }}</a>
+        <a href="{% url 'courses:tasks:detail' form.instance.task.course.pk form.instance.task.pk %}">{{ form.instance.task.name }}</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a href="{% url 'courses:tasks:submissions:index' form.instance.task.course.pk form.instance.task.pk %}">Submissions</a>
     </li>
     {% if request.get_full_path == submission_edit_url %}
         <li class="breadcrumb-item active">{{ base_submission.name }}</li>
