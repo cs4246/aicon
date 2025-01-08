@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% load fontawesome_5 %}
+{% load rules %}
+{% load humanize %}
+
+{% block title %}
+    {{ task.name }} - {{ task.course }} - {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <a href="{% url 'courses:tasks:index' task.course.pk %}">{{ task.course }}</a>
+    </li>
+    <li class="breadcrumb-item active">{{ task.name }}</li>
+{% endblock %}
+
+
+{% block content %}
+    {% url 'courses:tasks:submissions:index' course.pk task.pk as submissions_index_url %}
+
+    {% has_perm 'task.update' request.user task as can_update_task %}
+    {% has_perm 'task.delete' request.user task as can_delete_task %}
+    {% has_perm 'task.download' request.user task as can_download_task %}
+    {% has_perm 'submission.list' request.user task as can_list_submission %}
+    {% has_perm 'task.download.template' request.user task as can_download_template_task %}
+    {% has_perm 'leaderboard.detail' request.user task as can_detail_leaderboard %}
+    {% has_perm 'stats.detail' request.user task as can_detail_stats %}
+    {% has_perm 'similarity.list' request.user task as can_list_similarity %}
+
+    <div class="d-flex justify-content-between">
+        <div>
+            <h5>
+                {{ task.name }}
+
+                {% if can_update_task %}
+                    {% if task.published %}
+         			    <span title="Published: visible">{% fa5_icon 'check-circle' 'fas' color='ForestGreen' %}</span>
+         			{% else %}
+         			    <span title="Not published: invisible">{% fa5_icon 'circle' 'far' color='gray' %}</span>
+         			{% endif %}
+                {% endif %}
+            </h5>
+        </div>
+        <div>
+            {% if can_update_task %}
+                <a href="{% url 'courses:tasks:edit' task.course.pk task.pk 'code' %}" class="btn btn-outline-primary">{% fa5_icon 'edit' 'fas' %}</a>
+            {% endif %}
+            {% if can_delete_task %}
+                <form action="{% url 'courses:tasks:delete' task.course.pk task.pk %}" method="post" id="delete-{{ task.pk }}" style="display:none;">{% csrf_token %}</form>
+                <button form="delete-{{ task.pk }}" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-outline-danger">{% fa5_icon 'trash-alt' 'fas' %}</button>
+            {% endif %}
+            {% if can_download_task %}
+                <a href="{% url 'courses:tasks:download' task.course.pk task.pk %}" class="btn btn-outline-success">{% fa5_icon 'download' 'fas' %}</a>
+            {% endif %}
+        </div>
+    </div>
+    <span>{{ task.description }}</span>
+    <br><br>
+
+    <ul class="list-group list-group-horizontal-md">
+        <li class="list-group-item flex-fill">
+            <b>Opens at</b><br>
+            {{ task.opened_at }}
+        </li>
+        <li class="list-group-item flex-fill">
+            <b>Ends at</b><br>
+            {{ task.deadline }}
+        </li>
+        {% if task.deadline != task.closed_at %}
+        <li class="list-group-item flex-fill">
+            <b>Closes at</b><br>
+            {{ task.closed_at }}
+        </li>
+        {% endif %}
+        <li class="list-group-item flex-fill">
+            <b>Status</b><br>
+            {{ task.get_status_display }}
+        </li>
+    </ul>
+
+    <div class="card mt-4 mb-4">
+        <div class="card-body">
+            <b>Constraints</b>
+            <ul class="pl-3 m-0">
+                <li>{{ task.daily_submission_limit }} max daily submission(s)</li>
+                <li>{{ task.max_upload_size|intcomma }} KB max submission size</li>
+                <li>{{ task.run_time_limit|intcomma }} second(s) time limit</li>
+                <li>{{ task.memory_limit|intcomma }} KB memory limit</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <div>
+            <ul class="button-list">
+                {% if can_list_submission %}
+                    <li>
+                        <a href="{% url 'courses:tasks:submissions:index' task.course.pk task.pk %}" class="btn btn-primary btn-btn-outline-secondary">{% fa5_icon 'th-list' 'fas' %} Submissions</a>
+                    </li>
+                {% endif %}
+                {% if task.template and can_download_template_task %}
+                    <li>
+                        <a href="{% url 'courses:tasks:download-template' task.course.pk task.pk %}" class="btn btn-primary btn-btn-outline-secondary">{% fa5_icon 'download' 'fas' %} Template</a>
+                    </li>
+                {% endif %}
+                {% if can_detail_leaderboard %}
+                    <li>
+                        <a href="{% url 'courses:tasks:info:leaderboard' task.course.pk task.pk %}" class="btn btn-primary btn-btn-outline-secondary">{% fa5_icon 'trophy' 'fas' %} Leaderboard</a>
+                    </li>
+                {% endif %}
+                {% if can_details_stats or can_list_similarity %}
+                    <li>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="More Options">
+                                {% fa5_icon 'bars' 'fas' %}
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                {% if can_detail_stats %}
+                                    <a href="{% url 'courses:tasks:info:stats' task.course.pk task.pk %}" class="dropdown-item">Stats</a>
+                                {% endif %}
+                                {% if can_list_similarity and task.template %}
+                                    <a href="{% url 'courses:tasks:info:similarities' task.course.pk task.pk %}" class="dropdown-item">Similarities</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

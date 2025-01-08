@@ -1,0 +1,124 @@
+{% load fontawesome_5 %}
+{% load rules %}
+{% load json2html %}
+{% load define %}
+{% load call_method %}
+
+
+{% has_perm 'submission.update.code' request.user submission as can_update_submission_code %}
+{% has_perm 'submission.update.package' request.user submission as can_update_submission_package %}
+{% has_perm 'submission.update.permission' request.user submission as has_update_submission_permission %}
+{% has_perm 'submission.download' request.user submission as can_download_submission %}
+{% has_perm 'submission.run' request.user submission as can_run_submission %}
+
+{% if can_update_submission_code or can_update_submission_package %}
+    {% define "primary" as button_decorator %}
+{% else %}
+    {% define "secondary" as button_decorator %}
+{% endif %}
+
+<tr data-submission-id="{{ submission.pk }}" data-submission-status="{{ submission.status }}" style="display: none;"></tr>
+{% if submission.status == 'R' %}
+    <tr id="flash-box-{{submission.pk}}" style="display: none;" class="flash-box-next"></tr>
+{% endif %}
+<tr id="submission-{{submission.pk}}" class="clickable collapsed" data-toggle="collapse" href="#collapse-evaluation-{{submission.pk}}" role="button" aria-expanded="false" data-tooltip="tooltip" data-placement="bottom" title="Click to expand / contract">
+	{% if can_run_submission and not single %}
+       	<td class="align-middle">
+      		<div class="row">
+     			<div class="col-12">
+                    <input type="checkbox" name="submissions_selected[]" value="{{ submission.pk }}" />
+     			</div>
+      		</div>
+       	</td>
+	{% endif %}
+	<td class="align-middle">
+		<div class="row">
+			<div class="col-12">{{ submission.pk }}</div>
+		</div>
+	</td>
+	{% if view_all %}
+       	<td class="align-middle">
+      		<div class="row">
+     			<div class="col-12">{{ submission.user }}</div>
+      		</div>
+       	</td>
+       	<td class="align-middle">
+      		<div class="row">
+     			<div class="col-12">{{ submission.user.first_name }} {{ submission.user.last_name }}</div>
+      		</div>
+       	</td>
+	{% endif %}
+	<td class="align-middle">
+		<div class="row vcenter">
+   			<div class="col-12" style="overflow-wrap: break-word">
+			{% if submission.file %}
+				<a href="{% url 'courses:tasks:submissions:edit' submission.task.course.pk submission.task.pk submission.pk 'code' %}">{{ submission.name }}</a>
+				{% if submission.description %}<br><small>{{ submission.description }}</small>{% endif %}
+			{% else %}
+                None
+			{% endif %}
+            </div>
+		</div>
+	</td>
+	<td class="align-middle">
+			{% if submission.status == 'Q' %}
+            <div>{% fa5_icon 'clock' 'fas' color='DodgerBlue' %}</div>
+            <div><span class="badge badge-secondary" style="margin-bottom: 2px;">{{ submission.queue }}</span></div>
+			{% elif submission.status == 'R' %}
+			    {% fa5_icon 'cog' 'fas' color='Orange' spin=True %}
+			{% elif submission.status == 'D' %}
+			    {% fa5_icon 'check-circle' 'fas' color='ForestGreen' %}
+			{% elif submission.status == 'E' %}
+			    {% fa5_icon 'times-circle' 'fas' color='red' %}
+			{% else %}
+			    {{ submission.status }}
+			{% endif %}
+    </td>
+	<td class="align-middle">{{ submission.file_size | filesizeformat }}</td>
+	<td class="align-middle">
+		{{ submission.info }}
+		{% if submission.is_late %}
+		    <span class="badge badge-danger float-right">Late</span>
+		{% endif %}
+	</td>
+	<td class="align-middle">{{ submission.created_at }}</td>
+    <td class="align-middle">
+        <div class="float-right">
+            {% if submission.file %}
+                {% if not single and has_update_submission_permission %}
+                    <a href="{% url 'courses:tasks:submissions:edit' submission.task.course.pk submission.task.pk submission.pk 'code' %}" class="btn btn-outline-{{ button_decorator }}" title="Clone">{% fa5_icon 'clone' 'fas' %}</a>
+                {% endif %}
+                {% if can_download_submission %}
+                    <a href="{% url 'courses:tasks:submissions:download' submission.task.course.pk submission.task.pk submission.pk %}" class="btn btn-outline-primary" title="Download">{% fa5_icon 'download' 'fas' %}</a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </td>
+</tr>
+<tr id="submission-evaluation-{{submission.pk}}" class="collapsible">
+   	<td colspan="10">
+  		<div class="collapse" id="collapse-evaluation-{{submission.pk}}">
+ 			<div class="card card-body">
+                {% if submission.notes %}
+    				<small style="font-weight: bold;">EVALUATION:</small>
+                    <div class="table-responsive mt-3">
+                   	    {{ submission.notes | json2html | safe }}
+    				</div>
+    				{% if submission.suggestions %}
+        				<hr>
+        				<small style="font-weight: bold;">SUGGESTION:</small>
+        				<ul class="pt-3 pl-3">
+       					{% for suggestion in submission.suggestions %}
+           					<li>{{ suggestion | safe }}</li>
+               	        {% empty %}
+           					<li>None</li>
+       					{% endfor %}
+        				</ul>
+    				{% endif %}
+                {% else %}
+                    No evaluation data.
+                {% endif %}
+ 			</div>
+  		</div>
+   	</td>
+</tr>

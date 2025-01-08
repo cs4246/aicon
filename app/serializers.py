@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from .models import Submission, Task, Similarity, User
+from django.contrib.auth.models import User
+from .models import Submission, Task, Similarity
 
 class SubmissionSerializer(serializers.HyperlinkedModelSerializer):
     file_url = serializers.HyperlinkedIdentityField('submission-download', read_only=True)

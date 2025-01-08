@@ -97,3 +97,6 @@ db.sqlite*
 # Include base files
 uploads/*/*
 !uploads/base/*
+
+# Generated static files
+static

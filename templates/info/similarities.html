@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+
+{% load fontawesome_5 %}
+{% load query_transform %}
+{% load define %}
+{% load addstr %}
+{% load bootstrap4 %}
+
+{% block extrahead %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/github.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.12.1/diff2html.min.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/languages/python.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.12.1/diff2html-ui.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/diff2html/2.12.1/diff2html.min.js"></script>
+
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <style>
+    ul.button-list {
+    	padding: 0px;
+    	list-style: none;
+    }
+
+    ul.button-list > li {
+    	margin-right: 5px;
+    	margin-bottom: 5px;
+    	display: inline-block;
+    }
+
+    tr.collapsible > td {
+      padding: 0px;
+      border-top: 0px;
+    }
+
+    .vcenter {
+      display: flex;
+      align-items: center;
+    }
+
+    .clickable.collapsed:hover {
+      background-color: #ecf0f1;
+    }
+
+    .clickable {
+      background-color: #D6EAF8;
+      cursor: pointer;
+    }
+
+    .clickable.collapsed {
+      background-color: white;
+    }
+
+
+    #similarities-network {
+      height: 500px;
+      border: 1px solid lightgray;
+    }
+  </style>
+
+{% endblock %}
+
+{% block title %}
+  Similarities - {{ task.name }} - {{ task.course }} - {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{% url 'courses:tasks:index' task.course.pk %}">{{ task.course }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'courses:tasks:detail' task.course.pk task.pk %}">{{ task.name }}</a></li>
+  <li class="breadcrumb-item active">Similarities</li>
+{% endblock %}
+
+{% block content %}
+
+    <div class="d-flex justify-content-between vcenter">
+      <div>
+        <h5>Similarities</h5>
+        <span>Code Plagiarism Detection</span><br><br>
+      </div>
+      <div>
+        <ul class="button-list">
+          <li><a class="btn btn-primary" id="visualize-button" data-toggle="collapse" href="#collapse-visualization" role="button" aria-expanded="false">Show Visualization</a></li>
+          <li>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">Per Page</div>
+              </div>
+               <select name="per_page" id="per_page" class="custom-select">
+                {% for pp in per_page_options %}
+                  {% if pp == paginator.per_page %}
+                  <option selected="selected" value="?{% query_transform request per_page=pp page=1 %}">{{pp}}</option>
+                    {% else %}
+                  <option value="?{% query_transform request per_page=pp page=1 %}">{{pp}}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+          </li>
+        </ul>
+
+      </div>
+    </div>
+
+    <div id="collapse-visualization" class="collapse">
+        <div id="similarities-network"></div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead class="thead-inverse">
+          <tr>
+            <th>#</th>
+            <th>User</th>
+            <th>Name</th>
+            <th>Submission</th>
+            <th>Most Related</th>
+            <th>Point</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for similarity in similarities %}
+            {% if similarity.score >= 0.92 %}
+              {% define "table-dark bg-danger" as row_decorator %}
+            {% elif similarity.score >= 0.8 %}
+              {% define "table-danger" as row_decorator %}
+            {% elif similarity.score >= 0.6 %}
+              {% define "table-warning" as row_decorator %}
+            {% else %}
+              {% define "table-success" as row_decorator %}
+            {% endif %}
+            <tr class="clickable collapsed" data-toggle="collapse" href="#collapse-diff-{{similarity.pk}}" role="button" aria-expanded="false">
+              <td class="align-middle">
+                <div class="row">
+                  <div class="col-12">
+                    {{forloop.counter0|add:page_obj.start_index }}
+                  </div>
+                </div>
+              </td>
+              <td class="align-middle">
+                <div class="row">
+                  <div class="col-12">{{ similarity.user }}</div>
+                </div>
+              </td>
+              <td class="align-middle">
+                <div class="row">
+                  <div class="col-12">{{ similarity.user.first_name }} {{ similarity.user.last_name }}</div>
+                </div>
+              </td>
+              <td class="align-middle">
+                <div class="row vcenter">
+                  <div class="col-4">
+                    {{ similarity.submission.pk }}
+                  </div>
+                  {% if similarity.submission.file %}
+                  <div class="col-8" style="overflow-wrap: break-word">
+                    <a href="{% url 'courses:tasks:submissions:download' similarity.submission.task.course.pk similarity.submission.task.pk similarity.submission.pk %}">{{ similarity.submission.name }}</a>
+                  </div>
+                  {% else %}
+                  <div class="col-8">None</div>
+                  {% endif %}
+                </div>
+              </td>
+              <td class="align-middle">
+                <div class="row vcenter">
+                  <div class="col-4">
+                    {{ similarity.related.pk }}
+                  </div>
+                  {% if similarity.related.file %}
+                  <div class="col-8" style="overflow-wrap: break-word">
+                    <a href="{% url 'courses:tasks:submissions:download' similarity.related.task.course.pk similarity.related.task.pk similarity.related.pk %}">{{ similarity.related.filename }}</a>
+                  </div>
+                  {% elif similarity.related.docker %}
+                  <div class="col-8">
+                    {{ similarity.related.docker }}<br>
+                  </div>
+                  {% else %}
+                  <div class="col-8">None</div>
+                  {% endif %}
+                </div>
+              </td>
+              <td class="align-middle">
+                <div class="row">
+                  <div class="col-12">{{ similarity.submission.point }}</div>
+                </div>
+              </td>
+              <td class="align-middle {{row_decorator}} text-center">{{ similarity.score }}</td>
+            </tr>
+
+
+            <tr class="collapsible">
+              <td colspan="7">
+                <div class="collapse collapse-diff" id="collapse-diff-{{similarity.pk}}">
+                  <div class="card card-body">
+                    <small style="font-weight: bold;">RELATED USER:</small>
+                    [{{ similarity.related.user }}] {{ similarity.related.user.first_name }} {{ similarity.related.user.last_name }}
+                    <br><br>
+                    <small style="font-weight: bold;">SUBMISSION DATE:</small>
+                    <div>
+                      {{ similarity.submission.created_at }} {% fa5_icon 'arrow-right' 'fas' color='ForestGreen' %} {{ similarity.related.created_at }}
+                    </div>
+                    <br>
+                    <small style="font-weight: bold;">DIFFERENCES:</small>
+                      <div class="diff-container" id='diff-{{similarity.pk}}'>{% fa5_icon 'exclamation-circle' 'fas' color='red' %} The two files are identical.<br><br></div>
+                      {% with "diff-json-"|addstr:similarity.pk as diff_json_id %}
+                      {{ similarity.diff | json_script:diff_json_id }}
+                      {% endwith %}
+                    <small style="font-weight: bold;">EVALUATION: <a class="btn btn-outline-primary btn-sm" data-toggle="collapse" href="#collapse-outputs-{{similarity.pk}}" role="button" aria-expanded="false">Show/Hide</a></small>
+                    <div class="row collapse" id="collapse-outputs-{{similarity.pk}}">
+                      <div class="col-md-6">
+                        <small>{{ similarity.submission.notes }}</small>
+                      </div>
+                      <div class="col-md-6">
+                        <small>{{ similarity.related.notes }}</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex justify-content-center">
+      {% bootstrap_pagination page_obj extra=request.GET.urlencode %}
+    </div>
+
+    <script type="text/javascript">
+      $(document).ready(function() {
+        var width = $('.container').width() - 50;
+        {% for similarity in similarities %}
+        {% with "diff-json-"|addstr:similarity.pk as diff_json_id %}
+        {% if similarity.diff %}
+        var data = JSON.parse(document.getElementById("{{ diff_json_id }}").textContent);
+        data = data.replace('\n\n', '\n'); // Othersie won't work
+        var diff2htmlUi = new Diff2HtmlUI({diff: data});
+        diff2htmlUi.draw("#diff-{{similarity.pk}}", {inputFormat: 'json', showFiles: false, matching: 'words', outputFormat: 'side-by-side', synchronisedScroll: true});
+        diff2htmlUi.highlightCode("#diff-{{similarity.pk}}");
+        $("#diff-{{similarity.pk}}").width(width);
+        {% endif %}
+        {% endwith %}
+        {% endfor %}
+      });
+    </script>
+
+    <script type="text/javascript">
+      var old_max = 1;
+      var old_min = 0.5;
+      var new_max = 5;
+      var new_min = 1;
+      // create an array with nodes
+      var nodes = new vis.DataSet([
+        {% for similarity in similarities %}
+        {id: {{similarity.submission.pk}}, label: "{{similarity.user.first_name}} {{similarity.user.last_name}}", s_id: {{similarity.pk}}},
+        {% endfor %}
+      ]);
+
+      // create an array with edges
+      var edges = new vis.DataSet([
+        {% for similarity in similarities %}
+        {% if similarity.score >= 0.92 %}
+          {% define "#dc3545" as edge_color %}
+        {% elif similarity.score >= 0.8 %}
+          {% define "red" as edge_color %}
+        {% elif similarity.score >= 0.6 %}
+          {% define "orange" as edge_color %}
+        {% else %}
+          {% define "green" as edge_color %}
+        {% endif %}
+        {from: {{similarity.submission.pk}}, to: {{similarity.related.pk}}, label:"{{similarity.score}}",
+          width: Math.max((({{similarity.score}} - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min, 1),
+          color: "{{edge_color}}" },
+        {% endfor %}
+      ]);
+
+      // create a network
+      var container = document.getElementById('similarities-network');
+
+      // provide the data in the vis format
+      var data = {
+        nodes: nodes,
+        edges: edges
+      };
+      var options = {
+        physics: {
+          minVelocity: 0.1,
+        }
+      };
+
+      // initialize your network!
+      var network = new vis.Network(container, data, options);
+
+      network.on( 'click', function(properties) {
+        var ids = properties.nodes;
+        var clickedNodes = nodes.get(ids);
+        var node = clickedNodes[0];
+        $('.collapse-diff').collapse('hide');
+        $('#collapse-diff-'+node['s_id']).collapse('show');
+      });
+
+      window.onresize = function() {network.fit();}
+
+      $('#collapse-visualization').on('shown.bs.collapse', function () {
+         network.fit()
+      });
+
+      $('#collapse-visualization').on('show.bs.collapse', function () {
+         $('#visualize-button').html('Hide Visualization');
+      });
+      $('#collapse-visualization').on('hide.bs.collapse', function () {
+         $('#visualize-button').html('Show Visualization');
+      });
+    </script>
+
+    <script type="text/javascript">
+      $("#per_page").change(function(e) {
+         window.location.href = $(this).val();
+      });
+
+      $(document).ready(function() {
+        $(document).on('click', '.clickable input', function(event){
+          event.stopPropagation();
+        });
+
+        $(document).on('click', '.clickable a', function(event){
+          event.stopPropagation();
+        });
+      });
+    </script>
+{% endblock %}

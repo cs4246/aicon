@@ -11,8 +11,10 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-from dotenv import load_dotenv
-load_dotenv(verbose=True)
+from environs import Env
+
+env = Env()
+env.read_env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,14 +24,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = env.str("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG", False)
 
-ALLOWED_HOSTS = ['cs4246.comp.nus.edu.sg', 'cs4246-i.comp.nus.edu.sg', 'cs5446.comp.nus.edu.sg', 'cs5446-i.comp.nus.edu.sg', '127.0.0.1']
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", [])
 
-CSRF_TRUSTED_ORIGINS = ['https://cs4246.comp.nus.edu.sg', 'https://cs4246-i.comp.nus.edu.sg', 'https://cs5446.comp.nus.edu.sg', 'https://cs5446-i.comp.nus.edu.sg']
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", [])
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
@@ -51,6 +53,7 @@ INSTALLED_APPS = [
     'fontawesome_5',
     'rest_framework',
     'rest_framework.authtoken',
+    'rules.apps.AutodiscoverRulesConfig',
     'app',
 ]
 
@@ -91,28 +94,29 @@ WSGI_APPLICATION = 'aicon.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASE_SQLITE = {
-    "ENGINE": "django.db.backends.sqlite3",
-    "NAME": os.getenv("DATABASE_SQLITE_DB", os.path.join(BASE_DIR, 'db.sqlite3')),
-}
+with env.prefixed("DATABASE_"):
+    DATABASE_SQLITE = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": env.str("SQLITE_DB", os.path.join(BASE_DIR, 'db.sqlite3')),
+    }
 
-DATABASE_MYSQL = {
-    "ENGINE": "django.db.backends.mysql",
-    "HOST": os.getenv("DATABASE_MYSQL_HOST"),
-    "PORT": int(os.getenv("DATABASE_MYSQL_PORT", 3306)),
-    "NAME": os.getenv("DATABASE_MYSQL_NAME"),
-    "USER": os.getenv("DATABASE_MYSQL_USER"),
-    "PASSWORD": os.getenv("DATABASE_MYSQL_PASSWORD"),
-}
+    DATABASE_MYSQL = {
+        "ENGINE": "django.db.backends.mysql",
+        "HOST": env.str("MYSQL_HOST"),
+        "PORT": env.int("MYSQL_PORT", 3306),
+        "NAME": env.str("MYSQL_NAME"),
+        "USER": env.str("MYSQL_USER"),
+        "PASSWORD": env.str("MYSQL_PASSWORD"),
+    }
 
-DATABASE_BACKEND = {
-    'mysql': DATABASE_MYSQL,
-    'sqlite': DATABASE_SQLITE,
-}
+    DATABASE_BACKEND = {
+        'mysql': DATABASE_MYSQL,
+        'sqlite': DATABASE_SQLITE,
+    }
 
-DATABASES = {
-    'default': DATABASE_BACKEND[os.getenv("DATABASE_BACKEND", 'sqlite')]
-}
+    DATABASES = {
+        'default': DATABASE_BACKEND[env.str("BACKEND", 'sqlite')]
+    }
 
 
 # Password validation
@@ -139,7 +143,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Singapore'
+TIME_ZONE = env.str("TIME_ZONE", 'Asia/Singapore')
 
 USE_I18N = True
 
@@ -152,9 +156,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'assets'),
 ]
 
 # Auth
@@ -177,38 +182,14 @@ MESSAGE_TAGS = {
 # Crispy form
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
-
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
-# Permissions
+# Authentication backends
 
-ROLES_COURSE_ADD            = ['LEC', 'ADM']
-ROLES_COURSE_DELETE         = ['LEC', 'ADM']
-ROLES_COURSE_VIEW           = ['GUE', 'STU', 'TA', 'LEC', 'ADM']
-ROLES_COURSE_JOIN           = ['GUE', 'STU', 'TA', 'LEC', 'ADM']
-ROLES_TASK_VIEW             = ['GUE', 'STU', 'TA', 'LEC', 'ADM']
-ROLES_TASK_SUBMIT           = ['STU', 'TA', 'LEC', 'ADM']
-ROLES_TASK_EDIT             = ['TA', 'LEC', 'ADM']
-ROLES_TASK_DELETE           = ['LEC', 'ADM']
-ROLES_TASK_DOWNLOAD         = ['LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_DOWNLOAD   = ['LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_VIEW       = ['LEC', 'ADM', 'TA']
-ROLES_SUBMISSION_RERUN      = ['LEC', 'ADM', 'TA']
-
-ROLES = {
-    'course.view': ROLES_COURSE_VIEW,
-    'course.add': ROLES_COURSE_ADD,
-    'course.delete': ROLES_COURSE_DELETE,
-    'course.join': ROLES_COURSE_JOIN,
-    'task.view': ROLES_TASK_VIEW,
-    'task.edit': ROLES_TASK_EDIT,
-    'task.delete': ROLES_TASK_DELETE,
-    'task.submit': ROLES_TASK_SUBMIT,
-    'task.download': ROLES_TASK_DOWNLOAD,
-    'submission.download': ROLES_SUBMISSION_DOWNLOAD,
-    'submission.view': ROLES_SUBMISSION_VIEW,
-    'submission.rerun': ROLES_SUBMISSION_RERUN,
-}
+AUTHENTICATION_BACKENDS = (
+    'rules.permissions.ObjectPermissionBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 # Upload
 
@@ -228,13 +209,16 @@ REST_FRAMEWORK = {
 }
 
 # Celery settings
-CELERY_BROKER_TRANSPORT = os.getenv("CELERY_BROKER_TRANSPORT")
-CELERY_BROKER_USER = os.getenv("CELERY_BROKER_USER")
-CELERY_BROKER_PASSWORD = os.getenv("CELERY_BROKER_PASSWORD")
-CELERY_BROKER_HOST = os.getenv("CELERY_BROKER_HOST")
-CELERY_BROKER_PORT = os.getenv("CELERY_BROKER_PORT")
+
+with env.prefixed("CELERY_BROKER_"):
+    CELERY_BROKER_TRANSPORT = env.str("TRANSPORT")
+    CELERY_BROKER_USER = env.str("USER")
+    CELERY_BROKER_PASSWORD = env.str("PASSWORD")
+    CELERY_BROKER_HOST = env.str("HOST")
+    CELERY_BROKER_PORT = env.int("PORT", 5672)
 
 # Template files
+
 SUBMISSION_BASE_ZIPFILE = os.path.join(BASE_DIR, "uploads", "base", "submission.zip")
 SUBMISSION_BASE_MAIN_DIR = "aicon_submission"
 SUBMISSION_BASE_MAIN_FILE = os.path.join(SUBMISSION_BASE_MAIN_DIR, "__init__.py")
@@ -243,3 +227,14 @@ TASK_BASE_ZIPFILE = os.path.join(BASE_DIR, "uploads", "base", "task.zip")
 TASK_BASE_MAIN_DIR = "aicon_task"
 TASK_BASE_MAIN_FILE = os.path.join(TASK_BASE_MAIN_DIR, "__init__.py")
 TASK_BASE_SETUP_FILE = "setup.py"
+
+# Email
+
+with env.prefixed("EMAIL_"):
+    EMAIL_HOST = env.str("HOST")
+    EMAIL_PORT = env.int("PORT")
+    EMAIL_HOST_USER = env.str("HOST_USER")
+    EMAIL_HOST_PASSWORD = env.str("HOST_PASSWORD")
+    EMAIL_USE_TLS = env.bool("USE_TLS")
+    EMAIL_USE_SSL = env.bool("USE_SSL")
+    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

@@ -3,21 +3,22 @@
 {% load crispy_forms_tags %}
 
 {% block extrahead %}
-  {{ form.media }}
+    {{ form.media }}
 {% endblock %}
 
 {% block title %}
-  Login - {{ block.super }}
+    Login - {{ block.super }}
 {% endblock %}
 
 {% block breadcrumb %}
-  <li class="breadcrumb-item active">Login</li>
+    <li class="breadcrumb-item active">Login</li>
 {% endblock %}
 
 {% block content %}
-<form method="post">
-  {% csrf_token %}
-  {{ form|crispy }}
-  <button type="submit" class="btn btn-success">Login</button>
-</form>
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-success">Login</button>
+        <a class="btn btn-warning" href="{% url 'password_reset' %}">Forgot Password</a>
+    </form>
 {% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block extrahead %}
+    {{ form.media }}
+    {% include 'codemirror/head.html' %}
+{% endblock %}
+
+{% block title %}
+    {{ form.instance.name | default:"New Task" }} - {{ form.instance.course.code }} - {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <a href="{% url 'courses:tasks:index' form.instance.course.pk %}">{{ form.instance.course }}</a>
+    </li>
+    {% if form.instance.name %}
+        <li class="breadcrumb-item">
+            <a href="{% url 'courses:tasks:detail' form.instance.course.pk form.instance.pk %}">{{ form.instance.name }}</a>
+        </li>
+        <li class="breadcrumb-item active">Edit</li>
+    {% else %}
+        <li class="breadcrumb-item active">New Task</li>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% url 'courses:tasks:edit' form.instance.course.pk form.instance.pk "code" as task_edit_code_url %}
+    {% url 'courses:tasks:edit' form.instance.course.pk form.instance.pk "package" as task_edit_package_url %}
+    {% url 'courses:tasks:create' form.instance.course.pk "code" as task_create_code_url %}
+    {% url 'courses:tasks:create' form.instance.course.pk "package" as task_create_package_url %}
+    <ul class="nav nav-tabs">
+        {% if request.get_full_path == task_edit_code_url or request.get_full_path == task_edit_package_url %}
+            <li class="nav-item">
+                <a class="nav-link {% if request.get_full_path == task_edit_code_url %}active{% endif %}" href="{{ task_edit_code_url }}">Code</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.get_full_path == task_edit_package_url %}active{% endif %}" href="{{ task_edit_package_url }}">Package</a>
+            </li>
+        {% endif %}
+        {% if request.get_full_path == task_create_code_url or request.get_full_path == task_create_package_url %}
+            <li class="nav-item">
+                <a class="nav-link {% if request.get_full_path == task_create_code_url %}active{% endif %}" href="{{ task_create_code_url }}">Code</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.get_full_path == task_create_package_url %}active{% endif %}" href="{{ task_create_package_url }}">Package</a>
+            </li>
+        {% endif %}
+    </ul>
+    <br />
+    {% crispy form %}
+    <button type="submit" class="btn btn-success" form="task-form">Save</button>
+    <button
+        type="submit"
+        class="btn btn-info"
+        form="task-form"
+        onclick="
+        var input = document.createElement('input');
+        input.setAttribute('type', 'hidden');
+        input.setAttribute('name', 'continue');
+        input.setAttribute('value', 1);
+        document.getElementById('task-form').appendChild(input);
+    "
+    >
+        Save and continue
+    </button>
+
+    {% with "['id_code', 'id_setup', 'id_template_code']" as textarea_ids %}
+        {% include 'codemirror/body.html' with textarea_ids=textarea_ids %}
+    {% endwith %}
+{% endblock %}

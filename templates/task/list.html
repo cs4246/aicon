@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% load fontawesome_5 %}
+{% load rules %}
+
+{% block title %}
+    {{ course }} - {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active"><a href="{% url 'courses:detail' course.pk %}">{{ course }}</a></li>
+{% endblock %}
+
+{% block content %}
+    {% has_perm 'task.create' request.user course as can_create_task %}
+
+    {% if can_create_task %}
+        <div class="mb-4">
+            {% if can_create_task %}
+       	        <a href="{% url 'courses:tasks:create' course.pk 'code' %}" class="btn btn-primary">{% fa5_icon 'plus-circle' 'fas' %} New Task</a>
+            {% endif %}
+        </div>
+    {% endif %}
+    <div class="table-responsive">
+    	<table class="table">
+    		<thead class="thead-inverse">
+    			<tr>
+    				<th>Task</th>
+    				<th></th>
+    				<th>Ends At</th>
+    				<th>Opens At</th>
+    				<th>Status</th>
+                    <th></th>
+    			</tr>
+    		</thead>
+    		<tbody>
+                {% for task in tasks %}
+                    {% has_perm 'task.detail' request.user task as can_detail_task %}
+                    {% has_perm 'task.update' request.user task as can_update_task %}
+                    {% has_perm 'task.delete' request.user task as can_delete_task %}
+                    {% has_perm 'task.download' request.user task as can_download_task %}
+
+                    {% if can_detail_task %}
+                        <tr>
+            				<td class="align-middle">
+               					<a href="{% url 'courses:tasks:detail' course.pk task.pk %}">{{ task.name }}</a>
+               					<small class="text-muted d-block">{{ task.description |slice:":80" }}</small>
+            				</td>
+                            <td class="align-middle">
+                                {% if can_update_task %}
+                                    {% if task.published %}
+                         			    <div title="Published: visible">{% fa5_icon 'check-circle' 'fas' color='ForestGreen' %}</div>
+                         			{% else %}
+                         			    <div title="Not published: invisible">{% fa5_icon 'circle' 'far' color='gray' %}</div>
+                         			{% endif %}
+                                {% endif %}
+                            </td>
+            				<td class="align-middle">
+               					{{ task.deadline }}
+                                {% if task.deadline != task.closed_at %}
+                                    <br>
+                   					<small class="text-muted d-block">Closes at: {{ task.closed_at }}</small>
+                                {% endif %}
+            				</td>
+            				<td class="align-middle">{{ task.opened_at }}</td>
+            				<td class="align-middle">{{ task.get_status_display }}</td>
+                            <td>
+               					<div class="float-right">
+                                    {% if can_update_task %}
+                                        <a href="{% url 'courses:tasks:edit' task.course.pk task.pk 'code' %}" class="btn btn-outline-primary">{% fa5_icon 'edit' 'fas' %}</a>
+                                    {% endif %}
+                                    {% if can_delete_task %}
+                                        <form action="{% url 'courses:tasks:delete' task.course.pk task.pk %}" method="post" id="delete-{{ task.pk }}" style="display:none;">{% csrf_token %}</form>
+                                        <button form="delete-{{ task.pk }}" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-outline-danger">{% fa5_icon 'trash-alt' 'fas' %}</button>
+                                    {% endif %}
+                                    {% if can_download_task %}
+                                        <a href="{% url 'courses:tasks:download' task.course.pk task.pk %}" class="btn btn-outline-success">{% fa5_icon 'download' 'fas' %}</a>
+                                    {% endif %}
+               					</div>
+            				</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+    	</table>
+    </div>
+{% endblock %}

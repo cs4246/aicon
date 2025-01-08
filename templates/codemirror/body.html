@@ -1,0 +1,25 @@
+{% load static %}
+
+<script
+    type="text/javascript"
+    src="{% static 'js/codemirror.min.js' %}"
+></script>
+<script
+    type="text/javascript"
+    src="{% static 'js/codemirror-python.min.js' %}"
+></script>
+<script>
+    var editors = {}
+    var textarea_ids = {{ textarea_ids | safe }}
+
+    for(var name of textarea_ids){
+        editors[name] = CodeMirror.fromTextArea(document.getElementById(name), {
+            mode: "python",
+            theme: "material",
+            lineNumbers: true,
+            indentUnit: 4,
+        });
+        editors[name].setSize(null, 768);
+        editors[name].save();
+    }
+</script>
