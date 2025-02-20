@@ -30,7 +30,7 @@ class CourseCreateView(CourseSingleMixin, SuccessMessageMixin, CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        participation = Participation(user=self.request.user, course=form.instance, group=Group.objects.get(Group.ADMIN))
+        participation = Participation(user=self.request.user, course=form.instance, group=Group.objects.get(name=Group.ADMIN))
         participation.save()
         return response
 

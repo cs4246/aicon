@@ -30,6 +30,7 @@ To run RabbitMQ using Docker, you can use the following command:
 docker run -d --hostname aicon-rabbit --name aicon-rabbit \
   -e RABBITMQ_DEFAULT_USER=<your_username> \
   -e RABBITMQ_DEFAULT_PASS=<your_password> \
+  -e RABBITMQ_DEFAULT_VHOST=aicon \
   -p 15672:15672 \
   -p 5672:5672 \
   rabbitmq:3-management
