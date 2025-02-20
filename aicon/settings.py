@@ -216,6 +216,7 @@ with env.prefixed("CELERY_BROKER_"):
     CELERY_BROKER_PASSWORD = env.str("PASSWORD")
     CELERY_BROKER_HOST = env.str("HOST")
     CELERY_BROKER_PORT = env.int("PORT", 5672)
+    CELERY_BROKER_VHOST = env.str("VHOST")
 
 # Template files
 
